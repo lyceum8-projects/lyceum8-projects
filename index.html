@@ -434,7 +434,7 @@
                         <button onclick="applyCustomBg()" style="margin-top: 10px; width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">Застосувати картинку</button>
                     </div>
                 </div>
-                <div class="card" style="text-align: center;"><p style="color: var(--text-muted); font-size: 13px;">Версія додатка: 9.0 Ultimate<br>Розроблено для ліцею №8</p></div>
+                <div class="card" style="text-align: center;"><p style="color: var(--text-muted); font-size: 13px;">Версія додатка: 10.0 Titanium<br>Розроблено для ліцею №8</p></div>
             </div>
         </div>
     </div>
@@ -464,7 +464,7 @@
                 <span class="nav-label">Розклад</span>
             </button>
             <button class="nav-item" data-target="tab-settings">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                 <span class="nav-label">Налаштування</span>
             </button>
         </nav>
@@ -729,8 +729,9 @@
             }
         }
 
-        /* --- ВЗАЄМОДІЯ З СЕРВЕРОМ: БРОНЕБІЙНИЙ ФІЛЬТР 9.0 --- */
+        /* --- ВЗАЄМОДІЯ З СЕРВЕРОМ: БРОНЕБІЙНИЙ ФІЛЬТР --- */
         
+        // Функція перевіряє, чи сервер не підсунув нам текст помилки (502, Cloudflare, тощо)
         function isBadResponse(text) {
             if (!text || text.trim() === '') return true;
             const badPhrases = [
@@ -747,51 +748,83 @@
         }
 
         async function askAI(query) {
-            let textPrompt = `${SYSTEM_PROMPTS[currentMode] || SYSTEM_PROMPTS['default']}\n\n`;
+            const messages = [{ role: 'system', content: SYSTEM_PROMPTS[currentMode] || SYSTEM_PROMPTS['default'] }];
             const validHistory = history.filter(m => m.role === 'user' || m.role === 'ai');
             
-            // Обмежуємо історію, щоб запит не був надто довгим
+            // Зберігаємо історію короткою, щоб не перевантажувати запит
             validHistory.slice(-4).forEach(msg => {
-                textPrompt += `${msg.role === 'user' ? 'Учень' : 'ШІ'}: ${msg.content}\n`;
+                messages.push({ role: msg.role === 'user' ? 'user' : 'assistant', content: msg.content });
             });
-            textPrompt += `Учень: ${query}\nШІ:`;
+            messages.push({ role: 'user', content: query });
 
-            const models = ['openai', 'mistral', 'search', 'llama'];
+            // Для GET-запитів
+            let textPrompt = `Відповідай українською. Запит: ${query}`;
+
+            const models = ['openai', 'mistral', 'llama', 'search'];
             
             for (let model of models) {
-                const url = `https://text.pollinations.ai/${encodeURIComponent(textPrompt)}?model=${model}&seed=${Math.floor(Math.random() * 100000)}`;
+                const modelPayload = JSON.stringify({
+                    messages: messages,
+                    model: model,
+                    seed: Math.floor(Math.random() * 100000)
+                });
 
-                // МЕТОД 1: Прямий GET (дозволений для анонімних користувачів і працює на GitHub Pages)
+                // МЕТОД 1: Офіційний JSON POST (Найстабільніший для сайтів на GitHub Pages)
                 try {
                     const c1 = new AbortController();
-                    const t1 = setTimeout(() => c1.abort(), 12000);
-                    const r1 = await fetch(url, { signal: c1.signal });
+                    const t1 = setTimeout(() => c1.abort(), 10000);
+                    const r1 = await fetch('https://text.pollinations.ai/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: modelPayload,
+                        signal: c1.signal
+                    });
                     clearTimeout(t1);
                     
                     if (r1.ok) {
-                        const content = await r1.text();
+                        const rawText = await r1.text();
+                        let content = rawText;
+                        try { content = JSON.parse(rawText).choices[0].message.content; } catch(e) {}
+                        
                         if (!isBadResponse(content)) return cleanAIResponse(content);
                     }
-                } catch(e) { console.warn(`Direct GET (${model}) failed.`); }
+                } catch(e) { console.warn(`JSON POST (${model}) не вдався.`); }
 
-                // МЕТОД 2: Проксі AllOrigins (гарантований обхід CORS і блокувань)
+                // Пауза перед наступною спробою, щоб сервер встиг відновитися
+                await new Promise(r => setTimeout(r, 500));
+
+                // МЕТОД 2: GET запит
                 try {
-                    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
                     const c2 = new AbortController();
-                    const t2 = setTimeout(() => c2.abort(), 12000);
-                    const r2 = await fetch(proxyUrl, { signal: c2.signal });
+                    const t2 = setTimeout(() => c2.abort(), 10000);
+                    const r2 = await fetch(`https://text.pollinations.ai/${encodeURIComponent(textPrompt)}?model=${model}&seed=${Math.floor(Math.random() * 10000)}`, { signal: c2.signal });
                     clearTimeout(t2);
                     
                     if (r2.ok) {
-                        const data = await r2.json();
-                        if (data && data.contents) {
-                            if (!isBadResponse(data.contents)) return cleanAIResponse(data.contents);
-                        }
+                        const content = await r2.text();
+                        if (!isBadResponse(content)) return cleanAIResponse(content);
                     }
-                } catch(e) { console.warn(`Proxy GET (${model}) failed.`); }
+                } catch(e) { console.warn(`GET (${model}) не вдався.`); }
+
+                await new Promise(r => setTimeout(r, 500));
+
+                // МЕТОД 3: AllOrigins Raw Proxy (Пробиває жорсткі блокування)
+                try {
+                    const targetUrl = `https://text.pollinations.ai/${encodeURIComponent(textPrompt)}?model=${model}`;
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+                    const c3 = new AbortController();
+                    const t3 = setTimeout(() => c3.abort(), 12000);
+                    const r3 = await fetch(proxyUrl, { signal: c3.signal });
+                    clearTimeout(t3);
+                    
+                    if (r3.ok) {
+                        const content = await r3.text();
+                        if (!isBadResponse(content)) return cleanAIResponse(content);
+                    }
+                } catch(e) { console.warn(`Proxy (${model}) не вдався.`); }
             }
 
-            throw new Error("Сервери ШІ тимчасово перевантажені або інтернет повністю блокує зв'язок. Зачекайте хвилину і спробуйте знову!");
+            throw new Error("Офіційні сервери ШІ тимчасово перевантажені (дуже багато запитів у світі). Це не проблема вашого інтернету. Зачекайте пару хвилин і спробуйте знову!");
         }
 
         async function handleSend(e) {
