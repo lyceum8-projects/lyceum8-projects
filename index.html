@@ -434,7 +434,7 @@
                         <button onclick="applyCustomBg()" style="margin-top: 10px; width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">Застосувати картинку</button>
                     </div>
                 </div>
-                <div class="card" style="text-align: center;"><p style="color: var(--text-muted); font-size: 13px;">Версія додатка: 3.5 SuperApp<br>Розроблено для ліцею №8</p></div>
+                <div class="card" style="text-align: center;"><p style="color: var(--text-muted); font-size: 13px;">Версія додатка: 4.0 Anti-Error<br>Розроблено для ліцею №8</p></div>
             </div>
         </div>
     </div>
@@ -558,7 +558,6 @@
 
         function setMode(mode) {
             currentMode = mode;
-            // Додаємо системне повідомлення, яке користувач бачить, але воно не йде як "user" або "ai"
             addMessageToDOM('system', `🔔 Режим <b>"${MODE_NAMES[mode]}"</b> активовано. ШІ налаштовано!`, true);
             saveMemory();
         }
@@ -579,8 +578,8 @@
         const typing = document.getElementById('typing');
         const welcome = document.getElementById('welcome');
 
-        let history = []; // поточні повідомлення
-        let sessions = []; // всі чати
+        let history = []; 
+        let sessions = []; 
         let currentSessionId = Date.now();
 
         userInput.addEventListener('input', function() {
@@ -653,7 +652,6 @@
             sessions.forEach(s => {
                 const item = document.createElement('div');
                 item.className = `history-item ${s.id === currentSessionId ? 'active' : ''}`;
-                // Шукаємо перше повідомлення користувача для назви
                 const previewMsg = s.messages.find(m => m.role === 'user')?.content || "Новий чат";
                 item.innerHTML = `${previewMsg}`;
                 item.onclick = () => loadChat(s.id);
@@ -701,11 +699,11 @@
             bubble.className = 'bubble';
             
             if (role === 'system') {
-                bubble.innerHTML = text;
+                bubble.innerHTML = text; 
             } else if (role === 'user') {
                 bubble.innerText = text;
             } else {
-                bubble.innerHTML = marked.parse(text);
+                bubble.innerHTML = marked.parse(text); 
             }
 
             if (role === 'ai') {
@@ -731,9 +729,25 @@
             }
         }
 
-        /* --- ВЗАЄМОДІЯ З СЕРВЕРОМ (СУПЕР-БРОНЕБІЙНА ВЕРСІЯ) --- */
+        /* --- ВЗАЄМОДІЯ З СЕРВЕРОМ: БРОНЕБІЙНИЙ ФІЛЬТР --- */
+        
+        // Функція перевіряє, чи сервер не підсунув нам текст помилки (502, Cloudflare, тощо)
+        function isBadResponse(text) {
+            if (!text || text.trim() === '') return true;
+            const badPhrases = [
+                'IMPORTANT NOTICE', 
+                'legacy text API', 
+                '502 Bad Gateway', 
+                'cloudflared', 
+                'Unable to reach the origin service',
+                '<html',
+                '500 Internal Server Error',
+                'Method Not Allowed'
+            ];
+            return badPhrases.some(phrase => text.includes(phrase));
+        }
+
         async function askAI(query) {
-            // 1. Формуємо історію для офіційного JSON запиту
             const messages = [{ role: 'system', content: SYSTEM_PROMPTS[currentMode] || SYSTEM_PROMPTS['default'] }];
             const validHistory = history.filter(m => m.role === 'user' || m.role === 'ai');
             validHistory.slice(-6).forEach(msg => {
@@ -741,66 +755,63 @@
             });
             messages.push({ role: 'user', content: query });
 
-            // 2. Формуємо єдиний текст для резервних GET запитів (щоб обійти блокування POST)
-            let textPrompt = `${SYSTEM_PROMPTS[currentMode] || SYSTEM_PROMPTS['default']}\n\n`;
-            validHistory.slice(-4).forEach(msg => {
-                textPrompt += `${msg.role === 'user' ? 'Учень' : 'ШІ'}: ${msg.content}\n`;
-            });
-            textPrompt += `Учень: ${query}\nШІ:`;
-
-            // У нас є 3 різні моделі для страховки
-            const models = ['openai', 'mistral', 'search'];
+            const models = ['openai', 'mistral', 'search', 'llama'];
             
             for (let model of models) {
-                
-                // МЕТОД 1: Офіційний JSON POST
+                const modelPayload = JSON.stringify({
+                    messages: messages,
+                    model: model,
+                    seed: Math.floor(Math.random() * 100000)
+                });
+
+                // МЕТОД 1: Офіційний JSON POST (Найстабільніший для сайтів на GitHub Pages)
                 try {
                     const c1 = new AbortController();
-                    const t1 = setTimeout(() => c1.abort(), 10000);
+                    const t1 = setTimeout(() => c1.abort(), 12000);
                     const r1 = await fetch('https://text.pollinations.ai/', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ messages, model, seed: Math.floor(Math.random() * 100000) }),
+                        body: modelPayload,
                         signal: c1.signal
                     });
                     clearTimeout(t1);
+                    
                     if (r1.ok) {
-                        const text = await r1.text();
-                        let content = text;
-                        try { content = JSON.parse(text).choices[0].message.content; } catch(e) {}
-                        if (!content.includes('IMPORTANT NOTICE')) return cleanAIResponse(content);
+                        const rawText = await r1.text();
+                        let content = rawText;
+                        try { content = JSON.parse(rawText).choices[0].message.content; } catch(e) {}
+                        
+                        if (!isBadResponse(content)) return cleanAIResponse(content);
                     }
-                } catch(e) { console.warn(`JSON POST для ${model} не вдався.`); }
+                    // Якщо сервер перевантажений, робимо крихітну паузу перед іншою моделлю
+                    if (r1.status === 502 || r1.status === 429) {
+                        await new Promise(res => setTimeout(res, 1000));
+                    }
+                } catch(e) { console.warn(`JSON POST (${model}) не вдався.`); }
 
-                // МЕТОД 2: Прямий GET запит (обходить багато Wi-Fi фільтрів)
+                // МЕТОД 2: Резервний проксі (Дозволяє правильний запит через запасний канал)
                 try {
-                    const url = `https://text.pollinations.ai/${encodeURIComponent(textPrompt)}?model=${model}&seed=${Math.floor(Math.random() * 100000)}`;
                     const c2 = new AbortController();
-                    const t2 = setTimeout(() => c2.abort(), 10000);
-                    const r2 = await fetch(url, { signal: c2.signal });
+                    const t2 = setTimeout(() => c2.abort(), 12000);
+                    const r2 = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://text.pollinations.ai/'), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: modelPayload,
+                        signal: c2.signal
+                    });
                     clearTimeout(t2);
+                    
                     if (r2.ok) {
-                        const content = await r2.text();
-                        if (!content.includes('IMPORTANT NOTICE') && !content.includes('<html')) return cleanAIResponse(content);
+                        const rawText = await r2.text();
+                        let content = rawText;
+                        try { content = JSON.parse(rawText).choices[0].message.content; } catch(e) {}
+                        
+                        if (!isBadResponse(content)) return cleanAIResponse(content);
                     }
-                } catch(e) { console.warn(`GET для ${model} не вдався.`); }
-
-                // МЕТОД 3: Секретний Проксі-тунель (AllOrigins) - пробиває майже будь-яку мережу
-                try {
-                    const targetUrl = `https://text.pollinations.ai/${encodeURIComponent(textPrompt)}?model=${model}`;
-                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
-                    const c3 = new AbortController();
-                    const t3 = setTimeout(() => c3.abort(), 12000);
-                    const r3 = await fetch(proxyUrl, { signal: c3.signal });
-                    clearTimeout(t3);
-                    if (r3.ok) {
-                        const content = await r3.text();
-                        if (!content.includes('IMPORTANT NOTICE') && !content.includes('<html')) return cleanAIResponse(content);
-                    }
-                } catch(e) { console.warn(`Proxy для ${model} не вдався.`); }
+                } catch(e) { console.warn(`Proxy POST (${model}) не вдався.`); }
             }
 
-            throw new Error("Сервери зараз перевантажені або ваш інтернет жорстко блокує доступ. Спробуйте через мобільний інтернет (4G).");
+            throw new Error("Офіційні сервери ШІ тимчасово перевантажені (багато запитів у світі). Це не проблема вашого інтернету. Будь ласка, зачекайте пару хвилин і спробуйте знову!");
         }
 
         async function handleSend(e) {
@@ -820,7 +831,9 @@
                 const answer = await askAI(text);
                 addMessageToDOM('ai', answer);
             } catch (err) {
-                addMessageToDOM('system', `❌ **Збій:** ${err.message}`, true);
+                // Видаляємо ** з тексту помилки, щоб виглядало акуратно
+                addMessageToDOM('system', `❌ Збій: ${err.message}`, true); 
+                
                 // Видаляємо останнє повідомлення юзера з пам'яті, щоб він міг перевідправити
                 if(history.length > 0 && history[history.length-1].role === 'user') {
                     history.pop();
