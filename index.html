@@ -81,24 +81,11 @@
         }
 
         /* --- СУЧАСНА СТРІЧКА СКРОЛІНГУ (SCROLLBAR) --- */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(100, 116, 139, 0.3); 
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(100, 116, 139, 0.6); 
-        }
-        /* Для Firefox */
-        * {
-            scrollbar-width: thin;
-            scrollbar-color: rgba(100, 116, 139, 0.3) transparent;
-        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.3); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.6); }
+        * { scrollbar-width: thin; scrollbar-color: rgba(100, 116, 139, 0.3) transparent; }
 
         /* --- ГОЛОВНИЙ КОНТЕЙНЕР ДЛЯ ВКЛАДОК --- */
         #tabs-container {
@@ -117,143 +104,83 @@
             transition: opacity 0.2s ease;
             z-index: 1;
         }
+        .tab-content.active { opacity: 1; pointer-events: auto; z-index: 2; }
 
-        .tab-content.active {
-            opacity: 1;
-            pointer-events: auto;
-            z-index: 2;
-        }
-
-        /* --- СПІЛЬНІ ЕЛЕМЕНТИ (Шапки) - Тепер АБСОЛЮТНІ та ПРОЗОРІ --- */
+        /* --- СПІЛЬНІ ЕЛЕМЕНТИ (Шапки) - АБСОЛЮТНІ та ПРОЗОРІ --- */
         header {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: transparent !important; 
-            border-bottom: none !important;
-            padding: 16px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 50;
-            pointer-events: none; 
+            position: absolute; top: 0; left: 0; right: 0;
+            background: transparent !important; border-bottom: none !important;
+            padding: 16px 20px; display: flex; justify-content: space-between;
+            align-items: center; z-index: 50; pointer-events: none; 
         }
-        header * {
-            pointer-events: auto; 
-        }
+        header * { pointer-events: auto; }
 
         .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: var(--glass);
-            padding: 6px 14px 6px 6px;
-            border-radius: 20px;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            box-shadow: var(--shadow-sm);
+            display: flex; align-items: center; gap: 12px;
+            background: var(--glass); padding: 6px 14px 6px 6px;
+            border-radius: 20px; backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px); box-shadow: var(--shadow-sm);
             border: 1px solid var(--border);
         }
 
+        .header-right { display: flex; gap: 8px; }
+
         .logo {
-            width: 36px;
-            height: 36px;
+            width: 36px; height: 36px;
             background: linear-gradient(135deg, var(--primary), var(--accent));
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+            border-radius: 14px; display: flex; align-items: center; justify-content: center;
+            color: white; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
         }
         .logo svg { width: 18px; height: 18px; fill: currentColor; }
 
-        .header-info h1 {
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            color: var(--text-main);
-        }
-
-        .online-status {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 10px;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
-
-        .status-dot {
-            width: 6px;
-            height: 6px;
-            background: var(--success);
-            border-radius: 50%;
-            box-shadow: 0 0 8px var(--success);
-        }
+        .header-info h1 { font-size: 15px; font-weight: 700; letter-spacing: -0.02em; color: var(--text-main); }
+        .online-status { display: flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+        .status-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); }
 
         .icon-btn {
-            background: var(--glass);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--border);
-            padding: 10px;
-            border-radius: 16px;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--shadow-sm);
+            background: var(--glass); backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border);
+            padding: 10px; border-radius: 16px; color: var(--text-muted);
+            cursor: pointer; transition: all 0.2s; display: flex; align-items: center;
+            justify-content: center; box-shadow: var(--shadow-sm);
         }
-        .icon-btn:hover { color: var(--danger); border-color: var(--danger); background: rgba(239,68,68,0.1); }
+        .icon-btn:hover { color: var(--primary); border-color: var(--primary); background: rgba(59,130,246,0.1); }
+        .icon-btn.danger:hover { color: var(--danger); border-color: var(--danger); background: rgba(239,68,68,0.1); }
         .icon-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
 
         /* --- ВКЛАДКА: ЧАТ --- */
         #chat-box {
-            position: absolute;
-            inset: 0;
-            overflow-y: auto;
-            padding: 85px 20px 90px 20px; 
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            scroll-behavior: smooth;
+            position: absolute; inset: 0; overflow-y: auto;
+            padding: 85px 20px 90px 20px; display: flex; flex-direction: column;
+            gap: 20px; scroll-behavior: smooth;
         }
 
-        .msg-wrapper {
-            display: flex;
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            animation: fadeIn 0.3s ease;
-        }
+        .msg-wrapper { display: flex; width: 100%; max-width: 800px; margin: 0 auto; animation: fadeIn 0.3s ease; }
         .msg-wrapper.user { justify-content: flex-end; }
         .msg-wrapper.ai { justify-content: flex-start; }
+        .msg-wrapper.system { justify-content: center; }
 
         .bubble {
-            max-width: 85%;
-            padding: 14px 18px;
-            border-radius: 20px;
-            font-size: 15px;
-            line-height: 1.6;
-            position: relative;
-            box-shadow: var(--shadow-sm);
+            max-width: 85%; padding: 14px 18px; border-radius: 20px; font-size: 15px;
+            line-height: 1.6; position: relative; box-shadow: var(--shadow-sm); word-wrap: break-word;
         }
-        .user .bubble {
-            background: var(--bubble-user);
-            color: white;
-            border-bottom-right-radius: 4px;
+        .user .bubble { background: var(--bubble-user); color: white; border-bottom-right-radius: 4px; }
+        .ai .bubble { background: var(--bubble-ai); color: var(--text-main); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+        
+        .system .bubble { 
+            background: rgba(255, 255, 255, 0.2); 
+            color: var(--text-main); 
+            font-size: 13px; 
+            font-weight: 500;
+            border-radius: 12px;
+            padding: 8px 16px; 
+            text-align: center; 
+            box-shadow: none;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        .ai .bubble {
-            background: var(--bubble-ai);
-            color: var(--text-main);
-            border: 1px solid var(--border);
-            border-bottom-left-radius: 4px;
-        }
+        [data-theme="dark"] .system .bubble { background: rgba(0, 0, 0, 0.4); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.05); }
 
         /* Markdown Chat Styles */
         .bubble p { margin-bottom: 10px; }
@@ -264,102 +191,45 @@
         .bubble pre code { background: transparent; padding: 0; color: inherit; }
 
         .copy-btn {
-            margin-top: 8px;
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            transition: 0.2s;
+            margin-top: 8px; background: none; border: none; color: var(--text-muted); font-size: 12px;
+            font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: 0.2s;
         }
         .copy-btn:hover { color: var(--primary); }
         .copy-btn svg { width: 14px; height: 14px; fill: currentColor; }
 
         /* Чат Ввід (Абсолютний і Прозорий) */
         #chat-footer {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 12px 20px;
-            background: transparent !important;
-            border-top: none !important;
-            z-index: 50;
-            pointer-events: none; 
+            position: absolute; bottom: 0; left: 0; right: 0; padding: 12px 20px;
+            background: transparent !important; border-top: none !important;
+            z-index: 50; pointer-events: none; 
         }
-        #chat-footer * {
-            pointer-events: auto; 
-        }
+        #chat-footer * { pointer-events: auto; }
 
         .input-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: var(--glass);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            display: flex;
-            align-items: flex-end;
-            padding: 8px 8px 8px 16px;
-            transition: all 0.3s;
+            max-width: 800px; margin: 0 auto; background: var(--glass); backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 24px;
+            display: flex; align-items: flex-end; padding: 8px 8px 8px 16px; transition: all 0.3s;
             box-shadow: 0 8px 24px rgba(0,0,0,0.08);
         }
         .input-container:focus-within { border-color: var(--primary); box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15); }
         .input-container textarea {
-            flex-grow: 1;
-            border: none;
-            outline: none;
-            background: transparent;
-            padding: 8px 0;
-            font-family: inherit;
-            font-size: 15px;
-            color: var(--text-main);
-            resize: none;
-            max-height: 120px;
-            line-height: 1.5;
+            flex-grow: 1; border: none; outline: none; background: transparent; padding: 8px 0;
+            font-family: inherit; font-size: 15px; color: var(--text-main); resize: none; max-height: 120px; line-height: 1.5;
         }
         .send-btn {
-            width: 40px;
-            height: 40px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            flex-shrink: 0;
-            margin-left: 8px;
+            width: 40px; height: 40px; background: var(--primary); color: white; border: none; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;
+            flex-shrink: 0; margin-left: 8px;
         }
         .send-btn:hover { background: var(--primary-dark); transform: scale(1.05); }
         .send-btn:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; transform: none; }
         .send-btn svg { width: 18px; height: 18px; fill: currentColor; transform: translateX(1px); }
 
         .typing-indicator {
-            display: none;
-            padding: 12px 18px;
-            background: var(--bubble-ai);
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            gap: 5px;
-            width: fit-content;
-            margin-left: 20px;
-            box-shadow: var(--shadow-sm);
+            display: none; padding: 12px 18px; background: var(--bubble-ai); border: 1px solid var(--border);
+            border-radius: 18px; gap: 5px; width: fit-content; margin-left: 20px; box-shadow: var(--shadow-sm);
         }
-        .typing-indicator span {
-            width: 6px;
-            height: 6px;
-            background: var(--text-muted);
-            border-radius: 50%;
-            animation: bounce 1.4s infinite ease-in-out;
-        }
+        .typing-indicator span { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out; }
         .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
         .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
 
@@ -367,230 +237,86 @@
         #welcome { text-align: center; margin: auto; max-width: 500px; padding: 20px; background: var(--glass); backdrop-filter: blur(12px); border-radius: 24px; border: 1px solid var(--border); box-shadow: var(--shadow-md); margin-top: 40px;}
         .welcome-icon { font-size: 48px; margin-bottom: 12px; display: inline-block; animation: wave 2s infinite; }
         .suggestions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        
         .suggest-item {
-            background: var(--bg-tab); border: 1px solid var(--border);
-            padding: 12px; border-radius: 14px; font-size: 13px; font-weight: 500;
-            cursor: pointer; transition: 0.2s; text-align: left; color: var(--text-main);
+            background: var(--bg-tab); border: 1px solid var(--border); padding: 12px; border-radius: 14px;
+            font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; text-align: left; color: var(--text-main);
+            display: flex; flex-direction: column; gap: 4px;
         }
+        .suggest-item span { font-size: 11px; font-weight: 400; color: var(--text-muted); }
         .suggest-item:hover { border-color: var(--primary); transform: translateY(-2px); }
 
+        /* --- ІСТОРІЯ (SIDEBAR) --- */
+        #history-sidebar {
+            position: fixed; top: 0; right: -300px; width: 300px; height: 100%; background: var(--bg-tab);
+            border-left: 1px solid var(--border); z-index: 1000; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column; box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+        }
+        #history-sidebar.open { right: 0; }
+        .sidebar-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .sidebar-header h2 { font-size: 18px; margin: 0; color: var(--text-main); }
+        .close-sidebar { background: none; border: none; font-size: 24px; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
+        .close-sidebar:hover { color: var(--danger); }
+        .new-chat-btn { margin: 15px; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .new-chat-btn:hover { background: var(--primary-dark); }
+        #history-list { flex-grow: 1; overflow-y: auto; padding: 0 15px 15px 15px; display: flex; flex-direction: column; gap: 8px; }
+        .history-item { padding: 12px; background: var(--bg-main); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; color: var(--text-main); font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: 0.2s; }
+        .history-item:hover { border-color: var(--primary); }
+        .history-item.active { background: rgba(59, 130, 246, 0.1); border-color: var(--primary); }
+
         /* --- ВКЛАДКА: РОЗКЛАД & НАЛАШТУВАННЯ --- */
-        .page-content {
-            position: absolute;
-            inset: 0;
-            overflow-y: auto;
-            padding: 85px 20px 20px 20px;
-            max-width: 800px;
-            margin: 0 auto;
-            width: 100%;
-        }
+        .page-content { position: absolute; inset: 0; overflow-y: auto; padding: 85px 20px 20px 20px; max-width: 800px; margin: 0 auto; width: 100%; }
+        .section-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; color: var(--text-main); display: flex; align-items: center; gap: 8px; background: var(--glass); padding: 10px 16px; border-radius: 16px; backdrop-filter: blur(8px); width: fit-content; }
 
-        .section-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--glass);
-            padding: 10px 16px;
-            border-radius: 16px;
-            backdrop-filter: blur(8px);
-            width: fit-content;
-        }
-
-        /* Картки для розкладу/налаштувань */
-        .card {
-            background: var(--glass);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .schedule-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-        }
+        .card { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow-sm); }
+        .schedule-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
         .schedule-item:last-child { border-bottom: none; padding-bottom: 0; }
         .schedule-time { font-weight: 600; color: var(--primary); width: 100px; }
         .schedule-subject { font-weight: 500; color: var(--text-main); flex-grow: 1; }
         .schedule-room { color: var(--text-muted); font-size: 14px; text-align: right; }
 
-        /* Елементи налаштувань */
-        .setting-group {
-            margin-bottom: 20px;
-        }
-        .setting-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text-main);
-        }
-        .setting-control {
-            width: 100%;
-            padding: 12px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            background: var(--bg-tab);
-            color: var(--text-main);
-            font-size: 15px;
-            font-family: inherit;
-            outline: none;
-        }
+        .setting-group { margin-bottom: 20px; }
+        .setting-group label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-main); }
+        .setting-control { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-tab); color: var(--text-main); font-size: 15px; font-family: inherit; outline: none; }
         .setting-control:focus { border-color: var(--primary); }
 
-        .preset-bgs {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-        .preset-bg-btn {
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            border: 2px solid var(--border);
-            cursor: pointer;
-            transition: 0.2s;
-        }
+        .preset-bgs { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+        .preset-bg-btn { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--border); cursor: pointer; transition: 0.2s; }
         .preset-bg-btn:hover { transform: scale(1.1); border-color: var(--primary); }
 
         /* --- НИЖНЯ НАВІГАЦІЯ (ДИНАМІЧНА) --- */
-        #bottom-nav-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-            transform: translateY(100%); 
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        #bottom-nav-container.open {
-            transform: translateY(0); 
-        }
-
-        /* Кнопка-стрілочка для виклику меню */
-        .nav-toggle-btn {
-            position: absolute;
-            top: -36px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 36px;
-            background: var(--nav-bg);
-            border: 1px solid var(--border);
-            border-bottom: none;
-            border-radius: 20px 20px 0 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            color: var(--text-muted);
-            box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
-        }
-
-        .nav-toggle-btn svg {
-            width: 24px;
-            height: 24px;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2.5;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            transition: transform 0.3s ease;
-        }
-
-        #bottom-nav-container.open .nav-toggle-btn svg {
-            transform: rotate(180deg); 
-        }
-
-        #bottom-nav {
-            background: var(--nav-bg);
-            border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: space-around;
-            padding: 8px 10px;
-            padding-bottom: max(8px, env(safe-area-inset-bottom));
-        }
-
-        .nav-item {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            padding: 8px 0;
-            color: var(--nav-inactive);
-            background: none;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-
+        #bottom-nav-container { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        #bottom-nav-container.open { transform: translateY(0); }
+        .nav-toggle-btn { position: absolute; top: -36px; left: 50%; transform: translateX(-50%); width: 60px; height: 36px; background: var(--nav-bg); border: 1px solid var(--border); border-bottom: none; border-radius: 20px 20px 0 0; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-muted); box-shadow: 0 -4px 12px rgba(0,0,0,0.05); }
+        .nav-toggle-btn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.3s ease; }
+        #bottom-nav-container.open .nav-toggle-btn svg { transform: rotate(180deg); }
+        #bottom-nav { background: var(--nav-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 10px; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px 0; color: var(--nav-inactive); background: none; border: none; border-radius: 12px; cursor: pointer; transition: all 0.2s; font-family: inherit; }
         .nav-item:hover { background: var(--card-bg); }
-        
-        .nav-item.active {
-            color: var(--nav-active);
-        }
-        
-        .nav-item svg {
-            width: 24px;
-            height: 24px;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            transition: transform 0.2s;
-        }
+        .nav-item.active { color: var(--nav-active); }
+        .nav-item svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s; }
         .nav-item.active svg { transform: translateY(-2px); }
-
-        .nav-label {
-            font-size: 11px;
-            font-weight: 600;
-        }
+        .nav-label { font-size: 11px; font-weight: 600; }
 
         /* --- Animations & Modals --- */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes wave { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(15deg); } 75% { transform: rotate(-15deg); } }
         @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-
-        #modal-overlay {
-            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px);
-            z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px;
-        }
-        .modal {
-            background: var(--bg-tab); border-radius: 24px; padding: 24px; width: 100%; max-width: 350px;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); text-align: center;
-            border: 1px solid var(--border);
-        }
+        #modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal { background: var(--bg-tab); border-radius: 24px; padding: 24px; width: 100%; max-width: 350px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); text-align: center; border: 1px solid var(--border); }
         .modal h2 { margin-bottom: 12px; font-size: 20px; color: var(--text-main); }
         .modal p { color: var(--text-muted); margin-bottom: 24px; }
         .modal-btns { display: flex; gap: 12px; }
-        .modal-btns button {
-            flex: 1; padding: 12px; border-radius: 14px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s;
-        }
+        .modal-btns button { flex: 1; padding: 12px; border-radius: 14px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; }
         .btn-confirm { background: var(--danger); color: white; }
         .btn-cancel { background: var(--card-bg); color: var(--text-main); border: 1px solid var(--border); }
     </style>
 </head>
 <body>
 
-    <!-- ГОЛОВНИЙ КОНТЕЙНЕР ДЛЯ ВСІХ ВКЛАДОК -->
     <div id="tabs-container">
         
-        <!-- ========================================== -->
-        <!-- ВКЛАДКА 1: ЧАТ ЗІ ШІ                         -->
-        <!-- ========================================== -->
+        <!-- ВКЛАДКА 1: ЧАТ ЗІ ШІ -->
         <div id="tab-chat" class="tab-content active">
             <header>
                 <div class="header-left">
@@ -599,27 +325,37 @@
                     </div>
                     <div class="header-info">
                         <h1>ШІ ліцею №8</h1>
-                        <div class="online-status">
-                            <span class="status-dot"></span>
-                            <span>Завжди онлайн</span>
-                        </div>
+                        <div class="online-status"><span class="status-dot"></span><span>Завжди онлайн</span></div>
                     </div>
                 </div>
-                <button class="icon-btn" id="open-clear-modal" title="Очистити чат">
-                    <svg viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                </button>
+                <div class="header-right">
+                    <button class="icon-btn" onclick="toggleHistorySidebar()" title="Історія чатів">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </button>
+                    <button class="icon-btn danger" id="open-clear-modal" title="Очистити поточний чат">
+                        <svg viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
+                </div>
             </header>
 
             <main id="chat-box">
                 <div id="welcome">
                     <span class="welcome-icon">👋</span>
                     <h2>Привіт, ліцеїсте!</h2>
-                    <p>Я твій персональний ШІ-помічник. Допоможу з навчанням або просто підтримаю розмову.</p>
+                    <p>Я твій персональний ШІ-помічник. Обери режим роботи або просто напиши питання.</p>
                     <div class="suggestions">
-                        <div class="suggest-item" onclick="sendSuggest('Напиши гарний вірш про ліцей №8 українською мовою')">📝 Вірш про ліцей</div>
-                        <div class="suggest-item" onclick="sendSuggest('Поясни теорему Піфагора простими словами')">📐 Допомога з алгеброю</div>
-                        <div class="suggest-item" onclick="sendSuggest('Придумай цікавий девіз для мого класу')">⚡ Девіз для класу</div>
-                        <div class="suggest-item" onclick="sendSuggest('Як перекласти англійською: Я люблю навчатися?')">🇬🇧 Перекладач</div>
+                        <div class="suggest-item" onclick="setMode('math')">
+                            🔢 Математика <span>Алгебра та геометрія</span>
+                        </div>
+                        <div class="suggest-item" onclick="setMode('ukr')">
+                            📚 Українська мова <span>Правила та твори</span>
+                        </div>
+                        <div class="suggest-item" onclick="askEvents()">
+                            📅 Події <span>Що нового в ліцеї?</span>
+                        </div>
+                        <div class="suggest-item" onclick="setMode('translate')">
+                            🌍 Перекладач <span>Точний переклад текстів</span>
+                        </div>
                     </div>
                 </div>
                 <div class="typing-indicator" id="typing">
@@ -637,9 +373,7 @@
             </div>
         </div>
 
-        <!-- ========================================== -->
-        <!-- ВКЛАДКА 2: РОЗКЛАД УРОКІВ                  -->
-        <!-- ========================================== -->
+        <!-- ВКЛАДКА 2: РОЗКЛАД УРОКІВ -->
         <div id="tab-schedule" class="tab-content">
             <header>
                 <div class="header-left" style="background: none; border: none; box-shadow: none;">
@@ -648,48 +382,23 @@
                     </div>
                 </div>
             </header>
-            
             <div class="page-content">
                 <h2 class="section-title">Мій Клас (Приклад)</h2>
-                
                 <div class="card">
                     <h3 style="margin-bottom: 12px; color: var(--primary);">Понеділок</h3>
-                    <div class="schedule-item">
-                        <div class="schedule-time">08:30 - 09:15</div>
-                        <div class="schedule-subject">Алгебра</div>
-                        <div class="schedule-room">Каб. 101</div>
-                    </div>
-                    <div class="schedule-item">
-                        <div class="schedule-time">09:25 - 10:10</div>
-                        <div class="schedule-subject">Українська мова</div>
-                        <div class="schedule-room">Каб. 204</div>
-                    </div>
-                    <div class="schedule-item">
-                        <div class="schedule-time">10:30 - 11:15</div>
-                        <div class="schedule-subject">Фізика</div>
-                        <div class="schedule-room">Каб. 302</div>
-                    </div>
+                    <div class="schedule-item"><div class="schedule-time">08:30 - 09:15</div><div class="schedule-subject">Алгебра</div><div class="schedule-room">Каб. 101</div></div>
+                    <div class="schedule-item"><div class="schedule-time">09:25 - 10:10</div><div class="schedule-subject">Українська мова</div><div class="schedule-room">Каб. 204</div></div>
+                    <div class="schedule-item"><div class="schedule-time">10:30 - 11:15</div><div class="schedule-subject">Фізика</div><div class="schedule-room">Каб. 302</div></div>
                 </div>
-
                 <div class="card">
                     <h3 style="margin-bottom: 12px; color: var(--primary);">Вівторок</h3>
-                    <div class="schedule-item">
-                        <div class="schedule-time">08:30 - 09:15</div>
-                        <div class="schedule-subject">Історія України</div>
-                        <div class="schedule-room">Каб. 210</div>
-                    </div>
-                    <div class="schedule-item">
-                        <div class="schedule-time">09:25 - 10:10</div>
-                        <div class="schedule-subject">Англійська мова</div>
-                        <div class="schedule-room">Каб. 105</div>
-                    </div>
+                    <div class="schedule-item"><div class="schedule-time">08:30 - 09:15</div><div class="schedule-subject">Історія України</div><div class="schedule-room">Каб. 210</div></div>
+                    <div class="schedule-item"><div class="schedule-time">09:25 - 10:10</div><div class="schedule-subject">Англійська мова</div><div class="schedule-room">Каб. 105</div></div>
                 </div>
             </div>
         </div>
 
-        <!-- ========================================== -->
-        <!-- ВКЛАДКА 3: НАЛАШТУВАННЯ                    -->
-        <!-- ========================================== -->
+        <!-- ВКЛАДКА 3: НАЛАШТУВАННЯ -->
         <div id="tab-settings" class="tab-content">
             <header>
                 <div class="header-left" style="background: none; border: none; box-shadow: none;">
@@ -698,7 +407,6 @@
                     </div>
                 </div>
             </header>
-            
             <div class="page-content">
                 <div class="card">
                     <div class="setting-group">
@@ -709,7 +417,6 @@
                         </select>
                     </div>
                 </div>
-
                 <div class="card">
                     <div class="setting-group">
                         <label>Швидкі фони</label>
@@ -721,27 +428,28 @@
                             <div class="preset-bg-btn" style="background: #1e293b;" onclick="setBg('#1e293b')"></div>
                         </div>
                     </div>
-
                     <div class="setting-group" style="margin-top: 16px;">
                         <label>Своя заставка (URL картинки)</label>
                         <input type="text" id="custom-bg-input" class="setting-control" placeholder="https://посилання-на-картинку.jpg">
-                        <button onclick="applyCustomBg()" style="margin-top: 10px; width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
-                            Застосувати картинку
-                        </button>
+                        <button onclick="applyCustomBg()" style="margin-top: 10px; width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">Застосувати картинку</button>
                     </div>
                 </div>
-
-                <div class="card" style="text-align: center;">
-                    <p style="color: var(--text-muted); font-size: 13px;">Версія додатка: 2.3 SuperApp<br>Розроблено для ліцею №8</p>
-                </div>
+                <div class="card" style="text-align: center;"><p style="color: var(--text-muted); font-size: 13px;">Версія додатка: 3.5 SuperApp<br>Розроблено для ліцею №8</p></div>
             </div>
         </div>
+    </div>
 
-    </div> <!-- Кінець tabs-container -->
+    <!-- SIDEBAR ІСТОРІЯ ЧАТІВ -->
+    <div id="history-sidebar">
+        <div class="sidebar-header">
+            <h2>Історія чатів</h2>
+            <button onclick="toggleHistorySidebar()" class="close-sidebar">&times;</button>
+        </div>
+        <button class="new-chat-btn" onclick="createNewChat()">+ Новий чат</button>
+        <div id="history-list"></div>
+    </div>
 
-    <!-- ========================================== -->
-    <!-- НИЖНЯ НАВІГАЦІЯ (СЛАЙДЕР З КНОПКОЮ)        -->
-    <!-- ========================================== -->
+    <!-- НИЖНЯ НАВІГАЦІЯ (СЛАЙДЕР) -->
     <div id="bottom-nav-container">
         <button id="nav-toggle-btn" class="nav-toggle-btn" title="Відкрити меню">
             <svg viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"/></svg>
@@ -762,11 +470,11 @@
         </nav>
     </div>
 
-    <!-- Вікно підтвердження очищення чату -->
+    <!-- Вікно підтвердження очищення -->
     <div id="modal-overlay">
         <div class="modal">
-            <h2>Очистити пам'ять ШІ?</h2>
-            <p>Це видалить всю поточну історію розмови назавжди. Ви впевнені?</p>
+            <h2>Очистити поточний чат?</h2>
+            <p>Це видалить історію розмови. Ви впевнені?</p>
             <div class="modal-btns">
                 <button class="btn-cancel" id="close-modal">Скасувати</button>
                 <button class="btn-confirm" id="confirm-clear">Так, видалити</button>
@@ -774,44 +482,33 @@
         </div>
     </div>
 
-    <!-- СКРИПТИ (ЛОГІКА ДОДАТКА) -->
     <script>
         /* ==========================================
-           1. ЛОГІКА НАВІГАЦІЇ (ВКЛАДКИ ТА СЛАЙДЕР)
+           1. ЛОГІКА НАВІГАЦІЇ ТА НАЛАШТУВАНЬ
         ========================================== */
         const navItems = document.querySelectorAll('.nav-item');
         const tabContents = document.querySelectorAll('.tab-content');
         const bottomNavContainer = document.getElementById('bottom-nav-container');
         const navToggleBtn = document.getElementById('nav-toggle-btn');
+        const themeSelect = document.getElementById('theme-select');
+        const customBgInput = document.getElementById('custom-bg-input');
 
-        navToggleBtn.addEventListener('click', () => {
-            bottomNavContainer.classList.toggle('open');
-        });
+        navToggleBtn.addEventListener('click', () => bottomNavContainer.classList.toggle('open'));
 
         navItems.forEach(item => {
             item.addEventListener('click', () => {
                 navItems.forEach(btn => btn.classList.remove('active'));
                 tabContents.forEach(tab => tab.classList.remove('active'));
-                
                 item.classList.add('active');
-                const targetId = item.getAttribute('data-target');
-                document.getElementById(targetId).classList.add('active');
-                
+                document.getElementById(item.getAttribute('data-target')).classList.add('active');
                 bottomNavContainer.classList.remove('open');
             });
         });
-
-        /* ==========================================
-           2. ЛОГІКА НАЛАШТУВАНЬ (Тема та Фон)
-        ========================================== */
-        const themeSelect = document.getElementById('theme-select');
-        const customBgInput = document.getElementById('custom-bg-input');
 
         function loadSettings() {
             const savedTheme = localStorage.getItem('appTheme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
             themeSelect.value = savedTheme;
-
             const savedBg = localStorage.getItem('appBg');
             if (savedBg) {
                 document.body.style.backgroundImage = savedBg.startsWith('url') ? savedBg : 'none';
@@ -820,9 +517,8 @@
         }
 
         themeSelect.addEventListener('change', (e) => {
-            const newTheme = e.target.value;
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('appTheme', newTheme);
+            document.documentElement.setAttribute('data-theme', e.target.value);
+            localStorage.setItem('appTheme', e.target.value);
         });
 
         function setBg(bgValue) {
@@ -844,13 +540,37 @@
                 document.body.style.backgroundSize = 'cover';
                 document.body.style.backgroundPosition = 'center';
                 localStorage.setItem('appBg', bgStr);
-                alert("Заставку успішно змінено!");
                 customBgInput.value = '';
             }
         }
 
         /* ==========================================
-           3. ЛОГІКА ЧАТУ ТА ПАМ'ЯТІ
+           2. ЛОГІКА РЕЖИМІВ (МОДЕЛЕЙ ПОВЕДІНКИ)
+        ========================================== */
+        let currentMode = 'default';
+        const SYSTEM_PROMPTS = {
+            'default': "Ти — розумний ШІ ліцею №8, створений учнем. Відповідай українською мовою. Будь максимально корисним та дружнім.",
+            'math': "Ти — досвідчений вчитель математики ліцею №8. Допомагай з алгеброю та геометрією. Пояснюй рішення крок за кроком, зрозуміло для учня.",
+            'ukr': "Ти — найкращий вчитель української мови та літератури. Допомагай писати твори, пояснюй правила граматики, роби синтаксичний розбір.",
+            'translate': "Ти — професійний перекладач. Твоє єдине завдання — максимально точно та природно перекладати тексти, які тобі надсилають."
+        };
+        const MODE_NAMES = { 'math': 'Математика', 'ukr': 'Укр. мова', 'translate': 'Перекладач', 'default': 'Стандартний' };
+
+        function setMode(mode) {
+            currentMode = mode;
+            // Додаємо системне повідомлення, яке користувач бачить, але воно не йде як "user" або "ai"
+            addMessageToDOM('system', `🔔 Режим <b>"${MODE_NAMES[mode]}"</b> активовано. ШІ налаштовано!`, true);
+            saveMemory();
+        }
+
+        function askEvents() {
+            const input = document.getElementById('user-input');
+            input.value = "Які новини або події зараз відбуваються в ліцеї №8?";
+            handleSend();
+        }
+
+        /* ==========================================
+           3. ЛОГІКА ЧАТУ ТА ІСТОРІЇ (СЕСІЇ)
         ========================================== */
         const chatBox = document.getElementById('chat-box');
         const userInput = document.getElementById('user-input');
@@ -859,46 +579,106 @@
         const typing = document.getElementById('typing');
         const welcome = document.getElementById('welcome');
 
-        let history = [];
-
-        const SYSTEM_PROMPT = `Ти — розумний ШІ ліцею №8, створений учнем. 
-        1. ЗАВЖДИ відповідай виключно українською мовою. 
-        2. Ти НЕ ChatGPT і НЕ OpenAI. 
-        3. Якщо просять вірш: пиши його українською, з ідеальною римою, чітким ритмом та глибоким змістом.
-        4. Будь максимально корисним, безпечним та дружнім помічником.`;
+        let history = []; // поточні повідомлення
+        let sessions = []; // всі чати
+        let currentSessionId = Date.now();
 
         userInput.addEventListener('input', function() {
             this.style.height = 'auto';
             this.style.height = (this.scrollHeight) + 'px';
         });
 
+        function toggleHistorySidebar(forceClose = false) {
+            const sidebar = document.getElementById('history-sidebar');
+            if (forceClose) sidebar.classList.remove('open');
+            else sidebar.classList.toggle('open');
+        }
+
         function saveMemory() {
-            localStorage.setItem('appChatHistory', JSON.stringify(history));
+            const sessionIndex = sessions.findIndex(s => s.id === currentSessionId);
+            const sessionData = { id: currentSessionId, messages: history, mode: currentMode, timestamp: Date.now() };
+            if (sessionIndex > -1) {
+                sessions[sessionIndex] = sessionData;
+            } else {
+                sessions.unshift(sessionData);
+            }
+            localStorage.setItem('appChatSessions', JSON.stringify(sessions));
+            localStorage.setItem('appCurrentSessionId', currentSessionId);
+            renderHistoryList();
+        }
+
+        function loadMemory() {
+            const saved = localStorage.getItem('appChatSessions');
+            const savedId = localStorage.getItem('appCurrentSessionId');
+            if (saved) {
+                sessions = JSON.parse(saved);
+                if (savedId) {
+                    currentSessionId = parseInt(savedId);
+                    const currentSession = sessions.find(s => s.id === currentSessionId);
+                    if (currentSession) {
+                        history = currentSession.messages || [];
+                        currentMode = currentSession.mode || 'default';
+                    } else createNewChat(true);
+                } else createNewChat(true);
+            }
+            renderCurrentChat();
+            renderHistoryList();
+        }
+
+        function createNewChat(skipRender = false) {
+            currentSessionId = Date.now();
+            history = [];
+            currentMode = 'default';
+            if (!skipRender) {
+                renderCurrentChat();
+                saveMemory();
+                toggleHistorySidebar(true);
+            }
+        }
+
+        function loadChat(id) {
+            currentSessionId = id;
+            const currentSession = sessions.find(s => s.id === currentSessionId);
+            if (currentSession) {
+                history = currentSession.messages || [];
+                currentMode = currentSession.mode || 'default';
+                renderCurrentChat();
+            }
+            toggleHistorySidebar(true);
+        }
+
+        function renderHistoryList() {
+            const list = document.getElementById('history-list');
+            list.innerHTML = '';
+            sessions.forEach(s => {
+                const item = document.createElement('div');
+                item.className = `history-item ${s.id === currentSessionId ? 'active' : ''}`;
+                // Шукаємо перше повідомлення користувача для назви
+                const previewMsg = s.messages.find(m => m.role === 'user')?.content || "Новий чат";
+                item.innerHTML = `${previewMsg}`;
+                item.onclick = () => loadChat(s.id);
+                list.appendChild(item);
+            });
+        }
+
+        function renderCurrentChat() {
+            chatBox.querySelectorAll('.msg-wrapper').forEach(m => m.remove());
+            if (history.length > 0) {
+                welcome.style.display = 'none';
+                history.forEach(msg => addMessageToDOM(msg.role, msg.content, true));
+            } else {
+                welcome.style.display = 'block';
+            }
         }
 
         window.addEventListener('DOMContentLoaded', () => {
             loadSettings(); 
-            const savedChat = localStorage.getItem('appChatHistory');
-            if (savedChat) {
-                try {
-                    history = JSON.parse(savedChat);
-                    if (history.length > 0) {
-                        if (welcome) welcome.style.display = 'none';
-                        history.forEach(msg => {
-                            const role = msg.role === 'Учень' ? 'user' : 'ai';
-                            addMessageToDOM(role, msg.content);
-                        });
-                    }
-                } catch (e) {
-                    console.error("Не вдалося відновити історію", e);
-                    history = [];
-                }
-            }
+            loadMemory();
         });
 
         function cleanAIResponse(text) {
             let cleaned = text;
-            const adMarkers = ["Support Pollinations.AI:", "🌸 Ad 🌸", "Powered by Pollinations.AI", "**Support Pollinations.AI:**"];
+            const adMarkers = ["Support Pollinations.AI:", "🌸 Ad 🌸", "Powered by Pollinations.AI"];
             for (const marker of adMarkers) {
                 const index = cleaned.indexOf(marker);
                 if (index !== -1) {
@@ -910,7 +690,7 @@
             return cleaned.replace(/\n\s*---\s*$/g, '').trim();
         }
 
-        function addMessageToDOM(role, text) {
+        function addMessageToDOM(role, text, isHistoryLoad = false) {
             if (welcome) welcome.style.display = 'none';
             chatBox.appendChild(typing);
 
@@ -919,21 +699,24 @@
             
             const bubble = document.createElement('div');
             bubble.className = 'bubble';
-            bubble.innerHTML = role === 'user' ? text : marked.parse(text);
+            
+            if (role === 'system') {
+                bubble.innerHTML = text;
+            } else if (role === 'user') {
+                bubble.innerText = text;
+            } else {
+                bubble.innerHTML = marked.parse(text);
+            }
 
             if (role === 'ai') {
                 const btn = document.createElement('button');
                 btn.className = 'copy-btn';
                 btn.innerHTML = '📎 Копіювати';
                 btn.onclick = () => {
-                    const el = document.createElement('textarea');
-                    el.value = text;
-                    document.body.appendChild(el);
-                    el.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(el);
-                    btn.innerHTML = '✅ Скопійовано!';
-                    setTimeout(() => { btn.innerHTML = '📎 Копіювати'; }, 2000);
+                    navigator.clipboard.writeText(text).then(() => {
+                        btn.innerHTML = '✅ Скопійовано!';
+                        setTimeout(() => { btn.innerHTML = '📎 Копіювати'; }, 2000);
+                    });
                 };
                 bubble.appendChild(btn);
             }
@@ -941,77 +724,83 @@
             wrapper.appendChild(bubble);
             chatBox.insertBefore(wrapper, typing);
             chatBox.scrollTop = chatBox.scrollHeight;
+
+            if (!isHistoryLoad) {
+                history.push({ role, content: text });
+                saveMemory();
+            }
         }
 
-        // БРОНЕБІЙНИЙ АЛГОРИТМ ЗАПИТІВ (Використовуємо text/plain для POST)
+        /* --- ВЗАЄМОДІЯ З СЕРВЕРОМ (СУПЕР-БРОНЕБІЙНА ВЕРСІЯ) --- */
         async function askAI(query) {
-            let lastError = "";
+            // 1. Формуємо історію для офіційного JSON запиту
+            const messages = [{ role: 'system', content: SYSTEM_PROMPTS[currentMode] || SYSTEM_PROMPTS['default'] }];
+            const validHistory = history.filter(m => m.role === 'user' || m.role === 'ai');
+            validHistory.slice(-6).forEach(msg => {
+                messages.push({ role: msg.role === 'user' ? 'user' : 'assistant', content: msg.content });
+            });
+            messages.push({ role: 'user', content: query });
 
-            // Формуємо промпт єдиним текстом, щоб відправити через text/plain
-            let promptText = `${SYSTEM_PROMPT}\n\n`;
-            if (history.length > 0) {
-                promptText += "Історія:\n";
-                const recentHistory = history.slice(-8); // Останні 8 повідомлень
-                recentHistory.forEach(msg => {
-                    promptText += `${msg.role}: ${msg.content}\n`;
-                });
-            }
-            promptText += `\nУчень: ${query}\nВідповідь ШІ:`;
+            // 2. Формуємо єдиний текст для резервних GET запитів (щоб обійти блокування POST)
+            let textPrompt = `${SYSTEM_PROMPTS[currentMode] || SYSTEM_PROMPTS['default']}\n\n`;
+            validHistory.slice(-4).forEach(msg => {
+                textPrompt += `${msg.role === 'user' ? 'Учень' : 'ШІ'}: ${msg.content}\n`;
+            });
+            textPrompt += `Учень: ${query}\nШІ:`;
 
-            // СПРОБА 1: Стабільні моделі через POST + text/plain
-            const models = ['openai', 'mistral', 'llama'];
+            // У нас є 3 різні моделі для страховки
+            const models = ['openai', 'mistral', 'search'];
             
             for (let model of models) {
+                
+                // МЕТОД 1: Офіційний JSON POST
                 try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 25000); 
-                    
-                    // Цей метод (POST + text/plain) НАЙБІЛЬШ НАДІЙНИЙ
-                    // Він і не блокується CORS, і не заплутує сервер JSON-парсингом!
-                    const response = await fetch(`https://text.pollinations.ai/?model=${model}&seed=${Math.floor(Math.random() * 100000)}`, {
+                    const c1 = new AbortController();
+                    const t1 = setTimeout(() => c1.abort(), 10000);
+                    const r1 = await fetch('https://text.pollinations.ai/', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'text/plain' },
-                        body: promptText,
-                        signal: controller.signal
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ messages, model, seed: Math.floor(Math.random() * 100000) }),
+                        signal: c1.signal
                     });
-                    
-                    clearTimeout(timeoutId);
-
-                    if (response.ok) {
-                        return cleanAIResponse(await response.text());
-                    } else {
-                        console.warn(`[POST] Сервер ${model} повернув код ${response.status}. Йдемо далі...`);
-                        await new Promise(r => setTimeout(r, 1000));
+                    clearTimeout(t1);
+                    if (r1.ok) {
+                        const text = await r1.text();
+                        let content = text;
+                        try { content = JSON.parse(text).choices[0].message.content; } catch(e) {}
+                        if (!content.includes('IMPORTANT NOTICE')) return cleanAIResponse(content);
                     }
-                } catch (e) {
-                    console.warn(`[POST] Блокування ${model}:`, e.message);
-                    lastError = e.message;
-                }
+                } catch(e) { console.warn(`JSON POST для ${model} не вдався.`); }
+
+                // МЕТОД 2: Прямий GET запит (обходить багато Wi-Fi фільтрів)
+                try {
+                    const url = `https://text.pollinations.ai/${encodeURIComponent(textPrompt)}?model=${model}&seed=${Math.floor(Math.random() * 100000)}`;
+                    const c2 = new AbortController();
+                    const t2 = setTimeout(() => c2.abort(), 10000);
+                    const r2 = await fetch(url, { signal: c2.signal });
+                    clearTimeout(t2);
+                    if (r2.ok) {
+                        const content = await r2.text();
+                        if (!content.includes('IMPORTANT NOTICE') && !content.includes('<html')) return cleanAIResponse(content);
+                    }
+                } catch(e) { console.warn(`GET для ${model} не вдався.`); }
+
+                // МЕТОД 3: Секретний Проксі-тунель (AllOrigins) - пробиває майже будь-яку мережу
+                try {
+                    const targetUrl = `https://text.pollinations.ai/${encodeURIComponent(textPrompt)}?model=${model}`;
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+                    const c3 = new AbortController();
+                    const t3 = setTimeout(() => c3.abort(), 12000);
+                    const r3 = await fetch(proxyUrl, { signal: c3.signal });
+                    clearTimeout(t3);
+                    if (r3.ok) {
+                        const content = await r3.text();
+                        if (!content.includes('IMPORTANT NOTICE') && !content.includes('<html')) return cleanAIResponse(content);
+                    }
+                } catch(e) { console.warn(`Proxy для ${model} не вдався.`); }
             }
 
-            // СПРОБА 2: Безпечний GET (Фолбек останньої надії)
-            try {
-                let shortPrompt = "Відповідай тільки українською. ";
-                if (history.length > 0) {
-                    shortPrompt += `Контекст: ${history[history.length - 1].content.substring(0, 100)}... `;
-                }
-                shortPrompt += `Запит учня: ${query}`;
-                
-                const url = `https://text.pollinations.ai/${encodeURIComponent(shortPrompt)}?model=openai`;
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 20000);
-                
-                const response = await fetch(url, { signal: controller.signal });
-                clearTimeout(timeoutId);
-
-                if (response.ok) {
-                    return cleanAIResponse(await response.text());
-                }
-            } catch (e) {
-                console.error("GET резерв також недоступний.");
-            }
-
-            throw new Error("Немає доступу до серверів ШІ. Можливо, ваш інтернет повністю їх блокує (спробуйте через мобільний 4G).");
+            throw new Error("Сервери зараз перевантажені або ваш інтернет жорстко блокує доступ. Спробуйте через мобільний інтернет (4G).");
         }
 
         async function handleSend(e) {
@@ -1030,23 +819,17 @@
             try {
                 const answer = await askAI(text);
                 addMessageToDOM('ai', answer);
-                
-                history.push({ role: 'Учень', content: text });
-                history.push({ role: 'ШІ', content: answer });
-                if (history.length > 20) history = history.slice(-20); 
-                saveMemory(); 
             } catch (err) {
-                addMessageToDOM('ai', `❌ **Помилка з'єднання:** ${err.message}`);
+                addMessageToDOM('system', `❌ **Збій:** ${err.message}`, true);
+                // Видаляємо останнє повідомлення юзера з пам'яті, щоб він міг перевідправити
+                if(history.length > 0 && history[history.length-1].role === 'user') {
+                    history.pop();
+                    saveMemory();
+                }
             } finally {
                 sendBtn.disabled = false;
                 typing.style.display = 'none';
             }
-        }
-
-        function sendSuggest(text) {
-            document.querySelector('[data-target="tab-chat"]').click();
-            userInput.value = text;
-            handleSend();
         }
 
         chatForm.addEventListener('submit', handleSend);
@@ -1062,10 +845,9 @@
         document.getElementById('close-modal').onclick = () => overlay.style.display = 'none';
         document.getElementById('confirm-clear').onclick = () => {
             history = [];
-            localStorage.removeItem('appChatHistory'); 
-            const messages = chatBox.querySelectorAll('.msg-wrapper');
-            messages.forEach(m => m.remove());
-            welcome.style.display = 'block';
+            currentMode = 'default';
+            saveMemory();
+            renderCurrentChat();
             overlay.style.display = 'none';
         };
 
