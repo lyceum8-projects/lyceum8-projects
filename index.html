@@ -921,6 +921,14 @@
                 bubble.innerHTML = marked.parse(text); 
             }
 
+            // --- НОВИЙ КОД: Відкривати посилання в новій вкладці ---
+            const links = bubble.querySelectorAll('a');
+            links.forEach(link => {
+                link.setAttribute('target', '_blank');
+                link.setAttribute('rel', 'noopener noreferrer');
+            });
+            // ---------------------------------------------------------
+
             if (role === 'ai') {
                 const btn = document.createElement('button');
                 btn.className = 'copy-btn';
