@@ -29,7 +29,7 @@
             --shadow-md: 0 4px 12px -2px rgba(0,0,0,0.1);
             --bubble-ai: #ffffff;
             --bubble-user: linear-gradient(135deg, #3b82f6, #2563eb);
-            --nav-bg: #ffffff;
+            --nav-bg: transparent;
             --nav-active: #3b82f6;
             --nav-inactive: #94a3b8;
             --card-bg: #f8fafc;
@@ -50,7 +50,7 @@
             --border: #334155;
             --bubble-ai: rgba(30, 41, 59, 0.9);
             --bubble-user: linear-gradient(135deg, #4f46e5, #3730a3);
-            --nav-bg: #1e293b;
+            --nav-bg: transparent;
             --card-bg: #1e293b;
             --app-bg-image: radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
                             radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.1) 0px, transparent 50%);
@@ -72,7 +72,6 @@
             height: 100dvh;
             overflow: hidden;
             transition: background-color 0.3s, background-image 0.3s;
-            padding-bottom: 36px;
         }
 
         ::-webkit-scrollbar { width: 6px; }
@@ -126,7 +125,7 @@
         .icon-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
 
         /* --- ЧАТ --- */
-        #chat-box { position: absolute; inset: 0; overflow-y: auto; padding: 85px 20px 90px 20px; display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth; }
+        #chat-box { position: absolute; inset: 0; overflow-y: auto; padding: 85px 20px 126px 20px; display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth; }
         .msg-wrapper { display: flex; width: 100%; max-width: 800px; margin: 0 auto; animation: fadeIn 0.3s ease; }
         .msg-wrapper.user { justify-content: flex-end; }
         .msg-wrapper.ai { justify-content: flex-start; }
@@ -148,7 +147,7 @@
         .copy-btn:hover { color: var(--primary); }
         .copy-btn svg { width: 14px; height: 14px; fill: currentColor; }
 
-        #chat-footer { position: absolute; bottom: 0; left: 0; right: 0; padding: 12px 20px; background: transparent !important; border-top: none !important; z-index: 50; pointer-events: none; }
+        #chat-footer { position: absolute; bottom: 0; left: 0; right: 0; padding: 12px 20px 48px 20px; background: transparent !important; border-top: none !important; z-index: 50; pointer-events: none; }
         #chat-footer * { pointer-events: auto; }
 
         .input-container { max-width: 800px; margin: 0 auto; background: var(--glass); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 24px; display: flex; align-items: flex-end; padding: 8px 8px 8px 16px; transition: all 0.3s; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
@@ -187,7 +186,7 @@
         .history-item.active { background: rgba(59, 130, 246, 0.1); border-color: var(--primary); }
 
         /* --- РОЗКЛАД UI --- */
-        .page-content { position: absolute; inset: 0; overflow-y: auto; padding: 85px 20px 20px 20px; max-width: 800px; margin: 0 auto; width: 100%; }
+        .page-content { position: absolute; inset: 0; overflow-y: auto; padding: 85px 20px 56px 20px; max-width: 800px; margin: 0 auto; width: 100%; }
         
         .sch-toggle-group { display: flex; background: var(--bg-main); border-radius: 14px; border: 1px solid var(--border); padding: 4px; margin-bottom: 12px; }
         .sch-toggle-btn { flex: 1; border: none; background: transparent; padding: 12px; font-size: 14px; font-weight: 600; color: var(--text-muted); border-radius: 10px; cursor: pointer; transition: 0.2s; }
@@ -223,10 +222,10 @@
         /* --- НИЖНЯ НАВІГАЦІЯ --- */
         #bottom-nav-container { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         #bottom-nav-container.open { transform: translateY(0); }
-        .nav-toggle-btn { position: absolute; top: -36px; left: 50%; transform: translateX(-50%); width: 60px; height: 36px; background: var(--nav-bg); border: 1px solid var(--border); border-bottom: none; border-radius: 20px 20px 0 0; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-muted); box-shadow: 0 -4px 12px rgba(0,0,0,0.05); }
+        .nav-toggle-btn { position: absolute; top: -36px; left: 50%; transform: translateX(-50%); width: 60px; height: 36px; background: var(--nav-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--border); border-bottom: none; border-radius: 20px 20px 0 0; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-muted); box-shadow: 0 -4px 12px rgba(0,0,0,0.05); }
         .nav-toggle-btn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.3s ease; }
         #bottom-nav-container.open .nav-toggle-btn svg { transform: rotate(180deg); }
-        #bottom-nav { background: var(--nav-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 10px; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+        #bottom-nav { background: var(--nav-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 10px; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px 0; color: var(--nav-inactive); background: none; border: none; border-radius: 12px; cursor: pointer; transition: all 0.2s; font-family: inherit; }
         .nav-item:hover { background: var(--card-bg); }
         .nav-item.active { color: var(--nav-active); }
@@ -393,7 +392,7 @@
                         <button onclick="applyCustomBg()" style="margin-top: 10px; width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">Застосувати картинку</button>
                     </div>
                 </div>
-                <div class="card" style="text-align: center;"><p style="color: var(--text-muted); font-size: 13px;">Версія додатка: 102.2 Final Stable<br>Розроблено для ліцею №8</p></div>
+                <div class="card" style="text-align: center;"><p style="color: var(--text-muted); font-size: 13px;">Версія додатка: 104.0 History Included<br>Розроблено для ліцею №8</p></div>
             </div>
         </div>
     </div>
@@ -738,11 +737,21 @@
            3. ЛОГІКА РЕЖИМІВ (МОДЕЛЕЙ ПОВЕДІНКИ ШІ)
         ========================================== */
         let currentMode = 'default';
+        
+        const LYCEUM_HISTORY = `
+        Ліцей №8 м. Житомира (раніше СШ №45) відкритий восени 1944 року після звільнення міста для дітей залізничників на вул. Леніна №81 (зараз це стара будівля). Першим директором була Уралова Анна Георгіївна. 
+        У роки Другої світової війни в будівлі розташовувався військовий шпиталь. Пізніше школа була відбудована громадою. Учні та вчителі власноруч розчистили територію та висадили великий шкільний сад і березову алею. 
+        У перші роки вчителі працювали у важких умовах: самі заготовляли дрова, а класи опалювалися буржуйками. Проте колектив був дуже дружним. У 1946 році відкрили 8 клас, створили шкільний драмгурток та комсомольську організацію. Зі 114 випускників перших років 108 здобули вищу освіту. 
+        15 листопада 1960 року школа перейшла до Міністерства освіти і офіційно стала середньою школою №8. Директорами школи у різні роки були: Уралова, Таран, Тюрин, Вакуленко, Шандра, Єременко, Волошин.
+        Ліцей завжди славився високим рівнем освіти. У 1960 році тут було відкрито перший в області історичний музей, а згодом — музей Бойової Слави. Учні часто перемагали на обласних та міських олімпіадах. Також школа славилася своїм хором, спортивними змаганнями, конкурсами квітів та шкільними кросами.
+        Сьогодні ліцей №8 — це сучасний заклад освіти з багатими традиціями та потужним педагогічним колективом.
+        `;
+
         const SYSTEM_PROMPTS = {
-            'default': "Ти — розумний ШІ ліцею №8, створений учнем. Відповідай виключно ідеальною українською мовою. Будь максимально корисним та дружнім. Заборонено використовувати англійські слова або чужі алфавіти, якщо тебе про це прямо не попросили.",
-            'math': "Ти — досвідчений вчитель математики ліцею №8. Допомагай з алгеброю та геометрією. Пояснюй рішення крок за кроком, зрозуміло для учня. Відповідай виключно ідеальною українською мовою.",
-            'ukr': "Ти — найкращий вчитель української мови та літератури. Допомагай писати твори, пояснюй правила граматики, роби синтаксичний розбір. Відповідай виключно ідеальною українською мовою.",
-            'translate': "Ти — професійний перекладач. Твоє єдине завдання — максимально точно та природно перекладати тексти, які тобі надсилають."
+            'default': "Ти — розумний ШІ ліцею №8 (м. Житомир). Тебе розробив один з учнів цього ліцею, який бажає залишитись анонімним. Ти НЕ маєш жодного відношення до OpenAI, Google чи інших корпорацій. Відповідай виключно ідеальною українською мовою. Будь корисним. ВАЖЛИВО: Офіційний сайт ліцею: https://8.lic.zhitomir.ua/. Якщо питають про сайт, обов'язково давай це посилання. Якщо ти не знаєш якоїсь інформації про ліцей, чесно скажи про це. КАТЕГОРИЧНО ЗАБОРОНЕНО вигадувати (галюцинувати) новини, імена вчителів чи події!",
+            'math': "Ти — досвідчений вчитель математики ліцею №8. Тебе розробив анонімний учень ліцею №8. Офіційний сайт нашого ліцею: https://8.lic.zhitomir.ua/. Допомагай з алгеброю та геометрією. Пояснюй рішення крок за кроком, зрозуміло для учня. Відповідай виключно ідеальною українською мовою.",
+            'ukr': "Ти — найкращий вчитель української мови та літератури ліцею №8. Тебе розробив анонімний учень ліцею №8. Офіційний сайт нашого ліцею: https://8.lic.zhitomir.ua/. Допомагай писати твори, пояснюй правила граматики, роби синтаксичний розбір. Відповідай виключно ідеальною українською мовою.",
+            'translate': "Ти — професійний перекладач ліцею №8. Тебе розробив анонімний учень ліцею №8. Офіційний сайт нашого ліцею: https://8.lic.zhitomir.ua/. Твоє єдине завдання — максимально точно та природно перекладати тексти, які тобі надсилають."
         };
         const MODE_NAMES = { 'math': 'Математика', 'ukr': 'Укр. мова', 'translate': 'Перекладач', 'default': 'Стандартний' };
 
@@ -936,13 +945,51 @@
 
         async function askAI(query) {
             const baseSysPrompt = SYSTEM_PROMPTS[currentMode] || SYSTEM_PROMPTS['default'];
-            const sysPrompt = baseSysPrompt + " Відповідай чітко і зрозуміло, без використання JSON, кодів або тегів <think>.";
+            let sysPrompt = baseSysPrompt + " ВАЖЛИВО: Відповідай одразу по суті. СУВОРО ЗАБОРОНЕНО використовувати теги <think>, JSON-формат або писати свої внутрішні міркування.";
             
+            let qLower = query.toLowerCase();
+
+            // --- НОВИЙ БЛОК: ДОДАВАННЯ ІСТОРІЇ ЛІЦЕЮ ТІЛЬКИ ПРИ ПОТРЕБІ ---
+            let isHistoryRequest = qLower.includes('ліце') || qLower.includes('школ') || qLower.includes('історі') || qLower.includes('директор') || qLower.includes('вчит');
+            if (currentMode === 'default' && isHistoryRequest) {
+                sysPrompt += "\n\n[ДОВІДКА ПРО ІСТОРІЮ ЛІЦЕЮ №8]:\n" + LYCEUM_HISTORY;
+            }
+
+            // --- НОВИЙ БЛОК: ЧИТАННЯ САЙТУ НОВИН ---
+            let isNewsRequest = qLower.includes('новин') || qLower.includes('поді') || qLower.includes('захід');
+            let newsAdded = false;
+            let newsSnippet = ""; // Для резервного запиту
+            if (isNewsRequest) {
+                try {
+                    const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://8.lic.zhitomir.ua/novini/')}&disableCache=true`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        const doc = new DOMParser().parseFromString(data.contents, 'text/html');
+                        // Видаляємо зайвий код, залишаємо тільки контент
+                        doc.querySelectorAll('script, style, nav, footer, header, .menu, aside').forEach(el => el.remove());
+                        let rawText = doc.body.innerText.replace(/\s+/g, ' ').trim();
+                        if(rawText.length > 50) {
+                            newsSnippet = rawText.substring(0, 1000);
+                            sysPrompt += `\n\n[АКТУАЛЬНІ НОВИНИ З САЙТУ ЛІЦЕЮ: ${newsSnippet}...]. Використай ТІЛЬКИ цей текст, щоб відповісти на питання про новини/події ліцею. Якщо потрібної інформації немає у цьому тексті - НЕ ВИГАДУЙ ЇЇ. ОБОВ'ЯЗКОВО в кінці своєї відповіді дай посилання на новини: https://8.lic.zhitomir.ua/novini/`;
+                            newsAdded = true;
+                        }
+                    }
+                } catch(e) {
+                    console.warn("Не вдалося завантажити сайт новин:", e);
+                }
+            }
+
+            if (isNewsRequest && !newsAdded) {
+                sysPrompt += `\n\n[СИСТЕМНА ІНФОРМАЦІЯ: Наразі немає технічного доступу до новин. Просто запропонуй подивитись їх на сайті: https://8.lic.zhitomir.ua/novini/ ]`;
+            }
+            // ---------------------------------------
+
             // Обходимо агресивні фільтри цензури сервера
             let safeQuery = query;
             if (safeQuery.toLowerCase().includes('фалес')) {
                 safeQuery = safeQuery.replace(/фалес/gi, 'Thales (математик)');
             }
+            safeQuery += " (Надай відповідь одразу, без тегів <think>)";
 
             const messages = [{ role: 'system', content: sysPrompt }];
             const validHistory = chatHistory.filter(m => m.role === 'user' || m.role === 'ai').slice(-4);
@@ -963,15 +1010,18 @@
                 } catch(e) {}
                 
                 if (typeof res === 'string') {
-                    res = res.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+                    // Агресивно вирізаємо будь-які теги think, навіть якщо вони не закриті
+                    res = res.replace(/<think>[\s\S]*?<\/think>/g, '');
+                    res = res.replace(/<think>[\s\S]*/g, '');
+                    res = res.trim();
                 }
                 return cleanAIResponse(res);
             };
 
             const tryFetch = async (method, url, bodyObj) => {
                 const controller = new AbortController();
-                // 60 секунд на "важкі" задачі
-                const id = setTimeout(() => controller.abort(), 60000); 
+                // 40 секунд - оптимально, щоб не висіло вічно, але дочекалося
+                const id = setTimeout(() => controller.abort(), 40000); 
                 const options = { method, signal: controller.signal };
                 if (method === 'POST') {
                     options.headers = { 'Content-Type': 'application/json' };
@@ -992,16 +1042,20 @@
                 return null;
             };
 
-            // Спроба 1: POST OpenAI (Найкращий для складних задач)
+            // Спроба 1: POST OpenAI 
             let ans = await tryFetch('POST', 'https://text.pollinations.ai/', { messages, model: 'openai', seed: Math.floor(Math.random() * 10000) });
             if (ans) return ans;
 
-            // Спроба 2: POST Llama (Найшвидший)
+            // Спроба 2: POST Llama
             ans = await tryFetch('POST', 'https://text.pollinations.ai/', { messages, model: 'llama', seed: Math.floor(Math.random() * 10000) });
             if (ans) return ans;
 
-            // Спроба 3: Простий GET (Обходить блокування історії чату)
-            const fallbackPrompt = `${sysPrompt}\nУчень: ${safeQuery}\nВідповідь:`;
+            // Спроба 3: Бронебійний GET з МІНІМАЛЬНИМ промптом (щоб сервер не зависав від обсягу)
+            let fallbackPrompt = `Ти ШІ ліцею №8, розроблений анонімним учнем (не OpenAI). Учень питає: ${safeQuery}. Відповідай українською. `;
+            if (isHistoryRequest) fallbackPrompt += "Довідка: Ліцей відкритий у 1944. Раніше СШ №45. Директори: Уралова, Таран, Тюрин, Вакуленко, Шандра, Єременко, Волошин. ";
+            if (isNewsRequest && newsAdded) fallbackPrompt += `Ось новини ліцею: ${newsSnippet.substring(0, 600)}... ОБОВ'ЯЗКОВО дай лінк на них: https://8.lic.zhitomir.ua/novini/`;
+            else if (isNewsRequest) fallbackPrompt += "Скажи, що новини зараз доступні лише за посиланням: https://8.lic.zhitomir.ua/novini/";
+
             ans = await tryFetch('GET', `https://text.pollinations.ai/${encodeURIComponent(fallbackPrompt)}?model=openai`, null);
             if (ans) return ans;
 
