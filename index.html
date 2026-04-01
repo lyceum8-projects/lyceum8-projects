@@ -56,12 +56,7 @@
                             radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.1) 0px, transparent 50%);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: 'Inter', -apple-system, sans-serif;
@@ -80,33 +75,20 @@
             padding-bottom: 36px;
         }
 
-        /* --- СУЧАСНА СТРІЧКА СКРОЛІНГУ (SCROLLBAR) --- */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.3); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.6); }
         * { scrollbar-width: thin; scrollbar-color: rgba(100, 116, 139, 0.3) transparent; }
 
-        /* --- ГОЛОВНИЙ КОНТЕЙНЕР ДЛЯ ВКЛАДОК --- */
-        #tabs-container {
-            flex-grow: 1;
-            position: relative;
-            overflow: hidden;
-        }
+        #tabs-container { flex-grow: 1; position: relative; overflow: hidden; }
 
         .tab-content {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease;
-            z-index: 1;
+            position: absolute; inset: 0; display: flex; flex-direction: column;
+            opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 1;
         }
         .tab-content.active { opacity: 1; pointer-events: auto; z-index: 2; }
 
-        /* --- СПІЛЬНІ ЕЛЕМЕНТИ (Шапки) - АБСОЛЮТНІ та ПРОЗОРІ --- */
         header {
             position: absolute; top: 0; left: 0; right: 0;
             background: transparent !important; border-bottom: none !important;
@@ -116,18 +98,15 @@
         header * { pointer-events: auto; }
 
         .header-left {
-            display: flex; align-items: center; gap: 12px;
-            background: var(--glass); padding: 6px 14px 6px 6px;
-            border-radius: 20px; backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px); box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border);
+            display: flex; align-items: center; gap: 12px; background: var(--glass);
+            padding: 6px 14px 6px 6px; border-radius: 20px; backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px); box-shadow: var(--shadow-sm); border: 1px solid var(--border);
         }
 
         .header-right { display: flex; gap: 8px; }
 
         .logo {
-            width: 36px; height: 36px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
+            width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary), var(--accent));
             border-radius: 14px; display: flex; align-items: center; justify-content: center;
             color: white; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
         }
@@ -138,120 +117,63 @@
         .status-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); }
 
         .icon-btn {
-            background: var(--glass); backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border);
-            padding: 10px; border-radius: 16px; color: var(--text-muted);
-            cursor: pointer; transition: all 0.2s; display: flex; align-items: center;
-            justify-content: center; box-shadow: var(--shadow-sm);
+            background: var(--glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border); padding: 10px; border-radius: 16px; color: var(--text-muted);
+            cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm);
         }
         .icon-btn:hover { color: var(--primary); border-color: var(--primary); background: rgba(59,130,246,0.1); }
         .icon-btn.danger:hover { color: var(--danger); border-color: var(--danger); background: rgba(239,68,68,0.1); }
         .icon-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
 
-        /* --- ВКЛАДКА: ЧАТ --- */
-        #chat-box {
-            position: absolute; inset: 0; overflow-y: auto;
-            padding: 85px 20px 90px 20px; display: flex; flex-direction: column;
-            gap: 20px; scroll-behavior: smooth;
-        }
-
+        /* --- ЧАТ --- */
+        #chat-box { position: absolute; inset: 0; overflow-y: auto; padding: 85px 20px 90px 20px; display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth; }
         .msg-wrapper { display: flex; width: 100%; max-width: 800px; margin: 0 auto; animation: fadeIn 0.3s ease; }
         .msg-wrapper.user { justify-content: flex-end; }
         .msg-wrapper.ai { justify-content: flex-start; }
         .msg-wrapper.system { justify-content: center; }
 
-        .bubble {
-            max-width: 85%; padding: 14px 18px; border-radius: 20px; font-size: 15px;
-            line-height: 1.6; position: relative; box-shadow: var(--shadow-sm); word-wrap: break-word;
-        }
+        .bubble { max-width: 85%; padding: 14px 18px; border-radius: 20px; font-size: 15px; line-height: 1.6; position: relative; box-shadow: var(--shadow-sm); word-wrap: break-word; }
         .user .bubble { background: var(--bubble-user); color: white; border-bottom-right-radius: 4px; }
         .ai .bubble { background: var(--bubble-ai); color: var(--text-main); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
-        
-        .system .bubble { 
-            background: rgba(255, 255, 255, 0.2); 
-            color: var(--text-main); 
-            font-size: 13px; 
-            font-weight: 500;
-            border-radius: 12px;
-            padding: 8px 16px; 
-            text-align: center; 
-            box-shadow: none;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
+        .system .bubble { background: rgba(255, 255, 255, 0.2); color: var(--text-main); font-size: 13px; font-weight: 500; border-radius: 12px; padding: 8px 16px; text-align: center; box-shadow: none; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.1); }
         [data-theme="dark"] .system .bubble { background: rgba(0, 0, 0, 0.4); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.05); }
 
-        /* Markdown Chat Styles */
-        .bubble p { margin-bottom: 10px; }
-        .bubble p:last-child { margin-bottom: 0; }
+        .bubble p { margin-bottom: 10px; } .bubble p:last-child { margin-bottom: 0; }
         .bubble ul { padding-left: 20px; margin-bottom: 10px; }
         .bubble code { background: rgba(0,0,0,0.1); padding: 2px 5px; border-radius: 4px; font-family: monospace; font-size: 0.9em; }
         .bubble pre { background: #1e293b; color: #f8fafc; padding: 15px; border-radius: 12px; margin: 10px 0; overflow-x: auto; }
         .bubble pre code { background: transparent; padding: 0; color: inherit; }
 
-        .copy-btn {
-            margin-top: 8px; background: none; border: none; color: var(--text-muted); font-size: 12px;
-            font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: 0.2s;
-        }
+        .copy-btn { margin-top: 8px; background: none; border: none; color: var(--text-muted); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: 0.2s; }
         .copy-btn:hover { color: var(--primary); }
         .copy-btn svg { width: 14px; height: 14px; fill: currentColor; }
 
-        /* Чат Ввід (Абсолютний і Прозорий) */
-        #chat-footer {
-            position: absolute; bottom: 0; left: 0; right: 0; padding: 12px 20px;
-            background: transparent !important; border-top: none !important;
-            z-index: 50; pointer-events: none; 
-        }
+        #chat-footer { position: absolute; bottom: 0; left: 0; right: 0; padding: 12px 20px; background: transparent !important; border-top: none !important; z-index: 50; pointer-events: none; }
         #chat-footer * { pointer-events: auto; }
 
-        .input-container {
-            max-width: 800px; margin: 0 auto; background: var(--glass); backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 24px;
-            display: flex; align-items: flex-end; padding: 8px 8px 8px 16px; transition: all 0.3s;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-        }
+        .input-container { max-width: 800px; margin: 0 auto; background: var(--glass); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 24px; display: flex; align-items: flex-end; padding: 8px 8px 8px 16px; transition: all 0.3s; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
         .input-container:focus-within { border-color: var(--primary); box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15); }
-        .input-container textarea {
-            flex-grow: 1; border: none; outline: none; background: transparent; padding: 8px 0;
-            font-family: inherit; font-size: 15px; color: var(--text-main); resize: none; max-height: 120px; line-height: 1.5;
-        }
-        .send-btn {
-            width: 40px; height: 40px; background: var(--primary); color: white; border: none; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;
-            flex-shrink: 0; margin-left: 8px;
-        }
+        .input-container textarea { flex-grow: 1; border: none; outline: none; background: transparent; padding: 8px 0; font-family: inherit; font-size: 15px; color: var(--text-main); resize: none; max-height: 120px; line-height: 1.5; }
+        
+        .send-btn { width: 40px; height: 40px; background: var(--primary); color: white; border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; margin-left: 8px; }
         .send-btn:hover { background: var(--primary-dark); transform: scale(1.05); }
         .send-btn:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; transform: none; }
         .send-btn svg { width: 18px; height: 18px; fill: currentColor; transform: translateX(1px); }
 
-        .typing-indicator {
-            display: none; padding: 12px 18px; background: var(--bubble-ai); border: 1px solid var(--border);
-            border-radius: 18px; gap: 5px; width: fit-content; margin-left: 20px; box-shadow: var(--shadow-sm);
-        }
+        .typing-indicator { display: none; padding: 12px 18px; background: var(--bubble-ai); border: 1px solid var(--border); border-radius: 18px; gap: 5px; width: fit-content; margin-left: 20px; box-shadow: var(--shadow-sm); }
         .typing-indicator span { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out; }
         .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
         .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
 
-        /* Welcome screen */
         #welcome { text-align: center; margin: auto; max-width: 500px; padding: 20px; background: var(--glass); backdrop-filter: blur(12px); border-radius: 24px; border: 1px solid var(--border); box-shadow: var(--shadow-md); margin-top: 40px;}
         .welcome-icon { font-size: 48px; margin-bottom: 12px; display: inline-block; animation: wave 2s infinite; }
         .suggestions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        
-        .suggest-item {
-            background: var(--bg-tab); border: 1px solid var(--border); padding: 12px; border-radius: 14px;
-            font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; text-align: left; color: var(--text-main);
-            display: flex; flex-direction: column; gap: 4px;
-        }
+        .suggest-item { background: var(--bg-tab); border: 1px solid var(--border); padding: 12px; border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; text-align: left; color: var(--text-main); display: flex; flex-direction: column; gap: 4px; }
         .suggest-item span { font-size: 11px; font-weight: 400; color: var(--text-muted); }
         .suggest-item:hover { border-color: var(--primary); transform: translateY(-2px); }
 
         /* --- ІСТОРІЯ (SIDEBAR) --- */
-        #history-sidebar {
-            position: fixed; top: 0; right: -300px; width: 300px; height: 100%; background: var(--bg-tab);
-            border-left: 1px solid var(--border); z-index: 1000; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex; flex-direction: column; box-shadow: -5px 0 20px rgba(0,0,0,0.1);
-        }
+        #history-sidebar { position: fixed; top: 0; right: -300px; width: 300px; height: 100%; background: var(--bg-tab); border-left: 1px solid var(--border); z-index: 1000; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; box-shadow: -5px 0 20px rgba(0,0,0,0.1); }
         #history-sidebar.open { right: 0; }
         .sidebar-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
         .sidebar-header h2 { font-size: 18px; margin: 0; color: var(--text-main); }
@@ -264,27 +186,41 @@
         .history-item:hover { border-color: var(--primary); }
         .history-item.active { background: rgba(59, 130, 246, 0.1); border-color: var(--primary); }
 
-        /* --- ВКЛАДКА: РОЗКЛАД & НАЛАШТУВАННЯ --- */
+        /* --- РОЗКЛАД UI --- */
         .page-content { position: absolute; inset: 0; overflow-y: auto; padding: 85px 20px 20px 20px; max-width: 800px; margin: 0 auto; width: 100%; }
-        .section-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; color: var(--text-main); display: flex; align-items: center; gap: 8px; background: var(--glass); padding: 10px 16px; border-radius: 16px; backdrop-filter: blur(8px); width: fit-content; }
+        
+        .sch-toggle-group { display: flex; background: var(--bg-main); border-radius: 14px; border: 1px solid var(--border); padding: 4px; margin-bottom: 12px; }
+        .sch-toggle-btn { flex: 1; border: none; background: transparent; padding: 12px; font-size: 14px; font-weight: 600; color: var(--text-muted); border-radius: 10px; cursor: pointer; transition: 0.2s; }
+        .sch-toggle-btn.active { background: var(--bg-tab); color: var(--primary); box-shadow: var(--shadow-sm); }
+        
+        .sch-select { width: 100%; padding: 14px; border-radius: 14px; border: 1px solid var(--border); background: var(--bg-tab); color: var(--text-main); font-size: 15px; font-weight: 600; margin-bottom: 20px; outline: none; appearance: none; cursor: pointer; box-shadow: var(--shadow-sm); }
+        .sch-select:focus { border-color: var(--primary); }
 
+        .sch-days { display: flex; gap: 8px; justify-content: space-between; margin-bottom: 20px; }
+        .sch-day { flex: 1; padding: 12px 0; text-align: center; background: var(--glass); border: 1px solid var(--border); border-radius: 12px; font-weight: 700; font-size: 14px; color: var(--text-muted); cursor: pointer; transition: 0.2s; backdrop-filter: blur(8px); }
+        .sch-day:hover { background: var(--bg-tab); color: var(--text-main); }
+        .sch-day.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 12px rgba(59,130,246,0.3); transform: translateY(-2px); }
+
+        .sch-card { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 16px; box-shadow: var(--shadow-sm); animation: fadeIn 0.3s ease; backdrop-filter: blur(12px); }
+        .sch-num { font-size: 28px; font-weight: 800; color: var(--border); width: 35px; text-align: center; font-family: monospace;}
+        .sch-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+        .sch-time { font-size: 12px; color: var(--primary); font-weight: 700; display: flex; align-items: center; gap: 4px; }
+        .sch-subj { font-size: 16px; font-weight: 700; color: var(--text-main); }
+        .sch-teacher { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+        .sch-room { padding: 6px 12px; background: rgba(59,130,246,0.1); color: var(--primary-dark); border-radius: 10px; font-size: 12px; font-weight: 700; border: 1px solid rgba(59,130,246,0.2); white-space: nowrap; height: fit-content;}
+        [data-theme="dark"] .sch-room { background: rgba(59,130,246,0.2); color: #93c5fd; }
+        .sch-empty { text-align: center; color: var(--text-muted); padding: 30px; font-weight: 500; background: var(--glass); border-radius: 20px; border: 1px dashed var(--border); }
+
+        /* --- НАЛАШТУВАННЯ --- */
         .card { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow-sm); }
-        .schedule-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
-        .schedule-item:last-child { border-bottom: none; padding-bottom: 0; }
-        .schedule-time { font-weight: 600; color: var(--primary); width: 100px; }
-        .schedule-subject { font-weight: 500; color: var(--text-main); flex-grow: 1; }
-        .schedule-room { color: var(--text-muted); font-size: 14px; text-align: right; }
-
         .setting-group { margin-bottom: 20px; }
         .setting-group label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-main); }
         .setting-control { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-tab); color: var(--text-main); font-size: 15px; font-family: inherit; outline: none; }
-        .setting-control:focus { border-color: var(--primary); }
-
         .preset-bgs { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
         .preset-bg-btn { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--border); cursor: pointer; transition: 0.2s; }
         .preset-bg-btn:hover { transform: scale(1.1); border-color: var(--primary); }
 
-        /* --- НИЖНЯ НАВІГАЦІЯ (ДИНАМІЧНА) --- */
+        /* --- НИЖНЯ НАВІГАЦІЯ --- */
         #bottom-nav-container { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         #bottom-nav-container.open { transform: translateY(0); }
         .nav-toggle-btn { position: absolute; top: -36px; left: 50%; transform: translateX(-50%); width: 60px; height: 36px; background: var(--nav-bg); border: 1px solid var(--border); border-bottom: none; border-radius: 20px 20px 0 0; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-muted); box-shadow: 0 -4px 12px rgba(0,0,0,0.05); }
@@ -298,7 +234,6 @@
         .nav-item.active svg { transform: translateY(-2px); }
         .nav-label { font-size: 11px; font-weight: 600; }
 
-        /* --- Animations & Modals --- */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes wave { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(15deg); } 75% { transform: rotate(-15deg); } }
         @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
@@ -378,23 +313,38 @@
             <header>
                 <div class="header-left" style="background: none; border: none; box-shadow: none;">
                     <div class="header-info">
-                        <h1 style="background: var(--glass); padding: 8px 16px; border-radius: 12px; backdrop-filter: blur(12px);">📅 Розклад уроків</h1>
+                        <h1 style="background: var(--glass); padding: 8px 16px; border-radius: 12px; backdrop-filter: blur(12px); border: 1px solid var(--border);">📅 Розклад ліцею №8</h1>
                     </div>
                 </div>
             </header>
-            <div class="page-content">
-                <h2 class="section-title">Мій Клас (Приклад)</h2>
-                <div class="card">
-                    <h3 style="margin-bottom: 12px; color: var(--primary);">Понеділок</h3>
-                    <div class="schedule-item"><div class="schedule-time">08:30 - 09:15</div><div class="schedule-subject">Алгебра</div><div class="schedule-room">Каб. 101</div></div>
-                    <div class="schedule-item"><div class="schedule-time">09:25 - 10:10</div><div class="schedule-subject">Українська мова</div><div class="schedule-room">Каб. 204</div></div>
-                    <div class="schedule-item"><div class="schedule-time">10:30 - 11:15</div><div class="schedule-subject">Фізика</div><div class="schedule-room">Каб. 302</div></div>
+            <div class="page-content" style="padding-top: 85px;">
+                
+                <div class="sch-toggle-group">
+                    <button class="sch-toggle-btn active" id="btn-type-class" onclick="setSchType('class')">Для класів</button>
+                    <button class="sch-toggle-btn" id="btn-type-teacher" onclick="setSchType('teacher')">Для викладачів</button>
                 </div>
-                <div class="card">
-                    <h3 style="margin-bottom: 12px; color: var(--primary);">Вівторок</h3>
-                    <div class="schedule-item"><div class="schedule-time">08:30 - 09:15</div><div class="schedule-subject">Історія України</div><div class="schedule-room">Каб. 210</div></div>
-                    <div class="schedule-item"><div class="schedule-time">09:25 - 10:10</div><div class="schedule-subject">Англійська мова</div><div class="schedule-room">Каб. 105</div></div>
+                
+                <select id="sch-selector" class="sch-select" onchange="renderSchedule()">
+                    <!-- Наповнюється з JS -->
+                </select>
+
+                <div class="sch-toggle-group">
+                    <button class="sch-toggle-btn active" id="btn-week-1" onclick="setSchWeek('week1')">Перший тиждень</button>
+                    <button class="sch-toggle-btn" id="btn-week-2" onclick="setSchWeek('week2')">Другий тиждень</button>
                 </div>
+
+                <div class="sch-days">
+                    <button class="sch-day active" id="day-ПН" onclick="setSchDay('ПН')">ПН</button>
+                    <button class="sch-day" id="day-ВТ" onclick="setSchDay('ВТ')">ВТ</button>
+                    <button class="sch-day" id="day-СР" onclick="setSchDay('СР')">СР</button>
+                    <button class="sch-day" id="day-ЧТ" onclick="setSchDay('ЧТ')">ЧТ</button>
+                    <button class="sch-day" id="day-ПТ" onclick="setSchDay('ПТ')">ПТ</button>
+                </div>
+
+                <div id="sch-lessons-container">
+                    <!-- Картки генеруються JS -->
+                </div>
+
             </div>
         </div>
 
@@ -434,7 +384,7 @@
                         <button onclick="applyCustomBg()" style="margin-top: 10px; width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">Застосувати картинку</button>
                     </div>
                 </div>
-                <div class="card" style="text-align: center;"><p style="color: var(--text-muted); font-size: 13px;">Версія додатка: 10.0 Titanium<br>Розроблено для ліцею №8</p></div>
+                <div class="card" style="text-align: center;"><p style="color: var(--text-muted); font-size: 13px;">Версія додатка: 66.0 Super Stable API<br>Розроблено для ліцею №8</p></div>
             </div>
         </div>
     </div>
@@ -464,7 +414,7 @@
                 <span class="nav-label">Розклад</span>
             </button>
             <button class="nav-item" data-target="tab-settings">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                 <span class="nav-label">Налаштування</span>
             </button>
         </nav>
@@ -483,6 +433,124 @@
     </div>
 
     <script>
+        const emptyWeek = () => ({ "ПН": [], "ВТ": [], "СР": [], "ЧТ": [], "ПТ": [] });
+        const L = (n, t, s, tr, r) => ({ num: n, time: t, subject: s, teacher: tr, room: r });
+        const dupW = (w) => ({ week1: w, week2: JSON.parse(JSON.stringify(w)) });
+
+        // Компактні змінні для часу
+        const t1="08:00 – 08:35", t2="08:50 – 09:25", t3="09:40 – 10:15", t4="10:25 – 11:00", t5="11:10 – 11:45";
+        const k1="08:00 – 08:40", k2="08:50 – 09:30", k3="09:40 – 10:20", k4="10:30 – 11:10", k5="11:20 – 12:00";
+        const m1="12:10 – 12:50", m2="13:00 – 13:40", m3="13:50 – 14:30", m4="14:40 – 15:20", m5="15:30 – 16:10";
+        const p1="13:30 – 14:15", p2="14:25 – 15:10", p3="15:20 – 16:05", p4="16:15 – 17:00", p5="17:10 – 17:55", p6="18:05 – 18:50";
+        const h1="08:00 – 08:45", h2="08:55 – 09:40", h3="09:50 – 10:35", h4="10:45 – 11:30", h5="11:40 – 12:25", h6="12:35 – 13:20", h7="13:30 – 14:15";
+        const x1="12:35 – 13:20";
+
+        // Компактні змінні для предметів
+        const U="Українська мова", UL="Українська література", M="Математика", A="Алгебра", G="Геометрія", E="Англійська мова", B="Біологія", C="Хімія", P="Фізика", H="Історія України", W="Всесвітня історія", PE="Фізична культура", I="Інформатика", Geo="Географія", Art="Мистецтво", Z="Зарубіжна література", T="Технології", D="Дизайн і технології", N="Пізнаємо природу", S="Я досліджую світ", Civ="Громадянська освіта", Th="Драматургія і театр", Pol="Польська мова", Ger="Німецька мова", Law="Правознавство", Health="Основи здоров'я", Def="Захист України", Astr="Астрономія", Stem="STEM", Fin="Підприємництво і фінансова грамотність", Safe="Здоров'я, безпека та добробут", Eth="Етика";
+
+        // Компактні змінні для вчителів
+        const F="Флячинська О.М.", N1="Назарчук Л.Ю.", Sh="Шатківська О.Б.", Tar="Тарасенко А.С.", Gos="Господарик О.І.", Bab="Бабич С.Є.", Str="Стременко К.А.", Sto="Столяр І.С.", Kly="Климчук О.Л.", Mar="Марченко С.В.", Zhel="Желяк Л.В.", Mak="Максимець Н.Ф.", Yak="Якусевич Н.В.", Opa="Опанчук М.І.", Amr="Амрахова І.В.", Ser="Сергєєва І.М.", Mykh="Михайлицька О.С.", Vah="Ваховська Н.С.", Zhe="Жембровський О.О.", Vil="Вільчинська І.Л.", Osy="Осипенко С.С.", Kat="Катріч Л.О.", Lad="Ладнюк О.В.", Sav="Савчук І.В.", Kuz="Кузнєцова О.В.", Did="Дідко І.С.", MakP="Максимчук Л.П.", Gre="Гребенюк І.Д.", Yar="Ярошенко Н.М.", Koz="Козел Т.Ю.", Kob="Кобернік Д.І.", Paz="Пазич І.С.", Ukr="Українець Л.О.", Pus="Пустохіна Є.Ф.", Dan="Данілова С.В.", Dud="Дудар О.В.", Gor="Горощенко А.М.", Ata="Атаманчук О.Є.", Yaru="Ярмоліцька Н.Ю.", Koch="Кочевенко Д.М.", Rys="Рисіч Т.І.", Lav="Лавриненко Н.В.", Pro="Проботюк А.О.", Bel="Бєлова Т.Л.", Yev="Євтушенко Т.С.", Sar="Саранча М.П.", ProD="Проботюк О.Д.", GusV="Густохіна В.І.", GusE="Густохіна Є.Ф.", Man="Манохін В.В.";
+        const BelYev="Бєлова Т.Л. / Євтушенко Т.С.", VahYev="Ваховська Н.С. / Євтушенко Т.С.", ZheVil="Жембровський О.О. / Вільчинська І.Л.", ProZhe="Проботюк А.О. / Жембровський О.О.", ProVil="Проботюк А.О. / Вільчинська І.Л.", ZheVah="Жембровський О.О. / Ваховська Н.С.", VahKuz="Ваховська Н.С. / Кузнєцова О.В.", OsyYar="Осипенко С.С. / Ярошенко Н.М.", GusE_GusV="Густохіна Є.Ф. / Густохіна В.І.", GusV_GusE="Густохіна В.І. / Густохіна Є.Ф.", StrVil="Стременко К.А. / Вільчинська І.Л.", StoVil="Столяр І.С. / Вільчинська І.Л.", KlyVil="Климчук О.Л. / Вільчинська І.Л.", Bov="Бовсуновський Ю.М.";
+
+        // Компактні змінні для аудиторій
+        const r4="4 аудиторія", r2="2 аудиторія", r24="24 аудиторія", r23="23 аудиторія", r22="22 аудиторія", r5="5 аудиторія", r20="20 аудиторія", r39="39 аудиторія", r37="37 аудиторія", r36="36 аудиторія", r25="25 аудиторія", r26="26 аудиторія", r40="40 аудиторія", r41="41 аудиторія", r34="34 аудиторія", rGym="Спортивна зала", rAct="Актова зала", rInfo1="26 / 20 аудиторія", rInfo2="20 / 26 аудиторія", rEng1="33 / 34 аудиторія", rEng2="33 / 23 аудиторія", rW="Майстерня", rO="Онлайн", rDef="Кабінет Захисту України";
+
+        const MY_REAL_SCHEDULE = { class: {}, teacher: {} };
+
+        MY_REAL_SCHEDULE.class = {
+            "1-А": dupW({"ПН":[L(1,t1,U,F,r4),L(2,t2,M,F,r4),L(3,t3,U,F,r4),L(4,t4,S,F,r4)],"ВТ":[L(1,t1,E,Bel,r4),L(2,t2,M,F,r4),L(3,t3,S,F,r4),L(4,t4,PE,F,rGym),L(5,t5,D,F,r4)],"СР":[L(1,t1,U,F,r4),L(2,t2,M,F,r4),L(3,t3,U,F,r4),L(4,t4,S,F,r4)],"ЧТ":[L(1,t1,U,F,r4),L(2,t2,M,F,r4),L(3,t3,U,F,r4),L(4,t4,PE,F,rGym)],"ПТ":[L(1,t1,U,F,r4),L(2,t2,E,Bel,r4),L(3,t3,Art,F,r4),L(4,t4,PE,F,rGym)]}),
+            "1-Б": dupW({"ПН":[L(1,t1,U,N1,r2),L(2,t2,U,N1,r2),L(3,t3,M,N1,r2),L(4,t4,PE,N1,rGym)],"ВТ":[L(1,t1,U,N1,r2),L(2,t2,E,Bel,r2),L(3,t3,M,N1,r2),L(4,t4,S,N1,r2),L(5,t5,S,N1,r2)],"СР":[L(1,t1,U,N1,r2),L(2,t2,U,N1,r2),L(3,t3,M,N1,r2),L(4,t4,PE,N1,rGym)],"ЧТ":[L(1,t1,U,N1,r2),L(2,t2,M,N1,r2),L(3,t3,S,N1,r2),L(4,t4,PE,N1,rGym)],"ПТ":[L(1,t1,E,Bel,r2),L(2,t2,U,N1,r2),L(3,t3,D,N1,r2),L(4,t4,Art,N1,r2)]}),
+            "1-В": dupW({"ПН":[L(1,t1,S,Sh,r24),L(2,t2,U,Sh,r24),L(3,t3,E,Yev,r24),L(4,t4,PE,Sh,rGym)],"ВТ":[L(1,t1,S,Sh,r24),L(2,t2,U,Sh,r24),L(3,t3,M,Sh,r24),L(4,t4,U,Sh,r24),L(5,t5,PE,Sh,rGym)],"СР":[L(1,t1,U,Sh,r24),L(2,t2,M,Sh,r24),L(3,t3,U,Sh,r24),L(4,t4,S,Sh,r24)],"ЧТ":[L(1,t1,U,Sh,r24),L(2,t2,M,Sh,r24),L(3,t3,PE,Sh,rGym),L(4,t4,D,Sh,r24)],"ПТ":[L(1,t1,M,Sh,r24),L(2,t2,E,Yev,r24),L(3,t3,U,Sh,r24),L(4,t4,Art,Sh,r24)]}),
+            "2-А": dupW({"ПН":[L(1,k1,M,Tar,r23),L(2,k2,E,Yev,r23),L(3,k3,PE,Tar,rGym),L(4,k4,U,Tar,r23),L(5,k5,UL,Tar,r23)],"ВТ":[L(1,k1,U,Tar,r23),L(2,k2,M,Tar,r23),L(3,k3,S,Tar,r23),L(4,k4,I,Tar,r20),L(5,k5,UL,Tar,r23)],"СР":[L(1,k1,U,Tar,r23),L(2,k2,M,Tar,r23),L(3,k3,PE,Tar,rGym),L(4,k4,UL,Tar,r23),L(5,k5,S,Tar,r23)],"ЧТ":[L(1,k1,U,Tar,r23),L(2,k2,M,Tar,r23),L(3,k3,E,Yev,r23),L(4,k4,D,Tar,r23)],"ПТ":[L(1,k1,S,Tar,r23),L(2,k2,Art,Tar,r23),L(3,k3,E,Yev,r23),L(4,k4,PE,Tar,rGym)]}),
+            "2-Б": dupW({"ПН":[L(1,k1,E,Bel,r22),L(2,k2,M,Gos,r22),L(3,k3,U,Gos,r22),L(4,k4,S,Gos,r22),L(5,k5,PE,Bov,rGym)],"ВТ":[L(1,k1,U,Gos,r22),L(2,k2,I,Gos,r20),L(3,k3,M,Gos,r22),L(4,k4,UL,Gos,r22),L(5,k5,D,Gos,r22)],"СР":[L(1,k1,U,Gos,r22),L(2,k2,E,Bel,r22),L(3,k3,M,Gos,r22),L(4,k4,PE,Bov,rGym),L(5,k5,S,Gos,r22)],"ЧТ":[L(1,k1,E,Bel,r22),L(2,k2,M,Gos,r22),L(3,k3,UL,Gos,r22),L(4,k4,PE,Bov,rGym)],"ПТ":[L(1,k1,U,Gos,r22),L(2,k2,UL,Gos,r22),L(3,k3,S,Gos,r22),L(4,k4,Art,Gos,r22)]}),
+            "2-В": dupW({"ПН":[L(1,k1,UL,Bab,r5),L(2,k2,E,Bel,r5),L(3,k3,M,Bab,r5),L(4,k4,U,Bab,r5),L(5,k5,S,Bab,r5)],"ВТ":[L(1,k1,UL,Bab,r5),L(2,k2,U,Bab,r5),L(3,k3,M,Bab,r5),L(4,k4,PE,Bab,rGym)],"СР":[L(2,k2,M,Bab,r5),L(3,k3,U,Bab,r5),L(4,k4,I,Bab,r20),L(5,k5,D,Bab,r5)],"ЧТ":[L(1,k1,U,Bab,r5),L(3,k3,M,Bab,r5),L(4,k4,S,Bab,r5),L(5,k5,PE,Bab,rGym)],"ПТ":[L(1,k1,UL,Bab,r5),L(2,k2,S,Bab,r5),L(3,k3,Art,Bab,r5),L(4,k4,PE,Bab,rGym)]}),
+            "3-А": dupW(emptyWeek()),
+            "3-Б": dupW({"ПН":[L(1,m1,U,Str,r4),L(2,m2,M,Str,r4),L(3,m3,UL,Str,r4),L(4,m4,E,Yev,r4),L(5,m5,PE,Str,rGym)],"ВТ":[L(1,m1,U,Str,r4),L(2,m2,M,Str,r4),L(3,m3,S,Str,r4),L(4,m4,UL,Str,r4),L(5,m5,PE,Str,rGym)],"СР":[L(1,m1,M,Str,r4),L(2,m2,S,Str,r4),L(3,m3,E,Yev,r4),L(4,m4,U,Str,r4),L(5,m5,Art,Str,r4)],"ЧТ":[L(1,m1,U,Str,r4),L(2,m2,M,Str,r4),L(3,m3,S,Str,r4),L(4,m4,UL,Str,r4)],"ПТ":[L(1,m1,I,StrVil,rInfo2),L(2,m2,M,Str,r4),L(3,m3,PE,Str,rGym),L(4,m4,D,Str,r4),L(5,m5,E,Yev,r4)]}),
+            "3-В": dupW({"ПН":[L(1,m1,U,Sto,r24),L(2,m2,E,Yev,r24),L(3,m3,M,Sto,r24),L(4,m4,PE,Sto,rGym),L(5,m5,S,Sto,r24)],"ВТ":[L(1,m1,UL,Sto,r24),L(2,m2,U,Sto,r24),L(3,m3,M,Sto,r24),L(4,m4,S,Sto,r24),L(5,m5,D,Sto,r24)],"СР":[L(1,m1,UL,Sto,r24),L(2,m2,E,Yev,r24),L(3,m3,U,Sto,r24),L(4,m4,M,Sto,r24),L(5,m5,Art,Sto,r24)],"ЧТ":[L(1,m1,M,Sto,r24),L(2,m2,U,Sto,r24),L(3,m3,PE,Sto,rGym),L(4,m4,E,Yev,r24),L(5,m5,I,StoVil,rInfo2)],"ПТ":[L(1,m1,S,Sto,r24),L(2,m2,UL,Sto,r24),L(3,m3,M,Sto,r24),L(4,m4,PE,Sto,r24)]}),
+            "4-А": dupW({"ПН":[L(1,m1,PE,Bov,rGym),L(2,m2,M,Kly,r22),L(3,m3,U,Kly,r22),L(4,m4,E,Bel,r22),L(5,m5,Art,Kly,r22)],"ВТ":[L(1,m1,UL,Kly,r22),L(2,m2,M,Kly,r22),L(3,m3,U,Kly,r22),L(4,m4,S,Kly,r22),L(5,m5,S,Kly,r22)],"СР":[L(1,m1,M,Kly,r22),L(2,m2,PE,Bov,rGym),L(3,m3,E,Bel,r22),L(4,m4,UL,Kly,r22),L(5,m5,D,Kly,r22)],"ЧТ":[L(1,m1,M,Kly,r22),L(2,m2,PE,Bov,rGym),L(3,m3,E,Bel,r22),L(4,m4,U,Kly,r22),L(5,m5,S,Kly,r22)],"ПТ":[L(1,m1,U,Kly,r22),L(2,m2,I,KlyVil,rInfo1),L(3,m3,M,Kly,r22),L(4,m4,UL,Kly,r22)]}),
+            "4-Б": dupW({"ПН":[L(1,m1,E,BelYev,r5),L(2,m2,M,Mar,r5),L(3,m3,UL,Mar,r5),L(4,m4,S,Mar,r5),L(5,m5,D,Mar,r5)],"ВТ":[L(1,m1,E,BelYev,r5),L(2,m2,M,Mar,r5),L(3,m3,U,Mar,r5),L(4,m4,PE,Mar,rGym)],"СР":[L(1,m1,U,Mar,r5),L(2,m2,M,Mar,r5),L(3,m3,PE,Mar,rGym),L(4,m4,S,Mar,r5),L(5,m5,Art,Mar,r5)],"ЧТ":[L(1,m1,E,BelYev,r5),L(2,m2,M,Mar,r5),L(3,m3,U,Mar,r5),L(4,m4,UL,Mar,r5),L(5,m5,PE,Mar,rGym)],"ПТ":[L(1,m1,U,Mar,r5),L(2,m2,M,Mar,r5),L(3,m3,UL,Mar,r5),L(4,m4,S,Mar,r5)]}),
+            "4-В": dupW({"ПН":[L(1,m1,U,Zhel,r23),L(2,m2,E,Bel,r23),L(3,m3,M,Zhel,r23),L(4,m4,UL,Zhel,r23),L(5,m5,PE,Zhel,rGym)],"ВТ":[L(1,m1,U,Zhel,r23),L(2,m2,M,Zhel,r23),L(3,m3,S,Zhel,r23),L(4,m4,D,Zhel,r23),L(5,m5,PE,Zhel,rGym)],"СР":[L(1,m1,UL,Zhel,r23),L(2,m2,E,Bel,r23),L(3,m3,M,Zhel,r23),L(4,m4,U,Zhel,r23)],"ЧТ":[L(1,m1,U,Zhel,r23),L(2,m2,E,Bel,r23),L(3,m3,M,Zhel,r23),L(4,m4,S,Zhel,r23),L(5,m5,Art,Zhel,r23)],"ПТ":[L(1,m1,M,Zhel,r23),L(2,m2,UL,Zhel,r23),L(3,m3,S,Zhel,r23),L(4,m4,PE,Zhel,rGym)]}),
+            "5-А": dupW({"ПН":[L(1,p1,UL,Mak,r39),L(2,p2,M,Yak,r39),L(3,p3,PE,Opa,rGym),L(4,p4,N,Amr,r39),L(5,p5,U,Mak,r39)],"ВТ":[L(1,p1,U,Mak,r39),L(2,p2,Art,Ser,r39),L(3,p3,M,Yak,r39),L(4,p4,Th,Mykh,rAct),L(5,p5,N,Amr,r39),L(6,p6,E,Vah,r39)],"СР":[L(1,p1,M,Yak,r39),L(2,p2,I,ZheVil,rInfo1),L(3,p3,Z,Ser,r39),L(4,p4,U,Mak,r39),L(5,p5,PE,Opa,rGym),L(6,p6,E,Vah,r39)],"ЧТ":[L(1,p1,Z,Ser,r39),L(2,p2,U,Mak,r39),L(3,p3,E,Vah,r39),L(4,p4,M,Yak,r39),L(5,p5,Safe,Amr,r39),L(6,p6,T,Osy,rW)],"ПТ":[L(1,p1,E,Vah,r39),L(2,p2,PE,Opa,rGym),L(3,p3,M,Yak,r39),L(4,p4,H,Kat,r39),L(5,p5,UL,Mak,r39)]}),
+            "5-Б": dupW({"ПН":[L(1,p1,Pol,Lad,r37),L(2,p2,M,Sav,r37),L(3,p3,N,Amr,r37),L(4,p4,U,Mak,r37),L(5,p5,PE,Opa,rGym),L(6,p6,UL,Mak,r37)],"ВТ":[L(1,p1,M,Sav,r37),L(2,p2,E,Kuz,r37),L(3,p3,Art,Ser,r37),L(4,p4,U,Mak,r37),L(5,p5,Th,Mykh,rAct),L(6,p6,N,Amr,r37)],"СР":[L(1,p1,M,Sav,r37),L(2,p2,Eth,Ser,r37),L(3,p3,PE,Opa,rGym),L(4,p4,E,Kuz,r37),L(5,p5,U,Mak,r37),L(6,p6,I,ZheVil,rInfo2)],"ЧТ":[L(1,p1,E,Kuz,r37),L(2,p2,M,Sav,r37),L(3,p3,U,Mak,r37),L(4,p4,Z,Ser,r37),L(5,p5,T,Osy,rW)],"ПТ":[L(1,p1,M,Sav,r37),L(2,p2,E,Kuz,r37),L(3,p3,H,Kat,r37),L(4,p4,UL,Mak,r37),L(5,p5,Pol,Lad,r37),L(6,p6,PE,Opa,rGym)]}),
+            "5-В": dupW({"ПН":[L(1,p1,UL,Did,r36),L(2,p2,M,MakP,r36),L(3,p3,U,Did,r36),L(4,p4,PE,Opa,rGym),L(5,p5,N,Amr,r36)],"ВТ":[L(1,p1,Art,Ser,r36),L(2,p2,U,Did,r36),L(3,p3,M,MakP,r36),L(4,p4,N,Amr,r36),L(5,p5,E,Gre,r36),L(6,p6,Th,Mykh,rAct)],"СР":[L(1,p1,M,MakP,r36),L(2,p2,U,Did,r36),L(3,p3,I,ZheVil,rInfo2),L(4,p4,PE,Opa,rGym),L(5,p5,E,Gre,r36),L(6,p6,T,Yar,r36)],"ЧТ":[L(1,p1,M,MakP,r36),L(2,p2,U,Did,r36),L(3,p3,Z,Yar,r36),L(4,p4,Safe,Amr,r36),L(5,p5,E,Gre,r36),L(6,p6,Z,Yar,r36)],"ПТ":[L(1,p1,UL,Did,r36),L(2,p2,M,MakP,r36),L(3,p3,E,Gre,r36),L(4,p4,PE,Opa,rGym),L(5,p5,H,Kat,r36)]}),
+            "6-А": dupW({"ПН":[L(1,p1,Eth,Ser,rO),L(2,p2,U,Koz,rO),L(3,p3,Art,Ser,rO),L(4,p4,M,MakP,rO),L(5,p5,H,Kat,rO),L(6,p6,PE,Opa,rO)],"ВТ":[L(1,x1,Geo,Kob,rO),L(2,p1,M,MakP,rO),L(3,p2,U,Koz,rO),L(4,p3,UL,Koz,rO),L(5,p4,PE,Opa,rO),L(6,p5,E,Vah,rO),L(7,p6,Civ,Kat,rO)],"СР":[L(1,x1,Pol,Lad,rO),L(2,p1,UL,Koz,rO),L(3,p2,M,MakP,rO),L(4,p3,U,Koz,rO),L(5,p4,H,Kat,rO),L(6,p5,E,Vah,rO),L(7,p6,Geo,Kob,rO)],"ЧТ":[L(1,x1,N,Paz,rO),L(2,p1,U,Koz,rO),L(3,p2,Z,Ser,rO),L(4,p3,M,MakP,rO),L(5,p4,PE,Opa,rO),L(6,p5,E,Vah,rO)],"ПТ":[L(1,p1,M,MakP,rO),L(2,p2,Th,Mykh,rO),L(3,p3,I,ZheVil,rO),L(4,p4,E,Vah,rO),L(5,p5,T,Osy,rO),L(6,p6,Pol,Lad,rO)]}),
+            "6-Б": dupW({"ПН":[L(1,p1,M,Ukr,rO),L(2,p2,Pol,Lad,rO),L(3,p3,U,Mak,rO),L(4,p4,Eth,Ser,rO),L(5,p5,Art,Ser,rO),L(6,p6,H,Kat,rO)],"ВТ":[L(1,x1,U,Mak,rO),L(2,p1,M,Ukr,rO),L(3,p2,E,VahYev,rO),L(4,p3,UL,Mak,rO),L(5,p4,Civ,Kat,rO),L(6,p5,PE,Opa,rO),L(7,p6,Geo,Kob,rO)],"СР":[L(1,x1,H,Kat,rO),L(2,p1,M,Ukr,rO),L(3,p2,UL,Mak,rO),L(4,p3,U,Mak,rO),L(5,p4,E,VahYev,rO),L(6,p5,Geo,Kob,rO),L(7,p6,PE,Opa,rO)],"ЧТ":[L(1,p1,U,Mak,rO),L(2,p2,M,Ukr,rO),L(3,p3,Z,Ser,rO),L(4,p4,E,VahYev,rO),L(5,p5,PE,Opa,rO),L(6,p6,N,Paz,rO)],"ПТ":[L(1,p1,M,Ukr,rO),L(2,p2,I,ZheVil,rO),L(3,p3,Th,Mykh,rO),L(4,p4,Pol,Lad,rO),L(5,p5,E,VahYev,rO),L(6,p6,T,Osy,rO)]}),
+            "6-В": dupW({"ПН":[L(1,x1,N,Paz,rO),L(2,p1,U,Pus,rO),L(3,p2,Z,Pus,rO),L(4,p3,M,Sav,rO),L(5,p4,H,Kat,rO)],"ВТ":[L(1,x1,M,Sav,rO),L(2,p1,U,Pus,rO),L(3,p2,Geo,Kob,rO),L(4,p3,UL,Pus,rO),L(5,p4,E,Vah,rO),L(6,p5,PE,Opa,rO),L(7,p6,Civ,Kat,rO)],"СР":[L(1,x1,M,Sav,rO),L(2,p1,E,Vah,rO),L(3,p2,U,Pus,rO),L(4,p3,UL,Pus,rO),L(5,p4,Geo,Kob,rO),L(6,p5,H,Kat,rO),L(7,p6,Art,Mykh,rO)],"ЧТ":[L(1,p1,M,Sav,rO),L(2,p2,Th,Mykh,rO),L(3,p3,Z,Pus,rO),L(4,p4,U,Pus,rO),L(5,p5,E,Vah,rO),L(6,p6,PE,Opa,rO)],"ПТ":[L(1,p1,I,ZheVah,rO),L(2,p2,M,Sav,rO),L(3,p3,E,Vah,rO),L(4,p4,T,Osy,rO),L(5,p5,PE,Opa,rO)]}),
+            "7-А": dupW({"ПН":[L(1,h1,A,Sav,rO),L(2,h2,E,Kuz,rO),L(3,h3,T,Yar,rO),L(4,h4,B,Paz,rO),L(5,h5,C,Gor,rO),L(6,h6,UL,Pus,rO)],"ВТ":[L(1,h1,E,Kuz,rO),L(2,h2,B,Paz,rO),L(3,h3,G,Sav,rO),L(4,h4,Geo,Dan,rO),L(5,h5,U,Pus,rO),L(6,h6,PE,Bov,rO),L(7,h7,Civ,Dud,rO)],"СР":[L(1,h1,A,Sav,rO),L(2,h2,Th,Mykh,rO),L(3,h3,PE,Bov,rO),L(4,h4,Z,Ser,rO),L(5,h5,PE,Bov,rO),L(6,h6,U,Pus,rO),L(7,h7,I,ZheVil,rO)],"ЧТ":[L(1,h1,Geo,Dan,rO),L(2,h2,H,Dud,rO),L(3,h3,G,Sav,rO),L(4,h4,P,Yak,rO),L(5,h5,PE,Bov,rO),L(6,h6,UL,Pus,rO)],"ПТ":[L(1,h1,Z,Ser,rO),L(2,h2,H,Dud,rO),L(3,h3,A,Sav,rO),L(4,h4,E,Kuz,rO),L(5,h5,U,Pus,rO),L(6,h6,Art,Mykh,rO)]}),
+            "7-Б": dupW({"ПН":[L(1,h1,T,Yar,rO),L(2,h2,B,Paz,rO),L(3,h3,E,Kuz,rO),L(4,h4,UL,Koz,rO),L(5,h5,A,"Ковальчук В.В.",rO),L(6,h6,C,Gor,rO)],"ВТ":[L(1,h1,PE,Ata,rO),L(2,h2,G,"Ковальчук В.В.",rO),L(3,h3,E,Kuz,rO),L(4,h4,B,Paz,rO),L(5,h5,Geo,Dan,rO),L(6,h6,Civ,Dud,rO),L(7,h7,U,Koz,rO)],"СР":[L(1,h1,Th,Mykh,rO),L(2,h2,P,Yak,rO),L(3,h3,A,"Ковальчук В.В.",rO),L(4,h4,Z,Ser,rO),L(5,h5,I,ZheVil,rO),L(6,h6,U,Koz,rO),L(7,h7,PE,Ata,rO)],"ЧТ":[L(1,h1,H,Dud,rO),L(2,h2,Geo,Dan,rO),L(3,h3,G,"Ковальчук В.В.",rO),L(4,h4,UL,Koz,rO),L(5,h5,PE,Ata,rO),L(6,h6,P,Yak,rO)],"ПТ":[L(1,h1,H,Dud,rO),L(2,h2,Z,Ser,rO),L(3,h3,U,Koz,rO),L(4,h4,Art,Mykh,rO),L(5,h5,A,"Ковальчук В.В.",rO),L(6,h6,E,Kuz,rO)]}),
+            "7-В": dupW({"ПН":[L(1,h1,E,Kuz,rO),L(2,h2,T,Yar,rO),L(3,h3,B,Paz,rO),L(4,h4,A,Sav,rO),L(5,h5,UL,Pus,rO),L(6,h6,Pol,Lad,rO),L(7,h7,C,Gor,rO)],"ВТ":[L(1,h1,G,Sav,rO),L(2,h2,PE,Ata,rO),L(3,h3,Geo,Dan,rO),L(4,h4,E,Kuz,rO),L(5,h5,B,Paz,rO),L(6,h6,U,Pus,rO),L(7,h7,Safe,Yaru,rO)],"СР":[L(1,h1,P,Yak,rO),L(2,h2,Pol,Lad,rO),L(3,h3,Stem,Koch,rO),L(4,h4,A,Sav,rO),L(5,h5,Z,Ser,rO),L(6,h6,PE,Ata,rO),L(7,h7,U,Pus,rO)],"ЧТ":[L(1,h1,G,Sav,rO),L(2,h2,P,Yak,rO),L(3,h3,Geo,Dan,rO),L(4,h4,H,Dud,rO),L(5,h5,I,ZheVil,rO),L(6,h6,PE,Ata,rO),L(7,h7,UL,Pus,rO)],"ПТ":[L(1,h1,A,Sav,rO),L(2,h2,Art,Mykh,rO),L(3,h3,H,Dud,rO),L(4,h4,Z,Ser,rO),L(5,h5,E,Kuz,rO),L(6,h6,U,Pus,rO)]}),
+            "8-А": dupW({"ПН":[L(1,h1,PE,Ata,rO),L(2,h2,A,Yaru,rO),L(3,h3,E,Gre,rO),L(4,h4,H,Dud,rO),L(5,h5,P,Yak,rO),L(6,h6,U,Did,rO)],"ВТ":[L(1,h1,U,Did,rO),L(2,h2,G,Yaru,rO),L(3,h3,Stem,Koch,rO),L(4,h4,Z,Rys,rO),L(5,h5,Geo,Kob,rO),L(6,h6,PE,Ata,rO),L(7,h7,P,Yak,rO)],"СР":[L(1,h1,A,Yaru,rO),L(2,h2,E,Gre,rO),L(3,h3,H,Dud,rO),L(5,h5,T,Osy,rO),L(6,h6,UL,Did,rO),L(7,h7,B,Paz,rO)],"ЧТ":[L(1,h1,Geo,Kob,rO),L(2,h2,G,Yaru,rO),L(3,h3,PE,Ata,rO),L(4,h4,I,ProVil,rO),L(5,h5,B,Paz,rO),L(6,h6,U,Did,rO),L(7,h7,E,Gre,rO)],"ПТ":[L(1,h1,Fin,Pro,rO),L(2,h2,C,Amr,rO),L(3,h3,UL,Did,rO),L(4,h4,A,Yaru,rO),L(5,h5,Civ,Dud,rO),L(6,h6,Art,Mykh,rO)]}),
+            "8-Б": dupW({"ПН":[L(1,h1,A,MakP,rO),L(2,h2,P,Yak,rO),L(3,h3,PE,Ata,rO),L(4,h4,E,Gre,rO),L(5,h5,U,Koz,rO),L(6,h6,H,Dud,rO)],"ВТ":[L(1,h1,G,MakP,rO),L(2,h2,P,Yak,rO),L(3,h3,PE,Ata,rO),L(4,h4,E,Gre,rO),L(5,h5,U,Koz,rO),L(6,h6,Z,Ser,rO),L(7,h7,Geo,Kob,rO)],"СР":[L(1,h1,H,Dud,rO),L(2,h2,C,Amr,rO),L(3,h3,T,Osy,rO),L(4,h4,A,MakP,rO),L(5,h5,Z,Ser,rO),L(6,h6,B,Paz,rO),L(7,h7,Th,Mykh,rO)],"ЧТ":[L(1,h1,B,Paz,rO),L(2,h2,Geo,Kob,rO),L(3,h3,G,MakP,rO),L(4,h4,PE,Ata,rO),L(5,h5,U,Koz,rO),L(6,h6,E,Gre,rO),L(7,h7,I,ProVil,rO)],"ПТ":[L(1,h1,UL,Koz,rO),L(2,h2,Health,Yaru,rO),L(3,h3,C,Amr,rO),L(4,h4,A,MakP,rO),L(5,h5,Art,Rys,rO),L(6,h6,I,ProZhe,rO)]}),
+            "8-В": dupW({"ПН":[L(1,h1,A,Yaru,rO),L(2,h2,E,Gre,rO),L(3,h3,H,Dud,rO),L(4,h4,P,Yak,rO),L(5,h5,Pol,Lad,rO),L(6,h6,U,Koz,rO),L(7,h7,PE,Opa,rO)],"ВТ":[L(1,h1,Geo,Dan,rO),L(2,h2,Stem,Koch,rO),L(3,h3,G,Yaru,rO),L(4,h4,P,Yak,rO),L(5,h5,Z,Rys,rO),L(6,h6,U,Koz,rO),L(7,h7,PE,Opa,rO)],"СР":[L(1,h1,B,Paz,rO),L(2,h2,A,Yaru,rO),L(3,h3,Pol,Lad,rO),L(4,h4,C,Amr,rO),L(5,h5,Z,Rys,rO),L(6,h6,E,Gre,rO),L(7,h7,H,Dud,rO)],"ЧТ":[L(1,h1,G,Yaru,rO),L(2,h2,B,Paz,rO),L(3,h3,I,ProZhe,rO),L(4,h4,Geo,Dan,rO),L(5,h5,E,Gre,rO),L(6,h6,U,Koz,rO),L(7,h7,PE,Opa,rO)],"ПТ":[L(1,h1,C,Amr,rO),L(2,h2,UL,Koz,rO),L(3,h3,A,Yaru,rO),L(4,h4,Civ,Dud,rO),L(5,h5,Art,Mykh,rO),L(6,h6,Fin,Pro,rO),L(7,h7,T,Osy,rO)]}),
+            "9-А": dupW({"ПН":[L(1,h1,PE,Sar,rGym),L(2,h2,P,Lav,r39),L(3,h3,A,Ukr,r25),L(4,h4,E,VahKuz,rEng1),L(5,h5,Z,Rys,r25),L(6,h6,W,Kat,r25),L(7,h7,I,ProZhe,rInfo1)],"ВТ":[L(1,h1,G,Ukr,r25),L(2,h2,P,Lav,r39),L(3,h3,UL,Did,r25),L(4,h4,C,Amr,r40),L(5,h5,Art,Mykh,rAct),L(6,h6,Law,Kat,r25),L(7,h7,W,Kat,r25)],"СР":[L(1,h1,PE,Sar,rGym),L(2,h2,A,Ukr,r25),L(3,h3,B,Paz,r25),L(4,h4,Pol,Lad,r25),L(5,h5,U,Did,r25),L(6,h6,E,VahKuz,rEng1),L(7,h7,W,Kat,r25)],"ЧТ":[L(1,h1,PE,Sar,rGym),L(2,h2,G,Ukr,r25),L(3,h3,C,Amr,r40),L(4,h4,Geo,Kob,r25),L(5,h5,Z,Rys,r25),L(6,h6,T,OsyYar,"Майстерня / 25 аудиторія"),L(7,h7,U,Did,r25)],"ПТ":[L(1,h1,B,Paz,r41),L(2,h2,P,Lav,"39 / 25 аудиторія"),L(3,h3,I,ProZhe,rInfo1),L(4,h4,UL,Did,r25),L(5,h5,A,Ukr,r25),L(6,h6,Health,Amr,"25 / 40 аудиторія"),L(7,h7,Pol,Lad,r25)]}),
+            "9-Б": dupW({"ПН":[L(1,h1,P,Lav,r41),L(2,h2,PE,Ata,rGym),L(3,h3,I,ProZhe,rInfo1),L(4,h4,A,Ukr,r41),L(5,h5,E,Gre,r41),L(6,h6,Z,Rys,r41),L(7,h7,H,Dud,r41)],"ВТ":[L(1,h1,P,Lav,r41),L(2,h2,H,Dud,r41),L(3,h3,G,Ukr,r41),L(4,h4,Law,Kat,r41),L(5,h5,C,Amr,r40),L(6,h6,Art,Mykh,rAct),L(7,h7,U,Did,r41)],"СР":[L(1,h1,Pol,Lad,r41),L(2,h2,Geo,Kob,r41),L(3,h3,A,Ukr,r41),L(4,h4,B,Paz,r41),L(5,h5,PE,Ata,rGym),L(6,h6,UL,Mak,r41),L(7,h7,E,Gre,r41)],"ЧТ":[L(1,h1,G,Ukr,r41),L(2,h2,I,ProZhe,rInfo2),L(3,h3,Geo,Kob,r41),L(4,h4,C,Amr,r40),L(5,h5,UL,Mak,r41),L(6,h6,Z,Rys,r41),L(7,h7,T,Osy,rW)],"ПТ":[L(1,h1,PE,Ata,rGym),L(2,h2,U,Did,r41),L(3,h3,P,Lav,r41),L(4,h4,A,Ukr,r41),L(5,h5,B,Paz,r41),L(6,h6,Pol,Lad,r41),L(7,h7,Health,Amr,r41)]}),
+            "9-В": dupW({"ПН":[L(1,h1,I,ProZhe,rInfo1),L(2,h2,A,Ukr,r40),L(3,h3,P,Lav,r40),L(4,h4,PE,Ata,rGym),L(5,h5,H,Dud,r40),L(6,h6,Z,Ser,r40),L(7,h7,E,Gre,r40)],"ВТ":[L(1,h1,H,Dud,r40),L(2,h2,G,Ukr,r40),L(3,h3,P,Lav,r40),L(4,h4,UL,Did,r40),L(5,h5,Law,Kat,r40),L(6,h6,C,Amr,r40),L(7,h7,Art,Mykh,rAct)],"СР":[L(1,h1,E,Gre,r40),L(2,h2,B,Paz,r40),L(3,h3,PE,Ata,rGym),L(4,h4,A,Ukr,r40),L(5,h5,Ger,Yev,r40),L(6,h6,Geo,Kob,r40),L(7,h7,U,Did,r40)],"ЧТ":[L(1,h1,I,ProZhe,rInfo1),L(2,h2,C,Amr,r40),L(3,h3,G,Ukr,r40),L(4,h4,U,Did,r40),L(5,h5,Geo,Kob,r40),L(6,h6,Z,Ser,r40),L(7,h7,T,Osy,rW)],"ПТ":[L(1,h1,P,Lav,r40),L(2,h2,PE,Ata,rGym),L(3,h3,A,Ukr,r40),L(4,h4,B,Paz,r40),L(5,h5,Health,Amr,r40),L(6,h6,UL,Did,r40),L(7,h7,Ger,Yev,r40)]}),
+            "10-А": dupW({"ПН":[L(1,h1,A,Ukr,r26),L(2,h2,PE,Sar,rGym),L(3,h3,P,Yak,r26),L(4,h4,U,ProD,r26),L(5,h5,Civ,Kat,r26),L(6,h6,I,ProZhe,rInfo1)],"ВТ":[L(1,h1,UL,ProD,r26),L(2,h2,UL,ProD,r26),L(3,h3,B,Paz,r26),L(4,h4,H,Dud,r26),L(5,h5,G,Ukr,r26),L(6,h6,P,Yak,r26)],"СР":[L(1,h1,A,Ukr,r26),L(2,h2,PE,Sar,rGym),L(3,h3,UL,ProD,r26),L(4,h4,C,Gor,r26),L(5,h5,C,Gor,r26),L(6,h6,H,Dud,r26),L(7,h7,E,Kuz,r26)],"ЧТ":[L(1,h1,U,ProD,r26),L(2,h2,Art,Mykh,rAct),L(3,h3,PE,Sar,rGym),L(4,h4,E,Kuz,r26),L(5,h5,H,Dud,r26),L(6,h6,U,ProD,r26),L(7,h7,P,Yak,r26)],"ПТ":[L(1,h1,U,ProD,r26),L(2,h2,G,Ukr,r26),L(3,h3,B,Paz,r26),L(4,h4,Civ,Kat,r26),L(5,h5,Z,Ser,r26),L(6,h6,Geo,Yak,r26),L(7,h7,U,ProD,r26)]}),
+            "11-А": dupW({"ПН":[L(1,h1,UL,GusV,r34),L(2,h2,U,GusV,r34),L(3,h3,PE,Sar,rGym),L(4,h4,C,Gor,r40),L(5,h5,I,ProZhe,rInfo1),L(6,h6,P,Yak,r34),L(7,h7,H,Kat,r34)],"ВТ":[L(1,h1,B,Paz,r34),L(2,h2,Geo,Dan,r34),L(3,h3,P,Yak,r34),L(4,h4,G,Ukr,r34),L(5,h5,Def,Man,rDef),L(6,h6,E,Kuz,r34)],"СР":[L(1,h1,UL,GusV,r34),L(2,h2,UL,GusV,r34),L(3,h3,PE,Sar,rGym),L(4,h4,A,Ukr,r34),L(5,h5,U,GusE_GusV,r34),L(6,h6,C,Gor,r40),L(7,h7,Z,GusV,r34)],"ЧТ":[L(1,h1,Art,Mykh,rAct),L(2,h2,PE,Sar,rGym),L(3,h3,P,Yak,r34),L(4,h4,G,Ukr,r34),L(5,h5,Def,Man,rDef),L(6,h6,E,Kuz,r34),L(7,h7,U,GusV,r34)],"ПТ":[L(1,h1,A,Ukr,r34),L(2,h2,B,Paz,r34),L(3,h3,H,Kat,r34),L(4,h4,Astr,Yak,r34),L(5,h5,Z,GusV,r34),L(6,h6,UL,GusV,r34),L(7,h7,U,GusV_GusE,r34)]})
+        };
+
+        // АВТОМАТИЧНА ЗАМІНА "Онлайн" НА РЕАЛЬНІ КАБІНЕТИ
+        const teacherRooms = {
+            "Опанчук М.І.": rGym, "Атаманчук О.Є.": rGym, "Саранча М.П.": rGym, "Бовсуновський Ю.М.": rGym,
+            "Михайлицька О.С.": rAct, "Осипенко С.С.": rW, "Ярошенко Н.М.": rW, "Манохін В.В.": rDef,
+            "Максимець Н.Ф.": r39, "Козел Т.Ю.": r37, "Сергєєва І.М.": "38 аудиторія", "Максимчук Л.П.": r36,
+            "Катріч Л.О.": r25, "Кобернік Д.І.": "31 аудиторія", "Ваховська Н.С.": "33 аудиторія", "Ладнюк О.В.": r41,
+            "Пазич І.С.": "35 аудиторія", "Українець Л.О.": r26, "Пустохіна Є.Ф.": "30 аудиторія", "Савчук І.В.": r34,
+            "Кузнєцова О.В.": r34, "Горощенко А.М.": r40, "Дудар О.В.": "28 аудиторія", "Ковальчук В.В.": "29 аудиторія",
+            "Кочевенко Д.М.": "27 аудиторія", "Ярмоліцька Н.Ю.": "32 аудиторія", "Гребенюк І.Д.": "33 аудиторія", "Дідко І.С.": r36,
+            "Рисіч Т.І.": r25, "Амрахова І.В.": r40, "Проботюк А.О.": r20, "Лавриненко Н.В.": r39,
+            "Якусевич Н.В.": r39, "Жембровський О.О.": r20, "Вільчинська І.Л.": r26,
+            "Жембровський О.О. / Вільчинська І.Л.": rInfo2, "Проботюк А.О. / Вільчинська І.Л.": rInfo2,
+            "Проботюк А.О. / Жембровський О.О.": rInfo2, "Ваховська Н.С. / Євтушенко Т.С.": rEng2,
+            "Ваховська Н.С. / Кузнєцова О.В.": rEng1, "Осипенко С.С. / Ярошенко Н.М.": rW,
+            "Жембровський О.О. / Ваховська Н.С.": "20 / 33 аудиторія", "Данілова С.В.": "31 аудиторія", "Євтушенко Т.С.": r23,
+            "Проботюк О.Д.": r26, "Густохіна В.І.": r34, "Густохіна Є.Ф.": r34, "Бєлова Т.Л.": r22
+        };
+
+        for (const cls in MY_REAL_SCHEDULE.class) {
+            for (const wk in MY_REAL_SCHEDULE.class[cls]) {
+                for (const dy in MY_REAL_SCHEDULE.class[cls][wk]) {
+                    MY_REAL_SCHEDULE.class[cls][wk][dy].forEach(lsn => {
+                        if (lsn.room === rO) lsn.room = teacherRooms[lsn.teacher] || rO;
+                    });
+                }
+            }
+        }
+
+        // АВТОМАТИЧНИЙ ГЕНЕРАТОР РОЗКЛАДУ ДЛЯ ВЧИТЕЛІВ
+        function autoGenerateTeachersSchedule() {
+            const tData = {};
+            for (const className in MY_REAL_SCHEDULE.class) {
+                for (const week in MY_REAL_SCHEDULE.class[className]) {
+                    for (const day in MY_REAL_SCHEDULE.class[className][week]) {
+                        MY_REAL_SCHEDULE.class[className][week][day].forEach(lesson => {
+                            if (!lesson.teacher) return;
+                            const teachers = lesson.teacher.split('/').map(t => t.trim());
+                            teachers.forEach(tName => {
+                                if (!tData[tName]) tData[tName] = { week1: emptyWeek(), week2: emptyWeek() };
+                                tData[tName][week][day].push({
+                                    num: lesson.num,
+                                    time: lesson.time,
+                                    subject: `${className} Клас (${lesson.subject})`,
+                                    room: lesson.room
+                                });
+                            });
+                        });
+                    }
+                }
+            }
+            for (const tName in tData) {
+                for (const week in tData[tName]) {
+                    for (const day in tData[tName][week]) {
+                        tData[tName][week][day].sort((a, b) => a.num - b.num);
+                    }
+                }
+            }
+            return tData;
+        }
+
+        MY_REAL_SCHEDULE.teacher = autoGenerateTeachersSchedule();
+
         /* ==========================================
            1. ЛОГІКА НАВІГАЦІЇ ТА НАЛАШТУВАНЬ
         ========================================== */
@@ -508,7 +576,7 @@
         function loadSettings() {
             const savedTheme = localStorage.getItem('appTheme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
-            themeSelect.value = savedTheme;
+            if(themeSelect) themeSelect.value = savedTheme;
             const savedBg = localStorage.getItem('appBg');
             if (savedBg) {
                 document.body.style.backgroundImage = savedBg.startsWith('url') ? savedBg : 'none';
@@ -516,10 +584,12 @@
             }
         }
 
-        themeSelect.addEventListener('change', (e) => {
-            document.documentElement.setAttribute('data-theme', e.target.value);
-            localStorage.setItem('appTheme', e.target.value);
-        });
+        if(themeSelect) {
+            themeSelect.addEventListener('change', (e) => {
+                document.documentElement.setAttribute('data-theme', e.target.value);
+                localStorage.setItem('appTheme', e.target.value);
+            });
+        }
 
         function setBg(bgValue) {
             if (bgValue === 'none') {
@@ -533,6 +603,7 @@
         }
 
         function applyCustomBg() {
+            if(!customBgInput) return;
             const url = customBgInput.value.trim();
             if (url) {
                 const bgStr = `url('${url}')`;
@@ -544,8 +615,99 @@
             }
         }
 
+        /* --- ЛОГІКА РОБОТИ РОЗКЛАДУ UI --- */
+        let stateSchType = 'class';
+        let stateSchWeek = 'week1';
+        let stateSchDay = 'ПН';
+
+        function setSchType(type) {
+            stateSchType = type;
+            document.getElementById('btn-type-class').classList.remove('active');
+            document.getElementById('btn-type-teacher').classList.remove('active');
+            document.getElementById(`btn-type-${type}`).classList.add('active');
+            
+            const selector = document.getElementById('sch-selector');
+            selector.innerHTML = '';
+            
+            const defaultOpt = document.createElement('option');
+            defaultOpt.value = '';
+            defaultOpt.textContent = type === 'class' ? 'Оберіть клас...' : 'Оберіть викладача...';
+            selector.appendChild(defaultOpt);
+
+            const optionsList = Object.keys(MY_REAL_SCHEDULE[type]).sort((a, b) => {
+                if (type === 'class') {
+                    const numA = parseInt(a);
+                    const numB = parseInt(b);
+                    if (numA === numB) return a.localeCompare(b, 'uk');
+                    return numA - numB;
+                }
+                return a.localeCompare(b, 'uk');
+            });
+            
+            optionsList.forEach(opt => {
+                const el = document.createElement('option');
+                el.value = opt; el.textContent = opt;
+                selector.appendChild(el);
+            });
+            renderSchedule();
+        }
+
+        function setSchWeek(week) {
+            stateSchWeek = week;
+            document.getElementById('btn-week-1').classList.remove('active');
+            document.getElementById('btn-week-2').classList.remove('active');
+            document.getElementById(week === 'week1' ? 'btn-week-1' : 'btn-week-2').classList.add('active');
+            renderSchedule();
+        }
+
+        function setSchDay(day) {
+            stateSchDay = day;
+            document.querySelectorAll('.sch-day').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`day-${day}`).classList.add('active');
+            renderSchedule();
+        }
+
+        function renderSchedule() {
+            const container = document.getElementById('sch-lessons-container');
+            const selectedVal = document.getElementById('sch-selector').value;
+            container.innerHTML = '';
+
+            if (!selectedVal) {
+                container.innerHTML = '<div class="sch-empty">Спочатку оберіть зі списку вище</div>';
+                return;
+            }
+
+            const dayLessons = MY_REAL_SCHEDULE[stateSchType][selectedVal]?.[stateSchWeek]?.[stateSchDay];
+
+            if (!dayLessons || dayLessons.length === 0) {
+                container.innerHTML = '<div class="sch-empty">На цей день уроків немає 🎉</div>';
+                return;
+            }
+
+            dayLessons.forEach(lsn => {
+                const card = document.createElement('div');
+                card.className = 'sch-card';
+                
+                const tchrHtml = lsn.teacher ? `<div class="sch-teacher">👤 ${lsn.teacher}</div>` : '';
+                
+                card.innerHTML = `
+                    <div class="sch-num">${lsn.num}</div>
+                    <div class="sch-info">
+                        <div class="sch-time">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            ${lsn.time}
+                        </div>
+                        <div class="sch-subj">${lsn.subject}</div>
+                        ${tchrHtml}
+                    </div>
+                    <div class="sch-room">${lsn.room || "Онлайн"}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
         /* ==========================================
-           2. ЛОГІКА РЕЖИМІВ (МОДЕЛЕЙ ПОВЕДІНКИ)
+           3. ЛОГІКА РЕЖИМІВ (МОДЕЛЕЙ ПОВЕДІНКИ ШІ)
         ========================================== */
         let currentMode = 'default';
         const SYSTEM_PROMPTS = {
@@ -564,12 +726,14 @@
 
         function askEvents() {
             const input = document.getElementById('user-input');
-            input.value = "Які новини або події зараз відбуваються в ліцеї №8?";
-            handleSend();
+            if(input) {
+                input.value = "Які новини або події зараз відбуваються в ліцеї №8?";
+                handleSend();
+            }
         }
 
         /* ==========================================
-           3. ЛОГІКА ЧАТУ ТА ІСТОРІЇ (СЕСІЇ)
+           4. ЛОГІКА ЧАТУ ТА ІСТОРІЇ (СЕСІЇ)
         ========================================== */
         const chatBox = document.getElementById('chat-box');
         const userInput = document.getElementById('user-input');
@@ -578,24 +742,27 @@
         const typing = document.getElementById('typing');
         const welcome = document.getElementById('welcome');
 
-        let history = []; 
+        let chatHistory = []; 
         let sessions = []; 
         let currentSessionId = Date.now();
 
-        userInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-        });
+        if(userInput) {
+            userInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+        }
 
         function toggleHistorySidebar(forceClose = false) {
             const sidebar = document.getElementById('history-sidebar');
+            if(!sidebar) return;
             if (forceClose) sidebar.classList.remove('open');
             else sidebar.classList.toggle('open');
         }
 
         function saveMemory() {
             const sessionIndex = sessions.findIndex(s => s.id === currentSessionId);
-            const sessionData = { id: currentSessionId, messages: history, mode: currentMode, timestamp: Date.now() };
+            const sessionData = { id: currentSessionId, messages: chatHistory, mode: currentMode, timestamp: Date.now() };
             if (sessionIndex > -1) {
                 sessions[sessionIndex] = sessionData;
             } else {
@@ -615,7 +782,7 @@
                     currentSessionId = parseInt(savedId);
                     const currentSession = sessions.find(s => s.id === currentSessionId);
                     if (currentSession) {
-                        history = currentSession.messages || [];
+                        chatHistory = currentSession.messages || [];
                         currentMode = currentSession.mode || 'default';
                     } else createNewChat(true);
                 } else createNewChat(true);
@@ -626,7 +793,7 @@
 
         function createNewChat(skipRender = false) {
             currentSessionId = Date.now();
-            history = [];
+            chatHistory = [];
             currentMode = 'default';
             if (!skipRender) {
                 renderCurrentChat();
@@ -639,7 +806,7 @@
             currentSessionId = id;
             const currentSession = sessions.find(s => s.id === currentSessionId);
             if (currentSession) {
-                history = currentSession.messages || [];
+                chatHistory = currentSession.messages || [];
                 currentMode = currentSession.mode || 'default';
                 renderCurrentChat();
             }
@@ -648,6 +815,7 @@
 
         function renderHistoryList() {
             const list = document.getElementById('history-list');
+            if(!list) return;
             list.innerHTML = '';
             sessions.forEach(s => {
                 const item = document.createElement('div');
@@ -660,28 +828,39 @@
         }
 
         function renderCurrentChat() {
+            if(!chatBox) return;
             chatBox.querySelectorAll('.msg-wrapper').forEach(m => m.remove());
-            if (history.length > 0) {
-                welcome.style.display = 'none';
-                history.forEach(msg => addMessageToDOM(msg.role, msg.content, true));
+            if (chatHistory.length > 0) {
+                if(welcome) welcome.style.display = 'none';
+                chatHistory.forEach(msg => addMessageToDOM(msg.role, msg.content, true));
             } else {
-                welcome.style.display = 'block';
+                if(welcome) welcome.style.display = 'block';
             }
         }
 
         window.addEventListener('DOMContentLoaded', () => {
             loadSettings(); 
             loadMemory();
+            
+            setSchType('class'); 
+            
+            const daysMap = [null, 'ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', null];
+            const today = new Date().getDay();
+            if(daysMap[today]) setSchDay(daysMap[today]);
         });
 
         function cleanAIResponse(text) {
+            if (!text || typeof text !== 'string') return "";
+            // Тепер ми перевіряємо лише наявність системної JSON-помилки на початку
+            if (text.trim().startsWith('{"error"')) return ""; 
+            
             let cleaned = text;
-            const adMarkers = ["Support Pollinations.AI:", "🌸 Ad 🌸", "Powered by Pollinations.AI"];
+            const adMarkers = ["Support Pollinations.AI:", "🌸 Ad 🌸", "Powered by Pollinations.AI", "discord.gg"];
             for (const marker of adMarkers) {
                 const index = cleaned.indexOf(marker);
                 if (index !== -1) {
                     const hrIndex = cleaned.lastIndexOf('---', index);
-                    if (hrIndex !== -1 && (index - hrIndex) < 100) cleaned = cleaned.substring(0, hrIndex);
+                    if (hrIndex !== -1 && (index - hrIndex) < 150) cleaned = cleaned.substring(0, hrIndex);
                     else cleaned = cleaned.substring(0, index);
                 }
             }
@@ -690,7 +869,7 @@
 
         function addMessageToDOM(role, text, isHistoryLoad = false) {
             if (welcome) welcome.style.display = 'none';
-            chatBox.appendChild(typing);
+            if (typing) chatBox.appendChild(typing);
 
             const wrapper = document.createElement('div');
             wrapper.className = `msg-wrapper ${role}`;
@@ -720,125 +899,69 @@
             }
 
             wrapper.appendChild(bubble);
-            chatBox.insertBefore(wrapper, typing);
+            if (typing) chatBox.insertBefore(wrapper, typing);
             chatBox.scrollTop = chatBox.scrollHeight;
 
             if (!isHistoryLoad) {
-                history.push({ role, content: text });
+                chatHistory.push({ role, content: text });
                 saveMemory();
             }
         }
 
-        /* --- ВЗАЄМОДІЯ З СЕРВЕРОМ: БРОНЕБІЙНИЙ ФІЛЬТР --- */
-        
-        // Функція перевіряє, чи сервер не підсунув нам текст помилки (502, Cloudflare, тощо)
-        function isBadResponse(text) {
-            if (!text || text.trim() === '') return true;
-            const badPhrases = [
-                'IMPORTANT NOTICE', 
-                'legacy text API', 
-                '502 Bad Gateway', 
-                'cloudflared', 
-                'Unable to reach the origin service',
-                '<html',
-                '500 Internal Server Error',
-                'Method Not Allowed'
-            ];
-            return badPhrases.some(phrase => text.includes(phrase));
-        }
-
         async function askAI(query) {
-            const messages = [{ role: 'system', content: SYSTEM_PROMPTS[currentMode] || SYSTEM_PROMPTS['default'] }];
-            const validHistory = history.filter(m => m.role === 'user' || m.role === 'ai');
+            const sysPrompt = SYSTEM_PROMPTS[currentMode] || SYSTEM_PROMPTS['default'];
             
-            // Зберігаємо історію короткою, щоб не перевантажувати запит
-            validHistory.slice(-4).forEach(msg => {
-                messages.push({ role: msg.role === 'user' ? 'user' : 'assistant', content: msg.content });
+            // Будуємо текст промпту з останніх повідомлень (НАЙНАДІЙНІШИЙ метод)
+            let promptText = sysPrompt + "\n\n";
+            const validHistory = chatHistory.filter(m => m.role === 'user' || m.role === 'ai').slice(-4);
+            validHistory.forEach(msg => {
+                promptText += (msg.role === 'user' ? 'Учень: ' : 'Ти: ') + msg.content + "\n";
             });
-            messages.push({ role: 'user', content: query });
+            promptText += "Учень: " + query + "\nТи:";
 
-            // Для GET-запитів
-            let textPrompt = `Відповідай українською. Запит: ${query}`;
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 сек - збільшений час очікування
+                
+                // Простий GET-запит БЕЗ параметрів model=... (саме вони ламали сервер)
+                // Додаємо випадковий seed, щоб сервер не видавав нам стару помилку з кешу
+                const url = `https://text.pollinations.ai/${encodeURIComponent(promptText)}?seed=${Math.floor(Math.random() * 1000000)}`;
+                
+                const response = await fetch(url, { signal: controller.signal });
+                clearTimeout(timeoutId);
 
-            const models = ['openai', 'mistral', 'llama', 'search'];
-            
-            for (let model of models) {
-                const modelPayload = JSON.stringify({
-                    messages: messages,
-                    model: model,
-                    seed: Math.floor(Math.random() * 100000)
-                });
+                if (!response.ok) {
+                    throw new Error(`Сервер відповів статусом ${response.status}`);
+                }
 
-                // МЕТОД 1: Офіційний JSON POST (Найстабільніший для сайтів на GitHub Pages)
-                try {
-                    const c1 = new AbortController();
-                    const t1 = setTimeout(() => c1.abort(), 10000);
-                    const r1 = await fetch('https://text.pollinations.ai/', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: modelPayload,
-                        signal: c1.signal
-                    });
-                    clearTimeout(t1);
-                    
-                    if (r1.ok) {
-                        const rawText = await r1.text();
-                        let content = rawText;
-                        try { content = JSON.parse(rawText).choices[0].message.content; } catch(e) {}
-                        
-                        if (!isBadResponse(content)) return cleanAIResponse(content);
-                    }
-                } catch(e) { console.warn(`JSON POST (${model}) не вдався.`); }
-
-                // Пауза перед наступною спробою, щоб сервер встиг відновитися
-                await new Promise(r => setTimeout(r, 500));
-
-                // МЕТОД 2: GET запит
-                try {
-                    const c2 = new AbortController();
-                    const t2 = setTimeout(() => c2.abort(), 10000);
-                    const r2 = await fetch(`https://text.pollinations.ai/${encodeURIComponent(textPrompt)}?model=${model}&seed=${Math.floor(Math.random() * 10000)}`, { signal: c2.signal });
-                    clearTimeout(t2);
-                    
-                    if (r2.ok) {
-                        const content = await r2.text();
-                        if (!isBadResponse(content)) return cleanAIResponse(content);
-                    }
-                } catch(e) { console.warn(`GET (${model}) не вдався.`); }
-
-                await new Promise(r => setTimeout(r, 500));
-
-                // МЕТОД 3: AllOrigins Raw Proxy (Пробиває жорсткі блокування)
-                try {
-                    const targetUrl = `https://text.pollinations.ai/${encodeURIComponent(textPrompt)}?model=${model}`;
-                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
-                    const c3 = new AbortController();
-                    const t3 = setTimeout(() => c3.abort(), 12000);
-                    const r3 = await fetch(proxyUrl, { signal: c3.signal });
-                    clearTimeout(t3);
-                    
-                    if (r3.ok) {
-                        const content = await r3.text();
-                        if (!isBadResponse(content)) return cleanAIResponse(content);
-                    }
-                } catch(e) { console.warn(`Proxy (${model}) не вдався.`); }
+                const text = await response.text();
+                const finalAnswer = cleanAIResponse(text);
+                
+                // Перевіряємо, чи відповідь не порожня і не є HTML-сторінкою
+                if (finalAnswer && !finalAnswer.includes('<html')) {
+                    return finalAnswer;
+                } else {
+                    throw new Error("Отримано некоректну відповідь від сервера");
+                }
+            } catch (error) {
+                console.error("AI Fetch Error:", error);
+                throw new Error("Сервери ШІ зараз перевантажені або тимчасово недоступні. Спробуй через кілька хвилин.");
             }
-
-            throw new Error("Офіційні сервери ШІ тимчасово перевантажені (дуже багато запитів у світі). Це не проблема вашого інтернету. Зачекайте пару хвилин і спробуйте знову!");
         }
 
         async function handleSend(e) {
             if (e) e.preventDefault();
+            if(!userInput) return;
             const text = userInput.value.trim();
-            if (!text || sendBtn.disabled) return;
+            if (!text || (sendBtn && sendBtn.disabled)) return;
 
             addMessageToDOM('user', text);
             userInput.value = '';
             userInput.style.height = 'auto';
             
-            sendBtn.disabled = true;
-            typing.style.display = 'flex';
-            chatBox.scrollTop = chatBox.scrollHeight;
+            if(sendBtn) sendBtn.disabled = true;
+            if(typing) typing.style.display = 'flex';
+            if(chatBox) chatBox.scrollTop = chatBox.scrollHeight;
 
             try {
                 const answer = await askAI(text);
@@ -846,34 +969,42 @@
             } catch (err) {
                 addMessageToDOM('system', `❌ Збій: ${err.message}`, true); 
                 
-                if(history.length > 0 && history[history.length-1].role === 'user') {
-                    history.pop();
+                if(chatHistory.length > 0 && chatHistory[chatHistory.length-1].role === 'user') {
+                    chatHistory.pop();
                     saveMemory();
                 }
             } finally {
-                sendBtn.disabled = false;
-                typing.style.display = 'none';
+                if(sendBtn) sendBtn.disabled = false;
+                if(typing) typing.style.display = 'none';
             }
         }
 
-        chatForm.addEventListener('submit', handleSend);
-        userInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-            }
-        });
+        if(chatForm) chatForm.addEventListener('submit', handleSend);
+        if(userInput) {
+            userInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                }
+            });
+        }
 
         const overlay = document.getElementById('modal-overlay');
-        document.getElementById('open-clear-modal').onclick = () => overlay.style.display = 'flex';
-        document.getElementById('close-modal').onclick = () => overlay.style.display = 'none';
-        document.getElementById('confirm-clear').onclick = () => {
-            history = [];
-            currentMode = 'default';
-            saveMemory();
-            renderCurrentChat();
-            overlay.style.display = 'none';
-        };
+        const openClearModalBtn = document.getElementById('open-clear-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+        const confirmClearBtn = document.getElementById('confirm-clear');
+
+        if(openClearModalBtn) openClearModalBtn.onclick = () => overlay.style.display = 'flex';
+        if(closeModalBtn) closeModalBtn.onclick = () => overlay.style.display = 'none';
+        if(confirmClearBtn) {
+            confirmClearBtn.onclick = () => {
+                chatHistory = [];
+                currentMode = 'default';
+                saveMemory();
+                renderCurrentChat();
+                if(overlay) overlay.style.display = 'none';
+            };
+        }
 
     </script>
 </body>
