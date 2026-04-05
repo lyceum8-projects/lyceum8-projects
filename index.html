@@ -561,7 +561,7 @@
                         <button onclick="window.applyCustomBg()" style="margin-top: 10px; width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">Застосувати картинку</button>
                     </div>
                 </div>
-                <div class="card" style="text-align: center;"><p style="color: var(--text-muted); font-size: 13px;">Версія додатка: 172.0 (Stable Brain & UI)<br>Розроблено для ліцею №8</p></div>
+                <div class="card" style="text-align: center;"><p style="color: var(--text-muted); font-size: 13px;">Версія додатка: 172.1 (Full Fixes)<br>Розроблено для ліцею №8</p></div>
             </div>
         </div>
 
@@ -763,7 +763,7 @@
                 const firstName = document.getElementById('auth-firstname').value.trim();
                 const lastName = document.getElementById('auth-lastname').value.trim();
                 const userClass = document.getElementById('auth-class').value.trim();
-                const email = document.getElementById('auth-email-reg').value.trim();
+                let email = document.getElementById('auth-email-reg').value.trim().toLowerCase();
                 const pass = document.getElementById('auth-password-reg').value.trim();
 
                 if (!firstName || !lastName || !userClass || !email || !pass) {
@@ -776,8 +776,16 @@
                 submitBtn.innerText = 'Перевірка бази...';
                 submitBtn.disabled = true;
 
+                // Очікування Firebase
+                if (!firebaseInitialized && firestoreDB) {
+                    for(let i=0; i<30; i++) {
+                        if (firebaseInitialized) break;
+                        await new Promise(r => setTimeout(r, 100));
+                    }
+                }
+
                 // Завантажуємо профіль з хмари, якщо його немає локально
-                if (!window.appUsers[email] && firebaseInitialized && firestoreDB) {
+                if (!window.appUsers[email] && firestoreDB) {
                     try {
                         const userRef = doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'appUsers', email);
                         const userSnap = await getDoc(userRef);
@@ -810,7 +818,7 @@
                     window.showVerificationStep(email);
                 }
             } else {
-                const email = document.getElementById('auth-email-login').value.trim();
+                let email = document.getElementById('auth-email-login').value.trim().toLowerCase();
                 const pass = document.getElementById('auth-password-login').value.trim();
 
                 if (!email || !pass) {
@@ -820,24 +828,49 @@
                 }
 
                 const originalText = submitBtn.innerText;
-                submitBtn.innerText = 'Перевірка бази...';
+                submitBtn.innerText = 'Вхід в систему...';
                 submitBtn.disabled = true;
 
-                // Завантажуємо профіль з хмари, якщо його немає локально (КЛЮЧОВЕ ВИПРАВЛЕННЯ ДЛЯ ВХОДУ)
-                if (!window.appUsers[email] && firebaseInitialized && firestoreDB) {
+                // Очікування ініціалізації Firebase для перевірки
+                if (!firebaseInitialized && firestoreDB) {
+                    for(let i=0; i<30; i++) {
+                        if (firebaseInitialized) break;
+                        await new Promise(r => setTimeout(r, 100));
+                    }
+                }
+
+                let userFound = null;
+
+                // 1. Шукаємо локально
+                if (window.appUsers[email]) userFound = window.appUsers[email];
+
+                // 2. Шукаємо в базі
+                if (!userFound && firestoreDB) {
                     try {
                         const userRef = doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'appUsers', email);
                         const userSnap = await getDoc(userRef);
                         if (userSnap.exists()) {
-                            window.appUsers[email] = userSnap.data();
+                            userFound = userSnap.data();
+                            window.appUsers[email] = userFound;
+                            localStorage.setItem('appUsers', JSON.stringify(window.appUsers));
+                        } else {
+                            // Фоллбек: дістати всі профілі (якщо раптом ID документа відрізняється)
+                            const usersRef = collection(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'appUsers');
+                            const snap = await getDocs(usersRef);
+                            snap.forEach(d => {
+                                window.appUsers[d.id] = d.data();
+                                if (d.data().email && d.data().email.toLowerCase() === email) {
+                                    userFound = d.data();
+                                }
+                            });
                             localStorage.setItem('appUsers', JSON.stringify(window.appUsers));
                         }
                     } catch(e) { console.error("Помилка перевірки:", e); }
                 }
 
-                if (window.appUsers[email] && window.appUsers[email].password === pass) {
+                if (userFound && userFound.password === pass) {
                     expectedVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-                    pendingAuthData = { type: 'login', userData: window.appUsers[email] };
+                    pendingAuthData = { type: 'login', userData: userFound };
                     
                     submitBtn.innerText = 'Відправка листа...';
                     
@@ -849,7 +882,11 @@
                 } else {
                     submitBtn.innerText = originalText;
                     submitBtn.disabled = false;
-                    errorEl.innerText = "Невірна електронна пошта або пароль!";
+                    if (userFound) {
+                        errorEl.innerText = "Невірний пароль!";
+                    } else {
+                        errorEl.innerText = "Акаунт з такою поштою не знайдено!";
+                    }
                     errorEl.style.display = 'block';
                 }
             }
@@ -1475,7 +1512,7 @@
                 return "Президентом України є Володимир Зеленський.";
             }
             if (qLower.includes('хто тебе створив') || qLower.includes('хто твій розробник') || qLower.includes('хто розробник') || qLower.includes('ким ти створений')) {
-                return "Питайте у Стельмаха Олександра з 8Б класу 😎. Але розробник хоче залишитися анонімним😜";
+                return "Питайте у Стельмаха Олександра з 8Б класу 😎. А взагалі розробник хоче залишитися анонімним😜";
             }
             if (qLower === 'хто ти' || qLower === 'що ти таке' || qLower === 'ти хто') {
                 return "Я — персональний штучний інтелект ліцею №8!";
