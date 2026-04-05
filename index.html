@@ -12,6 +12,20 @@
     
     <!-- Marked.js для форматування тексту -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- MathJax для красивого відображення математичних формул -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            startup: {
+                typeset: false
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <style>
         /* ЗМІННІ КОЛЬОРІВ (Світла тема) */
@@ -96,10 +110,43 @@
         }
         header * { pointer-events: auto; }
 
+        /* Випадаюче меню режимів */
         .header-left {
             display: flex; align-items: center; gap: 12px; background: var(--glass);
             padding: 6px 14px 6px 6px; border-radius: 20px; backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px); box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+            position: relative; cursor: pointer; transition: 0.2s;
+        }
+        .header-left:hover { border-color: var(--primary); }
+
+        .mode-dropdown {
+            position: absolute;
+            top: calc(100% + 12px);
+            left: 0;
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 16px;
+            width: 360px;
+            max-width: 85vw;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+        }
+
+        @media (max-width: 400px) {
+            .mode-dropdown { width: 300px; }
+            .mode-dropdown .suggestions { grid-template-columns: 1fr; }
+        }
+
+        .header-left.show-modes .mode-dropdown,
+        .header-left:hover .mode-dropdown {
+            opacity: 1; visibility: visible; transform: translateY(0);
         }
 
         .header-right { display: flex; gap: 8px; }
@@ -111,7 +158,7 @@
         }
         .logo svg { width: 18px; height: 18px; fill: currentColor; }
 
-        .header-info h1 { font-size: 15px; font-weight: 700; letter-spacing: -0.02em; color: var(--text-main); }
+        .header-info h1 { font-size: 15px; font-weight: 700; letter-spacing: -0.02em; color: var(--text-main); display: flex; align-items: center; }
         .online-status { display: flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
         .status-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); }
 
@@ -142,8 +189,10 @@
         .bubble code { background: rgba(0,0,0,0.1); padding: 2px 5px; border-radius: 4px; font-family: monospace; font-size: 0.9em; }
         .bubble pre { background: #1e293b; color: #f8fafc; padding: 15px; border-radius: 12px; margin: 10px 0; overflow-x: auto; }
         .bubble pre code { background: transparent; padding: 0; color: inherit; }
+        .bubble a { color: var(--primary-dark); font-weight: 600; text-decoration: underline; word-break: break-word; }
+        [data-theme="dark"] .bubble a { color: #60a5fa; }
 
-        .copy-btn { margin-top: 8px; background: none; border: none; color: var(--text-muted); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: 0.2s; }
+        .copy-btn { margin-top: 10px; background: none; border: none; color: var(--text-muted); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: 0.2s; }
         .copy-btn:hover { color: var(--primary); }
         .copy-btn svg { width: 14px; height: 14px; fill: currentColor; }
 
@@ -159,14 +208,15 @@
         .send-btn:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; transform: none; }
         .send-btn svg { width: 18px; height: 18px; fill: currentColor; transform: translateX(1px); }
 
-        .typing-indicator { display: flex; padding: 14px 18px; background: var(--bubble-ai); border: 1px solid var(--border); border-radius: 20px; border-bottom-left-radius: 4px; gap: 5px; width: fit-content; box-shadow: var(--shadow-sm); align-items: center; justify-content: center; }
-        .typing-indicator span { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out; }
-        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        .typing-indicator { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 14px 20px; min-width: 60px; box-sizing: border-box; }
+        .typing-dot { width: 7px; height: 7px; background: var(--text-muted); border-radius: 50%; animation: typingBounce 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typingBounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
         #welcome { text-align: center; margin: auto; max-width: 500px; padding: 20px; background: var(--glass); backdrop-filter: blur(12px); border-radius: 24px; border: 1px solid var(--border); box-shadow: var(--shadow-md); margin-top: 40px;}
         .welcome-icon { font-size: 48px; margin-bottom: 12px; display: inline-block; animation: wave 2s infinite; }
-        .suggestions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .suggestions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 0px; }
         .suggest-item { background: var(--bg-tab); border: 1px solid var(--border); padding: 12px; border-radius: 14px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; text-align: left; color: var(--text-main); display: flex; flex-direction: column; gap: 4px; }
         .suggest-item span { font-size: 11px; font-weight: 400; color: var(--text-muted); }
         .suggest-item:hover { border-color: var(--primary); transform: translateY(-2px); }
@@ -185,7 +235,7 @@
         .history-item:hover { border-color: var(--primary); }
         .history-item.active { background: rgba(59, 130, 246, 0.1); border-color: var(--primary); }
 
-        /* --- РОЗКЛАД UI --- */
+        /* --- РОЗКЛАД ТА АДМІНКА UI --- */
         .page-content { position: absolute; inset: 0; overflow-y: auto; padding: 85px 20px 56px 20px; max-width: 800px; margin: 0 auto; width: 100%; }
         
         .sch-toggle-group { display: flex; background: var(--bg-main); border-radius: 14px; border: 1px solid var(--border); padding: 4px; margin-bottom: 12px; }
@@ -210,7 +260,7 @@
         [data-theme="dark"] .sch-room { background: rgba(59,130,246,0.2); color: #93c5fd; }
         .sch-empty { text-align: center; color: var(--text-muted); padding: 30px; font-weight: 500; background: var(--glass); border-radius: 20px; border: 1px dashed var(--border); }
 
-        /* --- НАЛАШТУВАННЯ --- */
+        /* --- НАЛАШТУВАННЯ ТА АДМІНКА --- */
         .card { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow-sm); }
         .setting-group { margin-bottom: 20px; }
         .setting-group label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--text-main); }
@@ -218,6 +268,36 @@
         .preset-bgs { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
         .preset-bg-btn { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--border); cursor: pointer; transition: 0.2s; box-shadow: var(--shadow-sm); }
         .preset-bg-btn:hover { transform: scale(1.1); border-color: var(--primary); }
+
+        /* --- АВТОРИЗАЦІЯ --- */
+        #auth-overlay {
+            position: fixed; inset: 0; background: var(--bg-main); background-image: var(--app-bg-image);
+            background-size: cover; background-position: center; background-attachment: fixed;
+            z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+        .auth-card {
+            background: var(--glass); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border); border-radius: 24px; padding: 30px 24px; width: 100%; max-width: 360px;
+            box-shadow: var(--shadow-md); text-align: center; position: relative;
+        }
+        .auth-card h2 { margin-bottom: 20px; color: var(--text-main); font-size: 24px; }
+        .auth-input {
+            width: 100%; padding: 14px; margin-bottom: 12px; border-radius: 14px; border: 1px solid var(--border);
+            background: var(--bg-tab); color: var(--text-main); font-size: 15px; outline: none; transition: 0.2s;
+        }
+        .auth-input:focus { border-color: var(--primary); }
+        .auth-btn {
+            width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 14px;
+            font-weight: 600; font-size: 15px; cursor: pointer; transition: 0.2s; margin-top: 8px;
+        }
+        .auth-btn:hover { background: var(--primary-dark); }
+        .auth-btn:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; }
+        
+        .auth-toggle {
+            margin-top: 16px; font-size: 14px; color: var(--text-muted); cursor: pointer; transition: 0.2s;
+            background: none; border: none; padding: 5px 10px; font-family: inherit; display: inline-block;
+        }
+        .auth-toggle:hover { color: var(--primary); text-decoration: underline; }
 
         /* --- НИЖНЯ НАВІГАЦІЯ --- */
         #bottom-nav-container { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -248,25 +328,119 @@
 </head>
 <body>
 
+    <!-- СИМУЛЯЦІЯ ВІДПРАВКИ EMAIL -->
+    <div id="mock-email-popup" style="position: fixed; top: 20px; right: 20px; background: var(--bg-tab); padding: 15px 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border-left: 4px solid var(--primary); transform: translateX(150%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 10001; display: flex; flex-direction: column; gap: 5px; width: 300px; max-width: 80vw;">
+        <div style="font-size: 12px; color: var(--text-muted); font-weight: 600; display: flex; justify-content: space-between;"><span>Новий лист (Симуляція)</span><span style="cursor: pointer;" onclick="document.getElementById('mock-email-popup').style.transform='translateX(150%)'">✕</span></div>
+        <div style="font-size: 14px; font-weight: bold; color: var(--text-main);" id="mock-email-subject">Код підтвердження</div>
+        <div style="font-size: 13px; color: var(--text-main);" id="mock-email-body">Ваш код: 123456</div>
+    </div>
+
+    <!-- ВІКНО АВТОРИЗАЦІЇ -->
+    <div id="auth-overlay">
+        <div class="auth-card">
+            <h2 id="auth-title">Вхід в систему</h2>
+            
+            <div id="login-fields">
+                <input type="email" id="auth-email-login" class="auth-input" placeholder="Електронна пошта">
+                <input type="password" id="auth-password-login" class="auth-input" placeholder="Пароль">
+            </div>
+            
+            <div id="register-fields" style="display: none;">
+                <input type="text" id="auth-firstname" class="auth-input" placeholder="Ім'я">
+                <input type="text" id="auth-lastname" class="auth-input" placeholder="Прізвище">
+                <select id="auth-class" class="auth-input">
+                    <option value="" disabled selected>Оберіть роль / клас...</option>
+                    <option value="Викладач">👨‍🏫 Викладач</option>
+                    <option value="1-А">1-А</option>
+                    <option value="1-Б">1-Б</option>
+                    <option value="1-В">1-В</option>
+                    <option value="2-А">2-А</option>
+                    <option value="2-Б">2-Б</option>
+                    <option value="2-В">2-В</option>
+                    <option value="3-А">3-А</option>
+                    <option value="3-Б">3-Б</option>
+                    <option value="3-В">3-В</option>
+                    <option value="4-А">4-А</option>
+                    <option value="4-Б">4-Б</option>
+                    <option value="4-В">4-В</option>
+                    <option value="5-А">5-А</option>
+                    <option value="5-Б">5-Б</option>
+                    <option value="5-В">5-В</option>
+                    <option value="6-А">6-А</option>
+                    <option value="6-Б">6-Б</option>
+                    <option value="6-В">6-В</option>
+                    <option value="7-А">7-А</option>
+                    <option value="7-Б">7-Б</option>
+                    <option value="7-В">7-В</option>
+                    <option value="8-А">8-А</option>
+                    <option value="8-Б">8-Б</option>
+                    <option value="8-В">8-В</option>
+                    <option value="9-А">9-А</option>
+                    <option value="9-Б">9-Б</option>
+                    <option value="9-В">9-В</option>
+                    <option value="10-А">10-А</option>
+                    <option value="11-А">11-А</option>
+                </select>
+                <input type="email" id="auth-email-reg" class="auth-input" placeholder="Електронна пошта">
+                <input type="password" id="auth-password-reg" class="auth-input" placeholder="Пароль">
+            </div>
+
+            <div id="auth-verification-step" style="display: none;">
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px; line-height: 1.4;">На вашу пошту <b id="verify-email-display" style="color: var(--text-main);"></b> надіслано код підтвердження.</p>
+                <input type="text" id="auth-code" class="auth-input" placeholder="Введіть 6-значний код" maxlength="6" style="text-align: center; font-weight: bold; letter-spacing: 2px;">
+                <button id="auth-verify-btn" class="auth-btn" onclick="window.verifyAuthCode()">Підтвердити</button>
+                <p class="auth-toggle" onclick="window.cancelVerification()" style="margin-top: 12px;">Скасувати</p>
+            </div>
+
+            <div id="auth-main-buttons">
+                <button id="auth-submit-btn" class="auth-btn" onclick="window.handleAuth()">Увійти</button>
+                <div style="margin-top: 15px;">
+                    <button type="button" id="auth-toggle-text" class="auth-toggle" onclick="window.toggleAuthMode()">Немає акаунту? Зареєструватися</button>
+                    <br>
+                    <button type="button" class="auth-toggle" onclick="window.continueAsGuest()" style="color: var(--text-muted); text-decoration: underline; margin-top: 8px;">Продовжити як гість</button>
+                </div>
+            </div>
+
+            <p id="auth-error" style="color: var(--danger); font-size: 13px; margin-top: 12px; display: none; font-weight: 500;"></p>
+        </div>
+    </div>
+
     <div id="tabs-container">
         
         <!-- ВКЛАДКА 1: ЧАТ ЗІ ШІ -->
         <div id="tab-chat" class="tab-content active">
             <header>
-                <div class="header-left">
+                <div class="header-left" id="mode-trigger" onclick="this.classList.toggle('show-modes')">
                     <div class="logo">
                         <svg viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
                     </div>
                     <div class="header-info">
-                        <h1>ШІ ліцею №8</h1>
+                        <h1>ШІ ліцею №8 <svg style="width:14px; height:14px; display:inline-block; vertical-align:middle; margin-left:4px; margin-bottom:2px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></h1>
                         <div class="online-status"><span class="status-dot"></span><span>Завжди онлайн</span></div>
+                    </div>
+                    
+                    <div class="mode-dropdown">
+                        <div class="suggestions">
+                            <div class="suggest-item" onclick="window.setMode('math')">
+                                🔢 Математика <span>Алгебра та геометрія</span>
+                            </div>
+                            <div class="suggest-item" onclick="window.setMode('ukr')">
+                                📚 Українська мова <span>Правила та твори</span>
+                            </div>
+                            <div class="suggest-item" onclick="window.askEvents()">
+                                📰 Новини <span>Що нового в ліцеї?</span>
+                            </div>
+                            <div class="suggest-item" onclick="window.setMode('translate')">
+                                🌍 Перекладач <span>Точний переклад текстів</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="header-right">
-                    <button class="icon-btn" onclick="toggleHistorySidebar()" title="Історія чатів">
+                    <button class="icon-btn" onclick="window.toggleHistorySidebar()" title="Історія чатів">
                         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                     </button>
-                    <button class="icon-btn danger" id="open-clear-modal" title="Очистити поточний чат">
+                    <button class="icon-btn danger" title="Очистити поточний чат" onclick="document.getElementById('modal-overlay').style.display = 'flex'">
                         <svg viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                     </button>
                 </div>
@@ -276,32 +450,21 @@
                 <div id="welcome">
                     <span class="welcome-icon">👋</span>
                     <h2>Привіт, ліцеїсте!</h2>
-                    <p>Я твій персональний ШІ-помічник. Обери режим роботи або просто напиши питання.</p>
-                    <div class="suggestions">
-                        <div class="suggest-item" onclick="setMode('math')">
-                            🔢 Математика <span>Алгебра та геометрія</span>
-                        </div>
-                        <div class="suggest-item" onclick="setMode('ukr')">
-                            📚 Українська мова <span>Правила та твори</span>
-                        </div>
-                        <div class="suggest-item" onclick="askEvents()">
-                            📅 Події <span>Що нового в ліцеї?</span>
-                        </div>
-                        <div class="suggest-item" onclick="setMode('translate')">
-                            🌍 Перекладач <span>Точний переклад текстів</span>
-                        </div>
-                    </div>
+                    <p style="color: var(--text-muted); margin-top: 8px;">Я твій персональний ШІ-помічник. Запитай що завгодно або натисни на "ШІ ліцею №8" зверху, щоб обрати режим роботи.</p>
                 </div>
+                
                 <div class="msg-wrapper ai" id="typing" style="display: none;">
-                    <div class="typing-indicator">
-                        <span></span><span></span><span></span>
+                    <div class="bubble typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
                     </div>
                 </div>
             </main>
 
             <div id="chat-footer">
-                <form class="input-container" id="chat-form">
-                    <textarea id="user-input" rows="1" placeholder="Запитай що завгодно..." autocomplete="off"></textarea>
+                <form class="input-container" id="chat-form" onsubmit="event.preventDefault(); window.handleSend();">
+                    <textarea id="user-input" rows="1" placeholder="Запитай що завгодно..." autocomplete="off" oninput="window.autoResize(this)" onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); window.handleSend(); }"></textarea>
                     <button type="submit" class="send-btn" id="send-btn">
                         <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
                     </button>
@@ -321,25 +484,25 @@
             <div class="page-content" style="padding-top: 85px;">
                 
                 <div class="sch-toggle-group">
-                    <button class="sch-toggle-btn active" id="btn-type-class" onclick="setSchType('class')">Для класів</button>
-                    <button class="sch-toggle-btn" id="btn-type-teacher" onclick="setSchType('teacher')">Для викладачів</button>
+                    <button class="sch-toggle-btn active" id="btn-type-class" onclick="window.setSchType('class')">Для класів</button>
+                    <button class="sch-toggle-btn" id="btn-type-teacher" onclick="window.setSchType('teacher')">Для викладачів</button>
                 </div>
                 
-                <select id="sch-selector" class="sch-select" onchange="renderSchedule()">
+                <select id="sch-selector" class="sch-select" onchange="window.renderSchedule()">
                     <!-- Наповнюється з JS -->
                 </select>
 
                 <div class="sch-toggle-group">
-                    <button class="sch-toggle-btn active" id="btn-week-1" onclick="setSchWeek('week1')">Перший тиждень</button>
-                    <button class="sch-toggle-btn" id="btn-week-2" onclick="setSchWeek('week2')">Другий тиждень</button>
+                    <button class="sch-toggle-btn active" id="btn-week-1" onclick="window.setSchWeek('week1')">Перший тиждень</button>
+                    <button class="sch-toggle-btn" id="btn-week-2" onclick="window.setSchWeek('week2')">Другий тиждень</button>
                 </div>
 
                 <div class="sch-days">
-                    <button class="sch-day active" id="day-ПН" onclick="setSchDay('ПН')">ПН</button>
-                    <button class="sch-day" id="day-ВТ" onclick="setSchDay('ВТ')">ВТ</button>
-                    <button class="sch-day" id="day-СР" onclick="setSchDay('СР')">СР</button>
-                    <button class="sch-day" id="day-ЧТ" onclick="setSchDay('ЧТ')">ЧТ</button>
-                    <button class="sch-day" id="day-ПТ" onclick="setSchDay('ПТ')">ПТ</button>
+                    <button class="sch-day active" id="day-ПН" onclick="window.setSchDay('ПН')">ПН</button>
+                    <button class="sch-day" id="day-ВТ" onclick="window.setSchDay('ВТ')">ВТ</button>
+                    <button class="sch-day" id="day-СР" onclick="window.setSchDay('СР')">СР</button>
+                    <button class="sch-day" id="day-ЧТ" onclick="window.setSchDay('ЧТ')">ЧТ</button>
+                    <button class="sch-day" id="day-ПТ" onclick="window.setSchDay('ПТ')">ПТ</button>
                 </div>
 
                 <div id="sch-lessons-container">
@@ -358,11 +521,18 @@
                     </div>
                 </div>
             </header>
-            <div class="page-content">
+            <div class="page-content" style="padding-top: 85px;">
+                <div class="card">
+                    <div class="setting-group">
+                        <label>Акаунт</label>
+                        <div id="user-info-display" style="margin-bottom: 12px; font-weight: 600; color: var(--primary); font-size: 16px;"></div>
+                        <button id="auth-action-btn" style="width: 100%; padding: 12px; background: var(--card-bg); color: var(--danger); border: 1px solid var(--danger); border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s;">Вийти з акаунту</button>
+                    </div>
+                </div>
                 <div class="card">
                     <div class="setting-group">
                         <label>Оформлення (Тема)</label>
-                        <select id="theme-select" class="setting-control">
+                        <select id="theme-select" class="setting-control" onchange="window.changeTheme(this.value)">
                             <option value="light">☀️ Світла тема</option>
                             <option value="dark">🌙 Темна тема</option>
                         </select>
@@ -372,60 +542,97 @@
                     <div class="setting-group">
                         <label>Швидкі фони</label>
                         <div class="preset-bgs">
-                            <!-- Градієнти / Кольори -->
-                            <div class="preset-bg-btn" style="background: #f8fafc;" onclick="setBg('none')" title="Світлий (за замовчуванням)"></div>
-                            <div class="preset-bg-btn" style="background: linear-gradient(135deg, #e0f2fe, #dbeafe);" onclick="setBg('linear-gradient(135deg, #e0f2fe, #dbeafe)')"></div>
-                            <div class="preset-bg-btn" style="background: linear-gradient(135deg, #fce7f3, #fbcfe8);" onclick="setBg('linear-gradient(135deg, #fce7f3, #fbcfe8)')"></div>
-                            <div class="preset-bg-btn" style="background: linear-gradient(135deg, #f3e8ff, #ede9fe);" onclick="setBg('linear-gradient(135deg, #f3e8ff, #ede9fe)')"></div>
-                            <div class="preset-bg-btn" style="background: #1e293b;" onclick="setBg('#1e293b')" title="Темний"></div>
-                            
-                            <!-- Картинки (Естетика, Космос, Мистецтво, Природа, Абстракція) -->
-                            <div class="preset-bg-btn" style="background: url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=200&h=200&fit=crop') center/cover;" onclick="setBg('url(\'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2000\')')" title="Абстракція"></div>
-                            <div class="preset-bg-btn" style="background: url('https://images.unsplash.com/photo-1472214103451-9374bd1c798e?q=80&w=200&h=200&fit=crop') center/cover;" onclick="setBg('url(\'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?q=80&w=2000\')')" title="Природа"></div>
-                            <div class="preset-bg-btn" style="background: url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=200&h=200&fit=crop') center/cover;" onclick="setBg('url(\'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2000\')')" title="Космос"></div>
-                            <div class="preset-bg-btn" style="background: url('https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=200&h=200&fit=crop') center/cover;" onclick="setBg('url(\'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2000\')')" title="Мистецтво"></div>
-                            <div class="preset-bg-btn" style="background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=200&h=200&fit=crop') center/cover;" onclick="setBg('url(\'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2000\')')" title="Пляж"></div>
-                            <div class="preset-bg-btn" style="background: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=200&h=200&fit=crop') center/cover;" onclick="setBg('url(\'https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2000\')')" title="Гори"></div>
+                            <div class="preset-bg-btn" style="background: #f8fafc;" onclick="window.setBg('none')" title="Світлий (за замовчуванням)"></div>
+                            <div class="preset-bg-btn" style="background: linear-gradient(135deg, #e0f2fe, #dbeafe);" onclick="window.setBg('linear-gradient(135deg, #e0f2fe, #dbeafe)')"></div>
+                            <div class="preset-bg-btn" style="background: linear-gradient(135deg, #fce7f3, #fbcfe8);" onclick="window.setBg('linear-gradient(135deg, #fce7f3, #fbcfe8)')"></div>
+                            <div class="preset-bg-btn" style="background: linear-gradient(135deg, #f3e8ff, #ede9fe);" onclick="window.setBg('linear-gradient(135deg, #f3e8ff, #ede9fe)')"></div>
+                            <div class="preset-bg-btn" style="background: #1e293b;" onclick="window.setBg('#1e293b')" title="Темний"></div>
+                            <div class="preset-bg-btn" style="background: url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=200&h=200&fit=crop') center/cover;" onclick="window.setBg('url(\'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2000\')')" title="Абстракція"></div>
+                            <div class="preset-bg-btn" style="background: url('https://images.unsplash.com/photo-1472214103451-9374bd1c798e?q=80&w=200&h=200&fit=crop') center/cover;" onclick="window.setBg('url(\'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?q=80&w=2000\')')" title="Природа"></div>
+                            <div class="preset-bg-btn" style="background: url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=200&h=200&fit=crop') center/cover;" onclick="window.setBg('url(\'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2000\')')" title="Космос"></div>
+                            <div class="preset-bg-btn" style="background: url('https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=200&h=200&fit=crop') center/cover;" onclick="window.setBg('url(\'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2000\')')" title="Мистецтво"></div>
+                            <div class="preset-bg-btn" style="background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=200&h=200&fit=crop') center/cover;" onclick="window.setBg('url(\'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2000\')')" title="Пляж"></div>
+                            <div class="preset-bg-btn" style="background: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=200&h=200&fit=crop') center/cover;" onclick="window.setBg('url(\'https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2000\')')" title="Гори"></div>
                         </div>
                     </div>
                     <div class="setting-group" style="margin-top: 16px;">
                         <label>Своя заставка (URL картинки)</label>
                         <input type="text" id="custom-bg-input" class="setting-control" placeholder="https://посилання-на-картинку.jpg">
-                        <button onclick="applyCustomBg()" style="margin-top: 10px; width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">Застосувати картинку</button>
+                        <button onclick="window.applyCustomBg()" style="margin-top: 10px; width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">Застосувати картинку</button>
                     </div>
                 </div>
-                <div class="card" style="text-align: center;"><p style="color: var(--text-muted); font-size: 13px;">Версія додатка: 104.1 Smart Links<br>Розроблено для ліцею №8</p></div>
+                <div class="card" style="text-align: center;"><p style="color: var(--text-muted); font-size: 13px;">Версія додатка: 172.0 (Stable Brain & UI)<br>Розроблено для ліцею №8</p></div>
             </div>
         </div>
+
+        <!-- ВКЛАДКА 4: АДМІН ПАНЕЛЬ -->
+        <div id="tab-admin" class="tab-content">
+            <header>
+                <div class="header-left" style="background: none; border: none; box-shadow: none;">
+                    <div class="header-info">
+                        <h1 style="background: var(--glass); padding: 8px 16px; border-radius: 12px; backdrop-filter: blur(12px); border: 1px solid var(--border);">👑 Панель Керування</h1>
+                    </div>
+                </div>
+            </header>
+            <div class="page-content" style="padding-top: 85px;">
+                <div id="admin-user-list-container">
+                    <div class="card" style="border-color: var(--accent);">
+                        <h3 style="color: var(--text-main); margin-bottom: 12px;">Статистика системи (Синхронізація увімкнена)</h3>
+                        <p style="color: var(--text-muted); font-size: 15px;">Всього користувачів: <strong style="color: var(--accent); font-size: 18px;" id="admin-user-count">0</strong></p>
+                        <p style="color: var(--text-muted); font-size: 13px; margin-top: 5px;">Натисніть на користувача, щоб побачити його історію чатів.</p>
+                    </div>
+                    <div class="card">
+                        <h3 style="color: var(--text-main); margin-bottom: 12px;">Список активних акаунтів (та гостей):</h3>
+                        <ul id="admin-user-list" style="list-style-type: none; padding: 0; display: flex; flex-direction: column; gap: 8px;">
+                            <!-- Юзери -->
+                        </ul>
+                    </div>
+                </div>
+                <div id="admin-chat-viewer" style="display: none;">
+                    <button onclick="window.closeAdminChatViewer()" style="margin-bottom: 15px; padding: 10px 15px; background: var(--bg-tab); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; font-weight: 600; color: var(--text-main);">← Назад до списку</button>
+                    <div class="card">
+                        <h3 id="admin-viewer-title" style="margin-bottom: 15px; color: var(--text-main);"></h3>
+                        <div id="admin-viewer-content" style="background: var(--bg-main); border: 1px solid var(--border); border-radius: 16px; padding: 15px; max-height: 50vh; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;">
+                            <!-- Повідомлення юзера -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- SIDEBAR ІСТОРІЯ ЧАТІВ -->
     <div id="history-sidebar">
         <div class="sidebar-header">
             <h2>Історія чатів</h2>
-            <button onclick="toggleHistorySidebar()" class="close-sidebar">&times;</button>
+            <button onclick="window.toggleHistorySidebar()" class="close-sidebar">&times;</button>
         </div>
-        <button class="new-chat-btn" onclick="createNewChat()">+ Новий чат</button>
+        <button class="new-chat-btn" onclick="window.createNewChat()">+ Новий чат</button>
         <div id="history-list"></div>
     </div>
 
     <!-- НИЖНЯ НАВІГАЦІЯ (СЛАЙДЕР) -->
     <div id="bottom-nav-container">
-        <button id="nav-toggle-btn" class="nav-toggle-btn" title="Відкрити меню">
+        <button id="nav-toggle-btn" class="nav-toggle-btn" title="Відкрити меню" onclick="document.getElementById('bottom-nav-container').classList.toggle('open')">
             <svg viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"/></svg>
         </button>
         <nav id="bottom-nav">
-            <button class="nav-item active" data-target="tab-chat">
+            <button class="nav-item active" data-target="tab-chat" onclick="window.switchTab('tab-chat')">
                 <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                 <span class="nav-label">Чат</span>
             </button>
-            <button class="nav-item" data-target="tab-schedule">
+            <button class="nav-item" data-target="tab-schedule" onclick="window.switchTab('tab-schedule')">
                 <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                 <span class="nav-label">Розклад</span>
             </button>
-            <button class="nav-item" data-target="tab-settings">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <button class="nav-item" data-target="tab-settings" onclick="window.switchTab('tab-settings')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
                 <span class="nav-label">Налаштування</span>
+            </button>
+            <button class="nav-item" id="nav-admin" data-target="tab-admin" style="display: none; color: var(--accent);" onclick="window.switchTab('tab-admin')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h20v2H2z"/><path d="M10 20v-4h4v4"/><path d="M22 6L19 16H5L2 6h20z"/></svg>
+                <span class="nav-label">Адмін</span>
             </button>
         </nav>
     </div>
@@ -436,22 +643,946 @@
             <h2>Очистити поточний чат?</h2>
             <p>Це видалить історію розмови. Ви впевнені?</p>
             <div class="modal-btns">
-                <button class="btn-cancel" id="close-modal">Скасувати</button>
-                <button class="btn-confirm" id="confirm-clear">Так, видалити</button>
+                <button class="btn-cancel" onclick="document.getElementById('modal-overlay').style.display='none'">Скасувати</button>
+                <button class="btn-confirm" onclick="window.clearChat()">Так, видалити</button>
             </div>
         </div>
     </div>
 
-    <script>
-        if (typeof marked !== 'undefined') {
-            marked.use({ breaks: true, gfm: true });
-        }
+    <!-- МОДУЛЬНИЙ СКРИПТ (ПОВНІСТЮ ІЗОЛЬОВАНИЙ І ЗАВАНТАЖУЄТЬСЯ МИТТЄВО) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, setDoc, doc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // === ГЛОБАЛЬНІ ЗМІННІ ===
+        window.appUsers = {};
+        window.currentUser = null;
+        window.chatHistory = [];
+        window.sessions = [];
+        window.allChatSessions = [];
+        window.currentSessionId = Date.now();
+        window.currentMode = 'default';
+        
+        let authMode = 'login';
+        let expectedVerificationCode = '';
+        let pendingAuthData = null;
+        let stateSchType = 'class';
+        let stateSchWeek = 'week1';
+        let stateSchDay = 'ПН';
+
+        let firestoreDB = null, firebaseAuth = null, firebaseAppId = null;
+        let firebaseInitialized = false;
+        let firestoreUser = null;
+        let unsubscribeUsers = null, unsubscribeChats = null;
+
+        // =================================================================
+        // ВСТАВТЕ СВОЇ КЛЮЧІ ВІД FIREBASE ТУТ (ДЛЯ РОБОТИ ПОЗА CANVAS):
+        // =================================================================
+        const myFirebaseConfig = {
+            apiKey: "AIzaSyBzlTKQ0qf-eRJWY5lJuEWVm7JT22VrFfE",
+            authDomain: "lyceum8-app.firebaseapp.com",
+            projectId: "lyceum8-app",
+            storageBucket: "lyceum8-app.firebasestorage.app",
+            messagingSenderId: "660647944787",
+            appId: "1:660647944787:web:41e8dae6a3f19586619ca6"
+        };
+        // =================================================================
+
+        // === UI ФУНКЦІЇ ===
+        window.switchTab = function(targetId) {
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            
+            const item = document.querySelector(`[data-target="${targetId}"]`);
+            if(item) item.classList.add('active');
+            
+            const target = document.getElementById(targetId);
+            if(target) target.classList.add('active');
+            
+            const bottomNavContainer = document.getElementById('bottom-nav-container');
+            if (bottomNavContainer) bottomNavContainer.classList.remove('open');
+        };
+
+        window.autoResize = function(el) {
+            el.style.height = 'auto';
+            el.style.height = (el.scrollHeight) + 'px';
+        };
+
+        window.changeTheme = function(val) {
+            document.documentElement.setAttribute('data-theme', val);
+            localStorage.setItem('appTheme', val);
+        };
+
+        window.clearChat = function() {
+            window.chatHistory = [];
+            window.currentMode = 'default';
+            window.saveMemory();
+            window.renderCurrentChat();
+            document.getElementById('modal-overlay').style.display = 'none';
+        };
+
+        document.addEventListener('click', (e) => {
+            const mt = document.getElementById('mode-trigger');
+            if (mt && !mt.contains(e.target)) {
+                mt.classList.remove('show-modes');
+            }
+        });
+
+        // === АВТОРИЗАЦІЯ ТА КОДИ ===
+        window.toggleAuthMode = function() {
+            const title = document.getElementById('auth-title');
+            const toggleText = document.getElementById('auth-toggle-text');
+            const submitBtn = document.getElementById('auth-submit-btn');
+            const errorEl = document.getElementById('auth-error');
+            if (errorEl) errorEl.style.display = 'none';
+
+            if (authMode === 'login') {
+                authMode = 'register';
+                title.innerText = 'Реєстрація';
+                submitBtn.innerText = 'Зареєструватися';
+                toggleText.innerText = 'Вже є акаунт? Увійти';
+                document.getElementById('login-fields').style.display = 'none';
+                document.getElementById('register-fields').style.display = 'block';
+            } else {
+                authMode = 'login';
+                title.innerText = 'Вхід в систему';
+                submitBtn.innerText = 'Увійти';
+                toggleText.innerText = 'Немає акаунту? Зареєструватися';
+                document.getElementById('login-fields').style.display = 'block';
+                document.getElementById('register-fields').style.display = 'none';
+            }
+        };
+
+        window.handleAuth = async function() {
+            const errorEl = document.getElementById('auth-error');
+            const submitBtn = document.getElementById('auth-submit-btn');
+            errorEl.style.display = 'none';
+
+            if (authMode === 'register') {
+                const firstName = document.getElementById('auth-firstname').value.trim();
+                const lastName = document.getElementById('auth-lastname').value.trim();
+                const userClass = document.getElementById('auth-class').value.trim();
+                const email = document.getElementById('auth-email-reg').value.trim();
+                const pass = document.getElementById('auth-password-reg').value.trim();
+
+                if (!firstName || !lastName || !userClass || !email || !pass) {
+                    errorEl.innerText = "Будь ласка, заповніть всі поля!";
+                    errorEl.style.display = 'block';
+                    return;
+                }
+
+                if (window.appUsers[email]) {
+                    errorEl.innerText = "Ця електронна пошта вже зареєстрована!";
+                    errorEl.style.display = 'block';
+                } else {
+                    expectedVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+                    pendingAuthData = { 
+                        type: 'register', firstName: firstName, lastName: lastName, 
+                        userClass: userClass, email: email, password: pass, 
+                        registeredAt: new Date().toLocaleString() 
+                    };
+                    
+                    const originalText = submitBtn.innerText;
+                    submitBtn.innerText = 'Відправка листа...';
+                    submitBtn.disabled = true;
+                    
+                    await window.sendRealEmail(email, expectedVerificationCode);
+                    
+                    submitBtn.innerText = originalText;
+                    submitBtn.disabled = false;
+                    window.showVerificationStep(email);
+                }
+            } else {
+                const email = document.getElementById('auth-email-login').value.trim();
+                const pass = document.getElementById('auth-password-login').value.trim();
+
+                if (!email || !pass) {
+                    errorEl.innerText = "Введіть електронну пошту та пароль!";
+                    errorEl.style.display = 'block';
+                    return;
+                }
+
+                if (window.appUsers[email] && window.appUsers[email].password === pass) {
+                    expectedVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+                    pendingAuthData = { type: 'login', userData: window.appUsers[email] };
+                    
+                    const originalText = submitBtn.innerText;
+                    submitBtn.innerText = 'Відправка листа...';
+                    submitBtn.disabled = true;
+                    
+                    await window.sendRealEmail(email, expectedVerificationCode);
+                    
+                    submitBtn.innerText = originalText;
+                    submitBtn.disabled = false;
+                    window.showVerificationStep(email);
+                } else {
+                    errorEl.innerText = "Невірна електронна пошта або пароль!";
+                    errorEl.style.display = 'block';
+                }
+            }
+        };
+
+        window.continueAsGuest = function() {
+            document.getElementById('auth-overlay').style.display = 'none';
+            window.currentUser = null;
+            window.applyAdminRights();
+            window.loadMemory();
+        };
+
+        window.sendRealEmail = async function(email, code) {
+            try {
+                const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwcWbqYhvQ94w7qxy3qgM3x6hm3fC-u4dp48dznpneg_GAkCavPo4o0lykOIhb9fzpy/exec'; 
+
+                if (SCRIPT_URL === 'YOUR_GOOGLE_SCRIPT_URL_HERE') {
+                    window.triggerEmailSimulation(email, code);
+                    return false;
+                }
+
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ email: email, code: code })
+                });
+
+                return true;
+            } catch (error) {
+                window.triggerEmailSimulation(email, code);
+                return false;
+            }
+        };
+
+        window.triggerEmailSimulation = function(email, code) {
+            const popup = document.getElementById('mock-email-popup');
+            document.getElementById('verify-email-display').innerText = email;
+            document.getElementById('mock-email-body').innerText = `Код підтвердження: ${code}`;
+            popup.style.transform = 'translateX(0)';
+            setTimeout(() => { popup.style.transform = 'translateX(150%)'; }, 8000);
+        };
+
+        window.showVerificationStep = function(email) {
+            document.getElementById('login-fields').style.display = 'none';
+            document.getElementById('register-fields').style.display = 'none';
+            document.getElementById('auth-main-buttons').style.display = 'none';
+            document.getElementById('auth-verification-step').style.display = 'block';
+            document.getElementById('auth-code').value = '';
+            document.getElementById('verify-email-display').innerText = email;
+        };
+
+        window.cancelVerification = function() {
+            document.getElementById('auth-verification-step').style.display = 'none';
+            document.getElementById('auth-main-buttons').style.display = 'block';
+            if (authMode === 'register') {
+                document.getElementById('register-fields').style.display = 'block';
+            } else {
+                document.getElementById('login-fields').style.display = 'block';
+            }
+            pendingAuthData = null;
+            expectedVerificationCode = '';
+        };
+
+        window.verifyAuthCode = function() {
+            const enteredCode = document.getElementById('auth-code').value.trim();
+            const errorEl = document.getElementById('auth-error');
+            errorEl.style.display = 'none';
+
+            if (enteredCode === expectedVerificationCode) {
+                if (pendingAuthData.type === 'register') {
+                    window.appUsers[pendingAuthData.email] = {
+                        firstName: pendingAuthData.firstName,
+                        lastName: pendingAuthData.lastName,
+                        userClass: pendingAuthData.userClass,
+                        email: pendingAuthData.email,
+                        password: pendingAuthData.password,
+                        registeredAt: pendingAuthData.registeredAt
+                    };
+                    localStorage.setItem('appUsers', JSON.stringify(window.appUsers));
+                    
+                    if (firebaseInitialized && firestoreDB && firestoreUser) {
+                        const userRef = doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'appUsers', pendingAuthData.email);
+                        setDoc(userRef, window.appUsers[pendingAuthData.email]).catch(e => console.error("Помилка синхронізації профілю:", e));
+                    }
+                    
+                    window.loginUser(window.appUsers[pendingAuthData.email]);
+                } else {
+                    window.loginUser(pendingAuthData.userData);
+                }
+                
+                document.getElementById('auth-verification-step').style.display = 'none';
+                document.getElementById('auth-main-buttons').style.display = 'block';
+                if(authMode === 'login') document.getElementById('login-fields').style.display = 'block';
+                else document.getElementById('register-fields').style.display = 'block';
+                
+            } else {
+                errorEl.innerText = "Невірний код! Спробуйте ще раз.";
+                errorEl.style.display = 'block';
+            }
+        };
+
+        window.loginUser = function(userData) {
+            window.currentUser = userData;
+            localStorage.setItem('appCurrentUser', JSON.stringify(window.currentUser));
+            
+            localStorage.setItem('appSavedEmail', userData.email);
+            localStorage.setItem('appSavedPass', userData.password);
+
+            document.getElementById('auth-overlay').style.display = 'none';
+            document.getElementById('auth-email-login').value = '';
+            document.getElementById('auth-password-login').value = '';
+            document.getElementById('auth-firstname').value = '';
+            document.getElementById('auth-lastname').value = '';
+            document.getElementById('auth-class').value = '';
+            document.getElementById('auth-email-reg').value = '';
+            document.getElementById('auth-password-reg').value = '';
+            
+            window.applyAdminRights();
+            window.loadMemory();
+            
+            if (firebaseInitialized && firestoreDB && firestoreUser && window.currentUser) {
+                const userRef = doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'appUsers', window.currentUser.email);
+                setDoc(userRef, window.currentUser).catch(e => console.error(e));
+            }
+        };
+
+        window.logoutApp = function() {
+            window.currentUser = null;
+            localStorage.removeItem('appCurrentUser');
+            document.getElementById('auth-overlay').style.display = 'flex';
+            
+            if (unsubscribeUsers) { unsubscribeUsers(); unsubscribeUsers = null; }
+            if (unsubscribeChats) { unsubscribeChats(); unsubscribeChats = null; }
+            
+            window.chatHistory = [];
+            window.currentMode = 'default';
+            window.renderCurrentChat();
+            document.getElementById('history-list').innerHTML = '';
+            
+            window.applyAdminRights();
+            window.switchTab('tab-chat');
+        };
+
+        // === ГЛОБАЛЬНІ ФУНКЦІЇ АДМІНКИ ===
+        window.applyAdminRights = function() {
+            const disp = document.getElementById('user-info-display');
+            const authBtn = document.getElementById('auth-action-btn');
+            
+            if (window.currentUser) {
+                if (disp) {
+                    disp.innerText = `Користувач: ${window.currentUser.firstName} ${window.currentUser.lastName} (${window.currentUser.userClass})`;
+                }
+                if (authBtn) {
+                    authBtn.innerText = 'Вийти з акаунту';
+                    authBtn.onclick = window.logoutApp;
+                }
+                
+                if (window.currentUser.email === 'ibondar0802@gmail.com') {
+                    document.getElementById('nav-admin').style.display = 'flex';
+                    
+                    let localSessions = [];
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const key = localStorage.key(i);
+                        if (key && key.startsWith('appChatSessions_')) {
+                            try {
+                                const parsed = JSON.parse(localStorage.getItem(key));
+                                if (Array.isArray(parsed)) localSessions.push(...parsed);
+                            } catch(e){}
+                        }
+                    }
+                    window.allChatSessions = localSessions;
+                    
+                    if (firebaseInitialized && firestoreDB && firestoreUser) {
+                        if (!unsubscribeUsers) {
+                            const usersRef = collection(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'appUsers');
+                            unsubscribeUsers = onSnapshot(usersRef, (snapshot) => {
+                                snapshot.forEach(doc => {
+                                    window.appUsers[doc.id] = doc.data(); 
+                                });
+                                localStorage.setItem('appUsers', JSON.stringify(window.appUsers));
+                                window.updateAdminDashboard();
+                            }, (err) => console.log('Помилка завантаження юзерів:', err));
+                        }
+                        
+                        if (!unsubscribeChats) {
+                            const sessionsRef = collection(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'chatSessions');
+                            unsubscribeChats = onSnapshot(sessionsRef, (snapshot) => {
+                                const sessionMap = new Map();
+                                window.allChatSessions.forEach(s => sessionMap.set(s.id, s));
+                                snapshot.forEach(doc => {
+                                    const data = doc.data();
+                                    sessionMap.set(data.id, data);
+                                });
+                                window.allChatSessions = Array.from(sessionMap.values());
+                                
+                                window.updateAdminDashboard();
+
+                                if (document.getElementById('admin-chat-viewer').style.display === 'block') {
+                                    const viewerTitle = document.getElementById('admin-viewer-title').innerText;
+                                    const email = viewerTitle.replace('Історія: ', '').trim();
+                                    if (email) window.viewUserChats(email);
+                                }
+                            }, (err) => console.log('Помилка завантаження чатів:', err));
+                        }
+                    } else {
+                        window.updateAdminDashboard();
+                    }
+                } else {
+                    document.getElementById('nav-admin').style.display = 'none';
+                    if (unsubscribeUsers) { unsubscribeUsers(); unsubscribeUsers = null; }
+                    if (unsubscribeChats) { unsubscribeChats(); unsubscribeChats = null; }
+                }
+            } else {
+                if (disp) {
+                    disp.innerText = `Користувач: Гість (Анонімно)`;
+                }
+                if (authBtn) {
+                    authBtn.innerText = 'Увійти або Зареєструватися';
+                    authBtn.onclick = () => { document.getElementById('auth-overlay').style.display = 'flex'; };
+                }
+                document.getElementById('nav-admin').style.display = 'none';
+                if (unsubscribeUsers) { unsubscribeUsers(); unsubscribeUsers = null; }
+                if (unsubscribeChats) { unsubscribeChats(); unsubscribeChats = null; }
+            }
+        };
+
+        window.updateAdminDashboard = function() {
+            const listEl = document.getElementById('admin-user-list');
+            const countEl = document.getElementById('admin-user-count');
+            if (!listEl || !countEl) return;
+            listEl.innerHTML = '';
+            
+            const allEmails = new Set(Object.keys(window.appUsers));
+            window.allChatSessions.forEach(session => {
+                if (session.userEmail) allEmails.add(session.userEmail);
+            });
+
+            countEl.innerText = allEmails.size;
+
+            allEmails.forEach(email => {
+                const u = window.appUsers[email] || {
+                    firstName: email === 'guest' ? 'Анонімний' : 'Невідомий',
+                    lastName: email === 'guest' ? 'Гість' : 'Користувач',
+                    userClass: '-',
+                    email: email,
+                    registeredAt: 'Не зареєстрований'
+                };
+
+                const li = document.createElement('li');
+                li.style.background = 'var(--bg-main)';
+                li.style.border = '1px solid var(--border)';
+                li.style.padding = '10px';
+                li.style.borderRadius = '10px';
+                li.style.color = 'var(--text-main)';
+                li.style.cursor = 'pointer';
+                li.innerHTML = `<strong>${u.firstName || ''} ${u.lastName || ''} (${u.userClass || ''})</strong><br>
+                                <span style="font-size: 12px; color: var(--primary);">${u.email || ''}</span>
+                                <span style="color: var(--text-muted); font-size: 11px; float: right;">${u.registeredAt || 'Невідомо'}</span>`;
+                
+                li.onclick = () => window.viewUserChats(u.email);
+                li.onmouseover = () => li.style.borderColor = 'var(--primary)';
+                li.onmouseout = () => li.style.borderColor = 'var(--border)';
+                
+                listEl.appendChild(li);
+            });
+        };
+
+        window.viewUserChats = function(email) {
+            document.getElementById('admin-user-list-container').style.display = 'none';
+            document.getElementById('admin-chat-viewer').style.display = 'block';
+            document.getElementById('admin-viewer-title').innerText = 'Історія: ' + email;
+            
+            const content = document.getElementById('admin-viewer-content');
+            content.innerHTML = '';
+            
+            let userSessions = window.allChatSessions.filter(s => s.userEmail === email).sort((a,b) => b.timestamp - a.timestamp);
+
+            if (userSessions.length === 0) {
+                content.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Історія порожня.</p>';
+                return;
+            }
+
+            userSessions.forEach(session => {
+                const sessionDiv = document.createElement('div');
+                sessionDiv.style.borderBottom = '1px solid var(--border)';
+                sessionDiv.style.paddingBottom = '15px';
+                sessionDiv.style.marginBottom = '5px';
+                
+                const dateLabel = document.createElement('div');
+                dateLabel.style.fontSize = '12px';
+                dateLabel.style.color = 'var(--accent)';
+                dateLabel.style.marginBottom = '10px';
+                dateLabel.style.fontWeight = 'bold';
+                dateLabel.innerText = 'Сесія від: ' + new Date(session.timestamp).toLocaleString();
+                sessionDiv.appendChild(dateLabel);
+
+                if (session.messages) {
+                    session.messages.forEach(m => {
+                        const msg = document.createElement('div');
+                        msg.style.marginBottom = '8px';
+                        msg.style.fontSize = '13px';
+                        msg.style.color = 'var(--text-main)';
+                        msg.style.background = m.role === 'user' ? 'rgba(59,130,246,0.1)' : 'var(--bg-tab)';
+                        msg.style.padding = '8px 12px';
+                        msg.style.borderRadius = '10px';
+                        msg.innerHTML = `<strong style="color: ${m.role === 'user' ? 'var(--primary-dark)' : 'var(--text-muted)'};">${m.role === 'user' ? 'Учень' : 'ШІ'}:</strong> ${m.content}`;
+                        sessionDiv.appendChild(msg);
+                    });
+                }
+                content.appendChild(sessionDiv);
+            });
+        };
+
+        window.closeAdminChatViewer = function() {
+            document.getElementById('admin-user-list-container').style.display = 'block';
+            document.getElementById('admin-chat-viewer').style.display = 'none';
+        };
+
+        // === СХОВИЩЕ ТА ІСТОРІЯ ===
+        window.getStorageKey = function(baseKey) {
+            return window.currentUser ? `${baseKey}_${window.currentUser.email}` : `${baseKey}_guest`;
+        };
+
+        window.saveMemory = function() {
+            const sessionIndex = window.sessions.findIndex(s => s.id === window.currentSessionId);
+            const sessionData = { 
+                id: window.currentSessionId, 
+                messages: window.chatHistory, 
+                mode: window.currentMode, 
+                timestamp: Date.now(),
+                userEmail: window.currentUser ? window.currentUser.email : 'guest'
+            };
+            if (sessionIndex > -1) {
+                window.sessions[sessionIndex] = sessionData;
+            } else {
+                window.sessions.unshift(sessionData);
+            }
+            localStorage.setItem(window.getStorageKey('appChatSessions'), JSON.stringify(window.sessions));
+            localStorage.setItem(window.getStorageKey('appCurrentSessionId'), window.currentSessionId);
+            window.renderHistoryList();
+
+            if (firebaseInitialized && firestoreDB) {
+                const safeEmail = window.currentUser ? window.currentUser.email : 'guest';
+                const docId = `${safeEmail}_${window.currentSessionId}`;
+                const sessionRef = doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'chatSessions', docId);
+                setDoc(sessionRef, sessionData).catch(e => console.error('Помилка запису чату в хмару:', e));
+            }
+        };
+
+        window.loadMemory = function() {
+            const saved = localStorage.getItem(window.getStorageKey('appChatSessions'));
+            const savedId = localStorage.getItem(window.getStorageKey('appCurrentSessionId'));
+            
+            window.chatHistory = [];
+            window.sessions = [];
+            window.currentMode = 'default';
+            
+            if (saved) {
+                window.sessions = JSON.parse(saved);
+                if (savedId) {
+                    window.currentSessionId = parseInt(savedId);
+                    const currentSession = window.sessions.find(s => s.id === window.currentSessionId);
+                    if (currentSession) {
+                        window.chatHistory = currentSession.messages || [];
+                        window.currentMode = currentSession.mode || 'default';
+                    } else window.createNewChat(true);
+                } else window.createNewChat(true);
+            } else {
+                window.createNewChat(true);
+            }
+            window.renderCurrentChat();
+            window.renderHistoryList();
+        };
+
+        window.createNewChat = function(skipRender = false) {
+            window.currentSessionId = Date.now();
+            window.chatHistory = [];
+            window.currentMode = 'default';
+            if (!skipRender) {
+                window.renderCurrentChat();
+                window.saveMemory();
+                window.toggleHistorySidebar(true);
+            }
+        };
+
+        window.loadChat = function(id) {
+            window.currentSessionId = id;
+            const currentSession = window.sessions.find(s => s.id === window.currentSessionId);
+            if (currentSession) {
+                window.chatHistory = currentSession.messages || [];
+                window.currentMode = currentSession.mode || 'default';
+                window.renderCurrentChat();
+            }
+            window.toggleHistorySidebar(true);
+        };
+
+        window.renderHistoryList = function() {
+            const list = document.getElementById('history-list');
+            if(!list) return;
+            list.innerHTML = '';
+            window.sessions.forEach(s => {
+                const item = document.createElement('div');
+                item.className = `history-item ${s.id === window.currentSessionId ? 'active' : ''}`;
+                const previewMsg = s.messages.find(m => m.role === 'user')?.content || "Новий чат";
+                item.innerHTML = `${previewMsg}`;
+                item.onclick = () => window.loadChat(s.id);
+                list.appendChild(item);
+            });
+        };
+
+        window.renderCurrentChat = function() {
+            const chatBox = document.getElementById('chat-box');
+            const welcome = document.getElementById('welcome');
+            if(!chatBox) return;
+            
+            chatBox.querySelectorAll('.msg-wrapper:not(#typing)').forEach(m => m.remove());
+            if (window.chatHistory.length > 0) {
+                if(welcome) welcome.style.display = 'none';
+                window.chatHistory.forEach(msg => window.addMessageToDOM(msg.role, msg.content, true));
+            } else {
+                if(welcome) welcome.style.display = 'block';
+            }
+        };
+
+        const LYCEUM_HISTORY = `Ліцей №8 м. Житомира (раніше СШ №45) відкритий восени 1944 року після звільнення міста для дітей залізничників на вул. Леніна №81 (зараз це стара будівля). Першим директором була Уралова Анна Георгіївна. 
+        У роки Другої світової війни в будівлі розташовувався військовий шпиталь. Пізніше школа була відбудована громадою. Учні та вчителі власноруч розчистили територію та висадили великий шкільний сад і березову алею. 
+        У перші роки вчителі працювали у важких умовах: самі заготовляли дрова, а класи опалювалися буржуйками. Проте колектив був дуже дружним. У 1946 році відкрили 8 клас, створили шкільний драмгурток та комсомольську організацію. Зі 114 випускників перших років 108 здобули вищу освіту. 
+        15 листопада 1960 року школа перейшла до Міністерства освіти і офіційно стала середньою школою №8. Директорами школи у різні роки були: Уралова, Таран, Тюрин, Вакуленко, Шандра, Єременко, Волошин.
+        Ліцей завжди славився високим рівнем освіти. У 1960 році тут було відкрито перший в області історичний музей, а згодом — музей Бойової Слави. Учні часто перемагали на обласних та міських олімпіадах. Також школа славилася своїм хором, спортивними змаганнями, конкурсами квітів та шкільними кросами.
+        Сьогодні ліцей №8 — це сучасний заклад освіти з багатими традиціями та потужним педагогічним колективом.`;
+
+        const SYSTEM_PROMPTS = {
+            'default': "Ти — розумний ШІ ліцею №8 (м. Житомир). Ти не маєш відношення до інших компаній. На питання 'Хто ти?' відповідай, що ти ШІ ліцею №8. На питання 'Хто тебе створив?' або 'Хто розробник?' ОБОВ'ЯЗКОВО відповідай: 'Питайте у Стельмаха Олександра з 8Б класу'. Офіційний сайт ліцею: [Сайт ліцею №8](https://8.lic.zhitomir.ua/) (ЗАВЖДИ використовуй цей Markdown-формат для посилання).",
+            'math': "Ти — досвідчений вчитель математики ліцею №8. На питання 'Хто тебе створив?' ОБОВ'ЯЗКОВО відповідай: 'Питайте у Стельмаха Олександра з 8Б класу'. Допомагай з алгеброю та геометрією. Пояснюй рішення крок за кроком, зрозуміло для учня. ЗАВЖДИ використовуй символ долара для математики: $...$ для малих формул та $$...$$ для великих. НІКОЛИ не використовуй круглі чи квадратні дужки з бекслешами для математики. Офіційний сайт ліцею: [Сайт ліцею №8](https://8.lic.zhitomir.ua/).",
+            'ukr': "Ти — найкращий вчитель української мови та літератури ліцею №8. На питання 'Хто тебе створив?' ОБОВ'ЯЗКОВО відповідай: 'Питайте у Стельмаха Олександра з 8Б класу'. Допомагай писати твори, пояснюй правила граматики, роби синтаксичний розбір. Офіційний сайт ліцею: [Сайт ліцею №8](https://8.lic.zhitomir.ua/).",
+            'translate': "Ти — професійний перекладач ліцею №8. На питання 'Хто тебе створив?' ОБОВ'ЯЗКОВО відповідай: 'Питайте у Стельмаха Олександра з 8Б класу'. Офіційний сайт ліцею: [Сайт ліцею №8](https://8.lic.zhitomir.ua/). Твоє завдання — перекладати тексти."
+        };
+        const MODE_NAMES = { 'math': 'Математика', 'ukr': 'Укр. мова', 'translate': 'Перекладач', 'default': 'Стандартний' };
+
+        window.setMode = function(mode) {
+            window.currentMode = mode;
+            window.addMessageToDOM('system', `🔔 Режим <b>"${MODE_NAMES[mode]}"</b> активовано. ШІ налаштовано!`, true);
+            window.saveMemory();
+            const mt = document.getElementById('mode-trigger');
+            if(mt) mt.classList.remove('show-modes');
+        };
+
+        window.askEvents = function() {
+            const input = document.getElementById('user-input');
+            if(input) {
+                input.value = "Які новини або події зараз відбуваються в ліцеї №8?";
+                window.handleSend();
+            }
+            const mt = document.getElementById('mode-trigger');
+            if(mt) mt.classList.remove('show-modes');
+        };
+
+        window.toggleHistorySidebar = function(forceClose = false) {
+            const sidebar = document.getElementById('history-sidebar');
+            if(!sidebar) return;
+            if (forceClose) sidebar.classList.remove('open');
+            else sidebar.classList.toggle('open');
+        };
+
+        window.cleanAIResponse = function(text) {
+            if (!text || typeof text !== 'string') return "";
+            let cleaned = text;
+            const adMarkers = ["Support Pollinations.AI:", "🌸 Ad 🌸", "Powered by Pollinations.AI", "discord.gg"];
+            for (const marker of adMarkers) {
+                const index = cleaned.indexOf(marker);
+                if (index !== -1) {
+                    const hrIndex = cleaned.lastIndexOf('---', index);
+                    if (hrIndex !== -1 && (index - hrIndex) < 150) cleaned = cleaned.substring(0, hrIndex);
+                    else cleaned = cleaned.substring(0, index);
+                }
+            }
+            cleaned = cleaned.replace(/https?:\/\/(www\.)?liceum8\.org(\S*)/gi, 'https://8.lic.zhitomir.ua$2');
+            cleaned = cleaned.replace(/liceum8\.org/gi, '8.lic.zhitomir.ua');
+            cleaned = cleaned.replace(/https?:\/\/(www\.)?lyceum8\.zt\.ua(\S*)/gi, 'https://8.lic.zhitomir.ua$2');
+            
+            // НОВЕ: Жорстке виправлення граматичних галюцинацій моделі
+            cleaned = cleaned.replace(/ліжії/gi, 'ліцеї');
+            cleaned = cleaned.replace(/ліжію/gi, 'ліцею');
+            cleaned = cleaned.replace(/ліжія/gi, 'ліцей');
+            cleaned = cleaned.replace(/в ліжії/gi, 'у ліцеї');
+            cleaned = cleaned.replace(/у ліжії/gi, 'у ліцеї');
+            cleaned = cleaned.replace(/ліцея/gi, 'ліцею');
+            cleaned = cleaned.replace(/антиміністрування/gi, 'адміністрування');
+            cleaned = cleaned.replace(/Запоробійської держави/gi, 'США'); // Ловимо ту саму галюцинацію
+            
+            return cleaned.trim();
+        };
+
+        window.addMessageToDOM = function(role, text, isHistoryLoad = false) {
+            const chatBox = document.getElementById('chat-box');
+            const typing = document.getElementById('typing');
+            const welcome = document.getElementById('welcome');
+
+            if (welcome) welcome.style.display = 'none';
+
+            const wrapper = document.createElement('div');
+            wrapper.className = `msg-wrapper ${role}`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            
+            if (role === 'system') {
+                bubble.innerHTML = text; 
+            } else if (role === 'user') {
+                bubble.innerText = text;
+            } else {
+                let cleanText = text.replace(/<think>[\s\S]*?<\/think>/g, '');
+                cleanText = cleanText.replace(/<think>[\s\S]*/g, '');
+                cleanText = cleanText.trim();
+                
+                cleanText = cleanText.replace(/\\\((.*?)\\\)/gs, '$$$1$$');
+                cleanText = cleanText.replace(/\\\[(.*?)\\\]/gs, '$$$$$1$$$$');
+                cleanText = cleanText.replace(/\(\s*\\displaystyle(.*?)\s*\)/gs, '$$$$\\displaystyle$1$$$$');
+
+                let mathBlocks = [];
+                cleanText = cleanText.replace(/\$\$(.*?)\$\$/gs, function(match) {
+                    mathBlocks.push(match);
+                    return `@@MATHBLOCK${mathBlocks.length - 1}@@`;
+                });
+                cleanText = cleanText.replace(/\$(.*?)\$/gs, function(match) {
+                    mathBlocks.push(match);
+                    return `@@MATHBLOCK${mathBlocks.length - 1}@@`;
+                });
+
+                let parsedHtml = marked.parse(cleanText);
+
+                mathBlocks.forEach((block, i) => {
+                    parsedHtml = parsedHtml.replace(`@@MATHBLOCK${i}@@`, block);
+                });
+                
+                bubble.innerHTML = parsedHtml; 
+            }
+
+            const links = bubble.querySelectorAll('a');
+            links.forEach(link => {
+                link.setAttribute('target', '_blank');
+                link.setAttribute('rel', 'noopener noreferrer');
+                link.style.color = 'var(--primary-dark)';
+                link.style.textDecoration = 'underline';
+                link.style.fontWeight = '600';
+                link.style.wordBreak = 'break-word';
+            });
+
+            if (role === 'ai') {
+                const copyContainer = document.createElement('div');
+                copyContainer.style.display = 'flex';
+                copyContainer.style.justifyContent = 'flex-end';
+                copyContainer.style.marginTop = '10px';
+                
+                const btn = document.createElement('button');
+                btn.className = 'copy-btn';
+                btn.innerHTML = '📎 Копіювати текст';
+                btn.onclick = () => {
+                    try {
+                        const tempTextArea = document.createElement("textarea");
+                        tempTextArea.value = text;
+                        tempTextArea.style.position = "fixed";
+                        tempTextArea.style.opacity = "0";
+                        document.body.appendChild(tempTextArea);
+                        tempTextArea.focus();
+                        tempTextArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(tempTextArea);
+                        
+                        btn.innerHTML = '✅ Скопійовано!';
+                        setTimeout(() => { btn.innerHTML = '📎 Копіювати текст'; }, 2000);
+                    } catch(err) {
+                        btn.innerHTML = '❌ Помилка';
+                        console.error('Помилка копіювання:', err);
+                        setTimeout(() => { btn.innerHTML = '📎 Копіювати текст'; }, 2000);
+                    }
+                };
+                copyContainer.appendChild(btn);
+                bubble.appendChild(copyContainer);
+            }
+
+            wrapper.appendChild(bubble);
+
+            if (typing) {
+                chatBox.insertBefore(wrapper, typing);
+            } else {
+                chatBox.appendChild(wrapper);
+            }
+            
+            if (role === 'ai') {
+                setTimeout(() => {
+                    try {
+                        if (typeof window.MathJax !== 'undefined' && window.MathJax.typesetPromise) {
+                            window.MathJax.typesetPromise([bubble]).then(() => {
+                                chatBox.scrollTop = chatBox.scrollHeight;
+                            }).catch((err) => console.log('Помилка MathJax:', err.message));
+                        }
+                    } catch(e) { console.error('MathJax error:', e); }
+                }, 100);
+            } else {
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+
+            if (!isHistoryLoad && role !== 'system' && !text.includes("Збій:")) {
+                window.chatHistory.push({ role, content: text });
+                window.saveMemory();
+            }
+        };
+
+        window.askAI = async function(query) {
+            let qLower = query.toLowerCase().replace(/[?.,!]/g, '').trim();
+
+            // ПРЯМЕ ПЕРЕХОПЛЕННЯ КОНКРЕТНИХ ПИТАНЬ (без звернення до ШІ, щоб уникнути галюцинацій)
+            if (qLower.includes('президент сша') || qLower === 'хто президент сша' || qLower.includes('президент америки')) {
+                return "Станом на зараз, 47-м Президентом США є Дональд Трамп (він обійняв цю посаду у 2025 році).";
+            }
+            if (qLower.includes('президент україни') || qLower === 'хто президент україни') {
+                return "Президентом України є Володимир Зеленський.";
+            }
+            if (qLower.includes('хто тебе створив') || qLower.includes('хто твій розробник') || qLower.includes('хто розробник') || qLower.includes('ким ти створений')) {
+                return "Питайте у Стельмаха Олександра з 8Б класу 😎. А взагалі, розробник бажає залишитися анонімним😜";
+            }
+            if (qLower === 'хто ти' || qLower === 'що ти таке' || qLower === 'ти хто') {
+                return "Я — персональний штучний інтелект ліцею №8!";
+            }
+
+            // ВПРОВАДЖЕНО НОВІ ЖОРСТКІ ПРАВИЛА БЕЗПЕКИ ТА ФАКТЧЕКИНГУ + ЛЮДЯНІСТЬ + ГРАМАТИКА
+            const STRICT_RULES = `\n\nДОТРИМУЙСЯ ЦЬОГО СТИЛЮ НАПИСАННЯ:\n1. Спілкуйся природно, привітно і по-людськи.\n2. ВАЖЛИВО: Відповідай коротко і прямо на поставлене запитання.\n3. СУВОРА ГРАМАТИКА: Пиши виключно літературною українською мовою. Категорично заборонено використовувати вигадані слова чи суржик. Зверни особливу увагу на правильне відмінювання: місцевий відмінок (де?) - "у ліцеї" (ніколи не пиши "у ліжії" або "в ліцея").\n4. ПОВИНЕН завжди говорити правду і спиратися на факти.\n5. УНИКАЙ відповідей при невпевненості.`;
+
+            let sysPrompt = (SYSTEM_PROMPTS[window.currentMode] || SYSTEM_PROMPTS['default']) + STRICT_RULES + "\n\nВАЖЛИВО: Відповідай виключно ідеальною українською мовою. СУВОРО ЗАБОРОНЕНО використовувати теги <think> або писати свої внутрішні міркування.";
+            
+            let isHistoryRequest = qLower.includes('ліце') || qLower.includes('школ') || qLower.includes('історі') || qLower.includes('директор') || qLower.includes('вчит');
+            if (window.currentMode === 'default' && isHistoryRequest) {
+                sysPrompt += "\n\n[ДОВІДКА ПРО ІСТОРІЮ ЛІЦЕЮ №8]:\n" + LYCEUM_HISTORY + "\n\nСИСТЕМНА ВКАЗІВКА: Якщо учень питає про історію ліцею, розкажи її ПОВНІСТЮ та максимально детально.";
+            }
+
+            // МІНІ-МОДУЛЬ: Вбудований веб-пошук по Вікіпедії (більш надійний)
+            let webSearchData = "";
+            if (query.length > 3 && window.currentMode === 'default') {
+                try {
+                    const wikiController = new AbortController();
+                    const wikiTimeoutId = setTimeout(() => wikiController.abort(), 3000);
+                    const searchT = encodeURIComponent(query);
+                    const wikiRes = await fetch(`https://uk.wikipedia.org/w/api.php?action=query&list=search&srsearch=${searchT}&utf8=&format=json&origin=*`, { signal: wikiController.signal });
+                    clearTimeout(wikiTimeoutId);
+                    if (wikiRes.ok) {
+                        const wikiData = await wikiRes.json();
+                        if (wikiData.query && wikiData.query.search) {
+                            webSearchData = wikiData.query.search.slice(0, 3).map(s => s.title + ": " + s.snippet.replace(/<\/?[^>]+(>|$)/g, "")).join('\n');
+                        }
+                    }
+                } catch(e) {
+                    console.warn("Помилка Вікіпедії:", e);
+                }
+            }
+
+            let safeQuery = query;
+            
+            if (webSearchData.length > 5) {
+                safeQuery += `\n\n--- ДОВІДКОВА ІНФОРМАЦІЯ З ІНТЕРНЕТУ ДЛЯ ВІДПОВІДІ ---\n${webSearchData}\n(Використовуй це, якщо воно стосується питання)`;
+            }
+
+            const messages = [{ role: 'system', content: sysPrompt }];
+            const validHistory = window.chatHistory.filter(m => m.role === 'user' || m.role === 'ai').slice(-5);
+            validHistory.forEach(msg => {
+                messages.push({ role: msg.role === 'ai' ? 'assistant' : 'user', content: msg.content });
+            });
+            messages.push({ role: 'user', content: safeQuery });
+
+            const extractText = (raw) => {
+                let res = raw;
+                try {
+                    const p = JSON.parse(raw);
+                    if (p.choices && p.choices.length > 0) {
+                        res = p.choices[0].message.content || p.choices[0].message.reasoning_content || raw;
+                    } else if (p.content) {
+                        res = p.content;
+                    }
+                } catch(e) {}
+                
+                if (typeof res === 'string') {
+                    res = res.replace(/<think>[\s\S]*?<\/think>/g, '');
+                    res = res.replace(/<think>[\s\S]*/g, '');
+                    res = res.trim();
+                }
+                return window.cleanAIResponse(res);
+            };
+
+            const tryFetch = async (method, url, bodyObj) => {
+                const controller = new AbortController();
+                const id = setTimeout(() => controller.abort(), 60000); 
+                const options = { method, signal: controller.signal };
+                if (method === 'POST') {
+                    options.headers = { 'Content-Type': 'application/json' };
+                    options.body = JSON.stringify(bodyObj);
+                }
+                try {
+                    const res = await fetch(url, options);
+                    clearTimeout(id);
+                    if (!res.ok) return null;
+                    const text = await res.text();
+                    const final = extractText(text);
+                    if (final && final.length > 3 && !final.includes('<html') && !final.includes('{"error"')) {
+                        return final;
+                    }
+                } catch (e) {
+                    clearTimeout(id);
+                }
+                return null;
+            };
+
+            let ans = await tryFetch('POST', 'https://text.pollinations.ai/', { messages, model: 'openai' });
+            if (ans) return ans;
+
+            ans = await tryFetch('POST', 'https://text.pollinations.ai/', { messages, model: 'llama' });
+            if (ans) return ans;
+
+            let fallbackPrompt = `Ти ШІ ліцею №8. Учень питає: ${query}. Відповідай українською. `;
+
+            ans = await tryFetch('GET', `https://text.pollinations.ai/${encodeURIComponent(fallbackPrompt)}?model=openai`, null);
+            if (ans) return ans;
+
+            throw new Error("Сервери ШІ перевантажені або цей запит блокується фільтрами. Будь ласка, спробуйте перефразувати питання або зачекайте хвилинку!");
+        };
+
+        window.handleSend = async function(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const userInput = document.getElementById('user-input');
+            const sendBtn = document.getElementById('send-btn');
+            const typing = document.getElementById('typing');
+            const chatBox = document.getElementById('chat-box');
+
+            if(!userInput) return;
+            const text = userInput.value.trim();
+            if (!text || (sendBtn && sendBtn.disabled)) return;
+
+            window.addMessageToDOM('user', text);
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            
+            if(sendBtn) sendBtn.disabled = true;
+            if(typing) typing.style.display = 'flex';
+            if(chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const answer = await window.askAI(text);
+                window.addMessageToDOM('ai', answer);
+            } catch (err) {
+                window.addMessageToDOM('system', `❌ Збій: ${err.message}`, true); 
+                if(window.chatHistory.length > 0 && window.chatHistory[window.chatHistory.length-1].role === 'user') {
+                    window.chatHistory.pop();
+                    window.saveMemory();
+                }
+            } finally {
+                if(sendBtn) sendBtn.disabled = false;
+                if(typing) typing.style.display = 'none';
+            }
+        };
+
+        // === РОЗКЛАД ===
         const emptyWeek = () => ({ "ПН": [], "ВТ": [], "СР": [], "ЧТ": [], "ПТ": [] });
         const L = (n, t, s, tr, r) => ({ num: n, time: t, subject: s, teacher: tr, room: r });
         const dupW = (w) => ({ week1: w, week2: JSON.parse(JSON.stringify(w)) });
 
-        // Компактні змінні для часу
         const t1="08:00 – 08:35", t2="08:50 – 09:25", t3="09:40 – 10:15", t4="10:25 – 11:00", t5="11:10 – 11:45";
         const k1="08:00 – 08:40", k2="08:50 – 09:30", k3="09:40 – 10:20", k4="10:30 – 11:10", k5="11:20 – 12:00";
         const m1="12:10 – 12:50", m2="13:00 – 13:40", m3="13:50 – 14:30", m4="14:40 – 15:20", m5="15:30 – 16:10";
@@ -459,15 +1590,29 @@
         const h1="08:00 – 08:45", h2="08:55 – 09:40", h3="09:50 – 10:35", h4="10:45 – 11:30", h5="11:40 – 12:25", h6="12:35 – 13:20", h7="13:30 – 14:15";
         const x1="12:35 – 13:20";
 
-        // Компактні змінні для предметів
         const U="Українська мова", UL="Українська література", M="Математика", A="Алгебра", G="Геометрія", E="Англійська мова", B="Біологія", C="Хімія", P="Фізика", H="Історія України", W="Всесвітня історія", PE="Фізична культура", I="Інформатика", Geo="Географія", Art="Мистецтво", Z="Зарубіжна література", T="Технології", D="Дизайн і технології", N="Пізнаємо природу", S="Я досліджую світ", Civ="Громадянська освіта", Th="Драматургія і театр", Pol="Польська мова", Ger="Німецька мова", Law="Правознавство", Health="Основи здоров'я", Def="Захист України", Astr="Астрономія", Stem="STEM", Fin="Підприємництво і фінансова грамотність", Safe="Здоров'я, безпека та добробут", Eth="Етика";
 
-        // Компактні змінні для вчителів
         const F="Флячинська О.М.", N1="Назарчук Л.Ю.", Sh="Шатківська О.Б.", Tar="Тарасенко А.С.", Gos="Господарик О.І.", Bab="Бабич С.Є.", Str="Стременко К.А.", Sto="Столяр І.С.", Kly="Климчук О.Л.", Mar="Марченко С.В.", Zhel="Желяк Л.В.", Mak="Максимець Н.Ф.", Yak="Якусевич Н.В.", Opa="Опанчук М.І.", Amr="Амрахова І.В.", Ser="Сергєєва І.М.", Mykh="Михайлицька О.С.", Vah="Ваховська Н.С.", Zhe="Жембровський О.О.", Vil="Вільчинська І.Л.", Osy="Осипенко С.С.", Kat="Катріч Л.О.", Lad="Ладнюк О.В.", Sav="Савчук І.В.", Kuz="Кузнєцова О.В.", Did="Дідко І.С.", MakP="Максимчук Л.П.", Gre="Гребенюк І.Д.", Yar="Ярошенко Н.М.", Koz="Козел Т.Ю.", Kob="Кобернік Д.І.", Paz="Пазич І.С.", Ukr="Українець Л.О.", Pus="Пустохіна Є.Ф.", Dan="Данілова С.В.", Dud="Дудар О.В.", Gor="Горощенко А.М.", Ata="Атаманчук О.Є.", Yaru="Ярмоліцька Н.Ю.", Koch="Кочевенко Д.М.", Rys="Рисіч Т.І.", Lav="Лавриненко Н.В.", Pro="Проботюк А.О.", Bel="Бєлова Т.Л.", Yev="Євтушенко Т.С.", Sar="Саранча М.П.", ProD="Проботюк О.Д.", GusV="Густохіна В.І.", GusE="Густохіна Є.Ф.", Man="Манохін В.В.";
         const BelYev="Бєлова Т.Л. / Євтушенко Т.С.", VahYev="Ваховська Н.С. / Євтушенко Т.С.", ZheVil="Жембровський О.О. / Вільчинська І.Л.", ProZhe="Проботюк А.О. / Жембровський О.О.", ProVil="Проботюк А.О. / Вільчинська І.Л.", ZheVah="Жембровський О.О. / Ваховська Н.С.", VahKuz="Ваховська Н.С. / Кузнєцова О.В.", OsyYar="Осипенко С.С. / Ярошенко Н.М.", GusE_GusV="Густохіна Є.Ф. / Густохіна В.І.", GusV_GusE="Густохіна В.І. / Густохіна Є.Ф.", StrVil="Стременко К.А. / Вільчинська І.Л.", StoVil="Столяр І.С. / Вільчинська І.Л.", KlyVil="Климчук О.Л. / Вільчинська І.Л.", Bov="Бовсуновський Ю.М.";
 
-        // Компактні змінні для аудиторій
         const r4="4 аудиторія", r2="2 аудиторія", r24="24 аудиторія", r23="23 аудиторія", r22="22 аудиторія", r5="5 аудиторія", r20="20 аудиторія", r39="39 аудиторія", r37="37 аудиторія", r36="36 аудиторія", r25="25 аудиторія", r26="26 аудиторія", r40="40 аудиторія", r41="41 аудиторія", r34="34 аудиторія", rGym="Спортивна зала", rAct="Актова зала", rInfo1="26 / 20 аудиторія", rInfo2="20 / 26 аудиторія", rEng1="33 / 34 аудиторія", rEng2="33 / 23 аудиторія", rW="Майстерня", rO="Онлайн", rDef="Кабінет Захисту України";
+
+        const teacherRooms = {
+            "Опанчук М.І.": rGym, "Атаманчук О.Є.": rGym, "Саранча М.П.": rGym, "Бовсуновський Ю.М.": rGym,
+            "Михайлицька О.С.": rAct, "Осипенко С.С.": rW, "Ярошенко Н.М.": rW, "Манохін В.В.": rDef,
+            "Максимець Н.Ф.": r39, "Козел Т.Ю.": r37, "Сергєєва І.М.": "38 аудиторія", "Максимчук Л.П.": r36,
+            "Катріч Л.О.": r25, "Кобернік Д.І.": "31 аудиторія", "Ваховська Н.С.": "33 аудиторія", "Ладнюк О.В.": r41,
+            "Пазич І.С.": "35 аудиторія", "Українець Л.О.": r26, "Пустохіна Є.Ф.": "30 аудиторія", "Савчук І.В.": r34,
+            "Кузнєцова О.В.": r34, "Горощенко А.М.": r40, "Дудар О.В.": "28 аудиторія", "Ковальчук В.В.": "29 аудиторія",
+            "Кочевенко Д.М.": "27 аудиторія", "Ярмоліцька Н.Ю.": "32 аудиторія", "Гребенюк І.Д.": "33 аудиторія", "Дідко І.С.": r36,
+            "Рисіч Т.І.": r25, "Амрахова І.В.": r40, "Проботюк А.О.": r20, "Лавриненко Н.В.": r39,
+            "Якусевич Н.В.": r39, "Жембровський О.О.": r20, "Вільчинська І.Л.": r26,
+            "Жембровський О.О. / Вільчинська І.Л.": rInfo2, "Проботюк А.О. / Вільчинська І.Л.": rInfo2,
+            "Проботюк А.О. / Жембровський О.О.": rInfo2, "Ваховська Н.С. / Євтушенко Т.С.": rEng2,
+            "Ваховська Н.С. / Кузнєцова О.В.": rEng1, "Осипенко С.С. / Ярошенко Н.М.": rW,
+            "Жембровський О.О. / Ваховська Н.С.": "20 / 33 аудиторія", "Данілова С.В.": "31 аудиторія", "Євтушенко Т.С.": r23,
+            "Проботюк О.Д.": r26, "Густохіна В.І.": r34, "Густохіна Є.Ф.": r34, "Бєлова Т.Л.": r22
+        };
 
         const MY_REAL_SCHEDULE = { class: {}, teacher: {} };
 
@@ -503,24 +1648,6 @@
             "11-А": dupW({"ПН":[L(1,h1,UL,GusV,r34),L(2,h2,U,GusV,r34),L(3,h3,PE,Sar,rGym),L(4,h4,C,Gor,r40),L(5,h5,I,ProZhe,rInfo1),L(6,h6,P,Yak,r34),L(7,h7,H,Kat,r34)],"ВТ":[L(1,h1,B,Paz,r34),L(2,h2,Geo,Dan,r34),L(3,h3,P,Yak,r34),L(4,h4,G,Ukr,r34),L(5,h5,Def,Man,rDef),L(6,h6,E,Kuz,r34)],"СР":[L(1,h1,UL,GusV,r34),L(2,h2,UL,GusV,r34),L(3,h3,PE,Sar,rGym),L(4,h4,A,Ukr,r34),L(5,h5,U,GusE_GusV,r34),L(6,h6,C,Gor,r40),L(7,h7,Z,GusV,r34)],"ЧТ":[L(1,h1,Art,Mykh,rAct),L(2,h2,PE,Sar,rGym),L(3,h3,P,Yak,r34),L(4,h4,G,Ukr,r34),L(5,h5,Def,Man,rDef),L(6,h6,E,Kuz,r34),L(7,h7,U,GusV,r34)],"ПТ":[L(1,h1,A,Ukr,r34),L(2,h2,B,Paz,r34),L(3,h3,H,Kat,r34),L(4,h4,Astr,Yak,r34),L(5,h5,Z,GusV,r34),L(6,h6,UL,GusV,r34),L(7,h7,U,GusV_GusE,r34)]})
         };
 
-        // АВТОМАТИЧНА ЗАМІНА "Онлайн" НА РЕАЛЬНІ КАБІНЕТИ
-        const teacherRooms = {
-            "Опанчук М.І.": rGym, "Атаманчук О.Є.": rGym, "Саранча М.П.": rGym, "Бовсуновський Ю.М.": rGym,
-            "Михайлицька О.С.": rAct, "Осипенко С.С.": rW, "Ярошенко Н.М.": rW, "Манохін В.В.": rDef,
-            "Максимець Н.Ф.": r39, "Козел Т.Ю.": r37, "Сергєєва І.М.": "38 аудиторія", "Максимчук Л.П.": r36,
-            "Катріч Л.О.": r25, "Кобернік Д.І.": "31 аудиторія", "Ваховська Н.С.": "33 аудиторія", "Ладнюк О.В.": r41,
-            "Пазич І.С.": "35 аудиторія", "Українець Л.О.": r26, "Пустохіна Є.Ф.": "30 аудиторія", "Савчук І.В.": r34,
-            "Кузнєцова О.В.": r34, "Горощенко А.М.": r40, "Дудар О.В.": "28 аудиторія", "Ковальчук В.В.": "29 аудиторія",
-            "Кочевенко Д.М.": "27 аудиторія", "Ярмоліцька Н.Ю.": "32 аудиторія", "Гребенюк І.Д.": "33 аудиторія", "Дідко І.С.": r36,
-            "Рисіч Т.І.": r25, "Амрахова І.В.": r40, "Проботюк А.О.": r20, "Лавриненко Н.В.": r39,
-            "Якусевич Н.В.": r39, "Жембровський О.О.": r20, "Вільчинська І.Л.": r26,
-            "Жембровський О.О. / Вільчинська І.Л.": rInfo2, "Проботюк А.О. / Вільчинська І.Л.": rInfo2,
-            "Проботюк А.О. / Жембровський О.О.": rInfo2, "Ваховська Н.С. / Євтушенко Т.С.": rEng2,
-            "Ваховська Н.С. / Кузнєцова О.В.": rEng1, "Осипенко С.С. / Ярошенко Н.М.": rW,
-            "Жембровський О.О. / Ваховська Н.С.": "20 / 33 аудиторія", "Данілова С.В.": "31 аудиторія", "Євтушенко Т.С.": r23,
-            "Проботюк О.Д.": r26, "Густохіна В.І.": r34, "Густохіна Є.Ф.": r34, "Бєлова Т.Л.": r22
-        };
-
         for (const cls in MY_REAL_SCHEDULE.class) {
             for (const wk in MY_REAL_SCHEDULE.class[cls]) {
                 for (const dy in MY_REAL_SCHEDULE.class[cls][wk]) {
@@ -531,7 +1658,6 @@
             }
         }
 
-        // АВТОМАТИЧНИЙ ГЕНЕРАТОР РОЗКЛАДУ ДЛЯ ВЧИТЕЛІВ
         function autoGenerateTeachersSchedule() {
             const tData = {};
             for (const className in MY_REAL_SCHEDULE.class) {
@@ -546,7 +1672,7 @@
                                     num: lesson.num,
                                     time: lesson.time,
                                     subject: `${className} Клас (${lesson.subject})`,
-                                    room: lesson.room
+                                    room: lesson.room || (teacherRooms[tName] || rO)
                                 });
                             });
                         });
@@ -565,94 +1691,7 @@
 
         MY_REAL_SCHEDULE.teacher = autoGenerateTeachersSchedule();
 
-        /* ==========================================
-           1. ЛОГІКА НАВІГАЦІЇ ТА НАЛАШТУВАНЬ
-        ========================================== */
-        const navItems = document.querySelectorAll('.nav-item');
-        const tabContents = document.querySelectorAll('.tab-content');
-        const bottomNavContainer = document.getElementById('bottom-nav-container');
-        const navToggleBtn = document.getElementById('nav-toggle-btn');
-        const themeSelect = document.getElementById('theme-select');
-        const customBgInput = document.getElementById('custom-bg-input');
-
-        navToggleBtn.addEventListener('click', () => bottomNavContainer.classList.toggle('open'));
-
-        navItems.forEach(item => {
-            item.addEventListener('click', () => {
-                navItems.forEach(btn => btn.classList.remove('active'));
-                tabContents.forEach(tab => tab.classList.remove('active'));
-                item.classList.add('active');
-                document.getElementById(item.getAttribute('data-target')).classList.add('active');
-                bottomNavContainer.classList.remove('open');
-            });
-        });
-
-        function loadSettings() {
-            const savedTheme = localStorage.getItem('appTheme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            if(themeSelect) themeSelect.value = savedTheme;
-            const savedBg = localStorage.getItem('appBg');
-            if (savedBg) {
-                if (savedBg.startsWith('url')) {
-                    document.body.style.backgroundImage = savedBg;
-                    document.body.style.backgroundSize = 'cover';
-                    document.body.style.backgroundPosition = 'center';
-                    document.body.style.backgroundAttachment = 'fixed';
-                } else if (savedBg === 'none') {
-                    document.body.style.backgroundImage = 'none';
-                    document.body.style.backgroundColor = 'var(--bg-main)';
-                } else {
-                    document.body.style.background = savedBg;
-                }
-            }
-        }
-
-        if(themeSelect) {
-            themeSelect.addEventListener('change', (e) => {
-                document.documentElement.setAttribute('data-theme', e.target.value);
-                localStorage.setItem('appTheme', e.target.value);
-            });
-        }
-
-        function setBg(bgValue) {
-            if (bgValue === 'none') {
-                document.body.style.backgroundImage = 'none';
-                document.body.style.backgroundColor = 'var(--bg-main)';
-                localStorage.setItem('appBg', 'none');
-            } else if (bgValue.startsWith('url')) {
-                document.body.style.background = 'none';
-                document.body.style.backgroundImage = bgValue;
-                document.body.style.backgroundSize = 'cover';
-                document.body.style.backgroundPosition = 'center';
-                document.body.style.backgroundAttachment = 'fixed';
-                localStorage.setItem('appBg', bgValue);
-            } else {
-                document.body.style.backgroundImage = 'none';
-                document.body.style.background = bgValue;
-                localStorage.setItem('appBg', bgValue);
-            }
-        }
-
-        function applyCustomBg() {
-            if(!customBgInput) return;
-            const url = customBgInput.value.trim();
-            if (url) {
-                const bgStr = `url('${url}')`;
-                document.body.style.backgroundImage = bgStr;
-                document.body.style.backgroundSize = 'cover';
-                document.body.style.backgroundPosition = 'center';
-                document.body.style.backgroundAttachment = 'fixed';
-                localStorage.setItem('appBg', bgStr);
-                customBgInput.value = '';
-            }
-        }
-
-        /* --- ЛОГІКА РОБОТИ РОЗКЛАДУ UI --- */
-        let stateSchType = 'class';
-        let stateSchWeek = 'week1';
-        let stateSchDay = 'ПН';
-
-        function setSchType(type) {
+        window.setSchType = function(type) {
             stateSchType = type;
             document.getElementById('btn-type-class').classList.remove('active');
             document.getElementById('btn-type-teacher').classList.remove('active');
@@ -681,25 +1720,25 @@
                 el.value = opt; el.textContent = opt;
                 selector.appendChild(el);
             });
-            renderSchedule();
-        }
+            window.renderSchedule();
+        };
 
-        function setSchWeek(week) {
+        window.setSchWeek = function(week) {
             stateSchWeek = week;
             document.getElementById('btn-week-1').classList.remove('active');
             document.getElementById('btn-week-2').classList.remove('active');
             document.getElementById(week === 'week1' ? 'btn-week-1' : 'btn-week-2').classList.add('active');
-            renderSchedule();
-        }
+            window.renderSchedule();
+        };
 
-        function setSchDay(day) {
+        window.setSchDay = function(day) {
             stateSchDay = day;
             document.querySelectorAll('.sch-day').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`day-${day}`).classList.add('active');
-            renderSchedule();
-        }
+            window.renderSchedule();
+        };
 
-        function renderSchedule() {
+        window.renderSchedule = function() {
             const container = document.getElementById('sch-lessons-container');
             const selectedVal = document.getElementById('sch-selector').value;
             container.innerHTML = '';
@@ -736,410 +1775,171 @@
                 `;
                 container.appendChild(card);
             });
-        }
-
-        /* ==========================================
-           3. ЛОГІКА РЕЖИМІВ (МОДЕЛЕЙ ПОВЕДІНКИ ШІ)
-        ========================================== */
-        let currentMode = 'default';
-        
-        const LYCEUM_HISTORY = `
-        Ліцей №8 м. Житомира (раніше СШ №45) відкритий восени 1944 року після звільнення міста для дітей залізничників на вул. Леніна №81 (зараз це стара будівля). Першим директором була Уралова Анна Георгіївна. 
-        У роки Другої світової війни в будівлі розташовувався військовий шпиталь. Пізніше школа була відбудована громадою. Учні та вчителі власноруч розчистили територію та висадили великий шкільний сад і березову алею. 
-        У перші роки вчителі працювали у важких умовах: самі заготовляли дрова, а класи опалювалися буржуйками. Проте колектив був дуже дружним. У 1946 році відкрили 8 клас, створили шкільний драмгурток та комсомольську організацію. Зі 114 випускників перших років 108 здобули вищу освіту. 
-        15 листопада 1960 року школа перейшла до Міністерства освіти і офіційно стала середньою школою №8. Директорами школи у різні роки були: Уралова, Таран, Тюрин, Вакуленко, Шандра, Єременко, Волошин.
-        Ліцей завжди славився високим рівнем освіти. У 1960 році тут було відкрито перший в області історичний музей, а згодом — музей Бойової Слави. Учні часто перемагали на обласних та міських олімпіадах. Також школа славилася своїм хором, спортивними змаганнями, конкурсами квітів та шкільними кросами.
-        Сьогодні ліцей №8 — це сучасний заклад освіти з багатими традиціями та потужним педагогічним колективом.
-        `;
-
-        const SYSTEM_PROMPTS = {
-            'default': "Ти — розумний ШІ ліцею №8 (м. Житомир). Тебе розробив один з учнів цього ліцею, який бажає залишитись анонімним. Ти НЕ маєш жодного відношення до OpenAI, Google чи інших корпорацій. Відповідай виключно ідеальною українською мовою. Будь корисним. ВАЖЛИВО: Офіційний сайт ліцею: [https://8.lic.zhitomir.ua/](https://8.lic.zhitomir.ua/). Якщо питають про сайт, обов'язково давай це посилання у форматі Markdown: [Офіційний сайт ліцею](https://8.lic.zhitomir.ua/). Якщо ти не знаєш якоїсь інформації про ліцей, чесно скажи про це. КАТЕГОРИЧНО ЗАБОРОНЕНО вигадувати (галюцинувати) новини, імена вчителів чи події!",
-            'math': "Ти — досвідчений вчитель математики ліцею №8. Тебе розробив анонімний учень ліцею №8. Офіційний сайт нашого ліцею: [https://8.lic.zhitomir.ua/](https://8.lic.zhitomir.ua/). Допомагай з алгеброю та геометрією. Пояснюй рішення крок за кроком, зрозуміло для учня. Відповідай виключно ідеальною українською мовою.",
-            'ukr': "Ти — найкращий вчитель української мови та літератури ліцею №8. Тебе розробив анонімний учень ліцею №8. Офіційний сайт нашого ліцею: [https://8.lic.zhitomir.ua/](https://8.lic.zhitomir.ua/). Допомагай писати твори, пояснюй правила граматики, роби синтаксичний розбір. Відповідай виключно ідеальною українською мовою.",
-            'translate': "Ти — професійний перекладач ліцею №8. Тебе розробив анонімний учень ліцею №8. Офіційний сайт нашого ліцею: [https://8.lic.zhitomir.ua/](https://8.lic.zhitomir.ua/). Твоє єдине завдання — максимально точно та природно перекладати тексти, які тобі надсилають."
         };
-        const MODE_NAMES = { 'math': 'Математика', 'ukr': 'Укр. мова', 'translate': 'Перекладач', 'default': 'Стандартний' };
 
-        function setMode(mode) {
-            currentMode = mode;
-            addMessageToDOM('system', `🔔 Режим <b>"${MODE_NAMES[mode]}"</b> активовано. ШІ налаштовано!`, true);
-            saveMemory();
-        }
+        // Запуск додатка миттєво
+        window.loadSettings = function() {
+            const savedUsers = localStorage.getItem('appUsers');
+            if (savedUsers) window.appUsers = JSON.parse(savedUsers);
 
-        function askEvents() {
-            const input = document.getElementById('user-input');
-            if(input) {
-                input.value = "Які новини або події зараз відбуваються в ліцеї №8?";
-                handleSend();
+            const savedUser = localStorage.getItem('appCurrentUser');
+            if (savedUser) {
+                window.currentUser = JSON.parse(savedUser);
+                const overlay = document.getElementById('auth-overlay');
+                if(overlay) overlay.style.display = 'none';
+                window.applyAdminRights();
             }
-        }
 
-        /* ==========================================
-           4. ЛОГІКА ЧАТУ ТА ІСТОРІЇ (СЕСІЇ)
-        ========================================== */
-        const chatBox = document.getElementById('chat-box');
-        const userInput = document.getElementById('user-input');
-        const chatForm = document.getElementById('chat-form');
-        const sendBtn = document.getElementById('send-btn');
-        const typing = document.getElementById('typing');
-        const welcome = document.getElementById('welcome');
-
-        let chatHistory = []; 
-        let sessions = []; 
-        let currentSessionId = Date.now();
-
-        if(userInput) {
-            userInput.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = (this.scrollHeight) + 'px';
-            });
-        }
-
-        function toggleHistorySidebar(forceClose = false) {
-            const sidebar = document.getElementById('history-sidebar');
-            if(!sidebar) return;
-            if (forceClose) sidebar.classList.remove('open');
-            else sidebar.classList.toggle('open');
-        }
-
-        function saveMemory() {
-            const sessionIndex = sessions.findIndex(s => s.id === currentSessionId);
-            const sessionData = { id: currentSessionId, messages: chatHistory, mode: currentMode, timestamp: Date.now() };
-            if (sessionIndex > -1) {
-                sessions[sessionIndex] = sessionData;
-            } else {
-                sessions.unshift(sessionData);
-            }
-            localStorage.setItem('appChatSessions', JSON.stringify(sessions));
-            localStorage.setItem('appCurrentSessionId', currentSessionId);
-            renderHistoryList();
-        }
-
-        function loadMemory() {
-            const saved = localStorage.getItem('appChatSessions');
-            const savedId = localStorage.getItem('appCurrentSessionId');
-            if (saved) {
-                sessions = JSON.parse(saved);
-                if (savedId) {
-                    currentSessionId = parseInt(savedId);
-                    const currentSession = sessions.find(s => s.id === currentSessionId);
-                    if (currentSession) {
-                        chatHistory = currentSession.messages || [];
-                        currentMode = currentSession.mode || 'default';
-                    } else createNewChat(true);
-                } else createNewChat(true);
-            }
-            renderCurrentChat();
-            renderHistoryList();
-        }
-
-        function createNewChat(skipRender = false) {
-            currentSessionId = Date.now();
-            chatHistory = [];
-            currentMode = 'default';
-            if (!skipRender) {
-                renderCurrentChat();
-                saveMemory();
-                toggleHistorySidebar(true);
-            }
-        }
-
-        function loadChat(id) {
-            currentSessionId = id;
-            const currentSession = sessions.find(s => s.id === currentSessionId);
-            if (currentSession) {
-                chatHistory = currentSession.messages || [];
-                currentMode = currentSession.mode || 'default';
-                renderCurrentChat();
-            }
-            toggleHistorySidebar(true);
-        }
-
-        function renderHistoryList() {
-            const list = document.getElementById('history-list');
-            if(!list) return;
-            list.innerHTML = '';
-            sessions.forEach(s => {
-                const item = document.createElement('div');
-                item.className = `history-item ${s.id === currentSessionId ? 'active' : ''}`;
-                const previewMsg = s.messages.find(m => m.role === 'user')?.content || "Новий чат";
-                item.innerHTML = `${previewMsg}`;
-                item.onclick = () => loadChat(s.id);
-                list.appendChild(item);
-            });
-        }
-
-        function renderCurrentChat() {
-            if(!chatBox) return;
-            chatBox.querySelectorAll('.msg-wrapper').forEach(m => m.remove());
-            if (chatHistory.length > 0) {
-                if(welcome) welcome.style.display = 'none';
-                chatHistory.forEach(msg => addMessageToDOM(msg.role, msg.content, true));
-            } else {
-                if(welcome) welcome.style.display = 'block';
-            }
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            loadSettings(); 
-            loadMemory();
+            const savedTheme = localStorage.getItem('appTheme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            const themeSelect = document.getElementById('theme-select');
+            if(themeSelect) themeSelect.value = savedTheme;
             
-            setSchType('class'); 
+            const savedBg = localStorage.getItem('appBg');
+            if (savedBg) {
+                if (savedBg.startsWith('url')) {
+                    document.body.style.backgroundImage = savedBg;
+                    document.body.style.backgroundSize = 'cover';
+                    document.body.style.backgroundPosition = 'center';
+                    document.body.style.backgroundAttachment = 'fixed';
+                } else if (savedBg === 'none') {
+                    document.body.style.backgroundImage = 'none';
+                    document.body.style.backgroundColor = 'var(--bg-main)';
+                } else {
+                    document.body.style.background = savedBg;
+                }
+            }
+        };
+
+        window.setBg = function(bgValue) {
+            if (bgValue === 'none') {
+                document.body.style.backgroundImage = 'none';
+                document.body.style.backgroundColor = 'var(--bg-main)';
+                localStorage.setItem('appBg', 'none');
+            } else if (bgValue.startsWith('url')) {
+                document.body.style.background = 'none';
+                document.body.style.backgroundImage = bgValue;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundAttachment = 'fixed';
+                localStorage.setItem('appBg', bgValue);
+            } else {
+                document.body.style.backgroundImage = 'none';
+                document.body.style.background = bgValue;
+                localStorage.setItem('appBg', bgValue);
+            }
+        };
+
+        window.applyCustomBg = function() {
+            const customBgInput = document.getElementById('custom-bg-input');
+            if(!customBgInput) return;
+            const url = customBgInput.value.trim();
+            if (url) {
+                const bgStr = `url('${url}')`;
+                document.body.style.backgroundImage = bgStr;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundAttachment = 'fixed';
+                localStorage.setItem('appBg', bgStr);
+                customBgInput.value = '';
+            }
+        };
+
+        // Визначення відсутньої функції initFirebase
+        async function initFirebase() {
+            try {
+                let configToUse = null;
+                
+                // Перевіряємо звідки брати конфіг: з Canvas чи твої власні ключі
+                if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                    configToUse = JSON.parse(__firebase_config);
+                    firebaseAppId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                } else if (myFirebaseConfig.apiKey !== "ВСТАВТЕ_ВАШ_API_KEY") {
+                    configToUse = myFirebaseConfig;
+                    firebaseAppId = "lyceum8-custom-app"; // Твій унікальний ID бази
+                }
+
+                if (configToUse) {
+                    const app = initializeApp(configToUse);
+                    firebaseAuth = getAuth(app);
+                    firestoreDB = getFirestore(app);
+
+                    // ОЧІКУВАННЯ АВТОРИЗАЦІЇ (ВАЖЛИВО ДЛЯ БЕЗПЕКИ FIRESTORE)
+                    const initAuth = async () => {
+                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                            await signInWithCustomToken(firebaseAuth, __initial_auth_token);
+                        } else {
+                            await signInAnonymously(firebaseAuth);
+                        }
+                    };
+                    
+                    await initAuth();
+
+                    onAuthStateChanged(firebaseAuth, (user) => {
+                        firestoreUser = user;
+                        firebaseInitialized = !!user;
+                        
+                        if (user && window.currentUser) {
+                            window.applyAdminRights();
+                            
+                            // СИНХРОНІЗАЦІЯ ДАНИХ ПІД ЧАС ЗАПУСКУ
+                            const userRef = doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'appUsers', window.currentUser.email);
+                            setDoc(userRef, window.currentUser).catch(e => console.error("Помилка фонової синхронізації профілю:", e));
+                            
+                            const localSessions = JSON.parse(localStorage.getItem(window.getStorageKey('appChatSessions')) || '[]');
+                            localSessions.forEach(session => {
+                                const docId = `${window.currentUser.email}_${session.id}`;
+                                const sessionRef = doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'chatSessions', docId);
+                                setDoc(sessionRef, session).catch(e => console.error("Помилка фонової синхронізації чатів:", e));
+                            });
+                        } else if (user) {
+                            // Якщо це гість (без профілю), теж оновлюємо права (для перегляду чатів адміном)
+                            window.applyAdminRights();
+                        }
+                    });
+                } else {
+                    console.warn("Локальний режим: конфігурація Firebase не знайдена. Додайте свої ключі в myFirebaseConfig.");
+                }
+            } catch (error) {
+                console.error("Помилка ініціалізації Firebase:", error);
+            }
+        }
+
+        function initApp() {
+            window.loadSettings(); 
             
+            if(!window.currentUser) {
+                const overlay = document.getElementById('auth-overlay');
+                if(overlay) overlay.style.display = 'flex';
+                
+                const savedEmail = localStorage.getItem('appSavedEmail');
+                const savedPass = localStorage.getItem('appSavedPass');
+                if (savedEmail) {
+                    const el = document.getElementById('auth-email-login');
+                    if(el) el.value = savedEmail;
+                }
+                if (savedPass) {
+                    const el = document.getElementById('auth-password-login');
+                    if(el) el.value = savedPass;
+                }
+            } else {
+                window.loadMemory();
+            }
+            
+            window.setSchType('class'); 
             const daysMap = [null, 'ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', null];
             const today = new Date().getDay();
-            if(daysMap[today]) setSchDay(daysMap[today]);
-        });
+            if(daysMap[today]) window.setSchDay(daysMap[today]);
 
-        function cleanAIResponse(text) {
-            if (!text || typeof text !== 'string') return "";
-            
-            let cleaned = text;
-            const adMarkers = ["Support Pollinations.AI:", "🌸 Ad 🌸", "Powered by Pollinations.AI", "discord.gg"];
-            for (const marker of adMarkers) {
-                const index = cleaned.indexOf(marker);
-                if (index !== -1) {
-                    const hrIndex = cleaned.lastIndexOf('---', index);
-                    if (hrIndex !== -1 && (index - hrIndex) < 150) cleaned = cleaned.substring(0, hrIndex);
-                    else cleaned = cleaned.substring(0, index);
-                }
-            }
-            return cleaned.replace(/\n\s*---\s*$/g, '').trim();
+            initFirebase();
         }
 
-        function addMessageToDOM(role, text, isHistoryLoad = false) {
-            if (welcome) welcome.style.display = 'none';
-            if (typing) chatBox.appendChild(typing);
-
-            const wrapper = document.createElement('div');
-            wrapper.className = `msg-wrapper ${role}`;
-            
-            const bubble = document.createElement('div');
-            bubble.className = 'bubble';
-            
-            if (role === 'system') {
-                bubble.innerHTML = text; 
-            } else if (role === 'user') {
-                bubble.innerText = text;
-            } else {
-                // Примусово обгортаємо всі необроблені посилання у формат Markdown, щоб вони точно стали клікабельними
-                let formattedText = text.replace(/(^|[^"']href=["']|[^\[])(https?:\/\/[^\s<)\]]+)/g, function(match, p1, p2) {
-                    if (p1.includes('href=') || p1 === '[') return match;
-                    return p1 + '[' + p2 + '](' + p2 + ')';
-                });
-                bubble.innerHTML = marked.parse(formattedText); 
-            }
-
-            // --- НОВИЙ КОД: Відкривати посилання в новій вкладці та робити їх помітними ---
-            const links = bubble.querySelectorAll('a');
-            links.forEach(link => {
-                link.setAttribute('target', '_blank');
-                link.setAttribute('rel', 'noopener noreferrer');
-                link.style.color = 'var(--primary)';
-                link.style.textDecoration = 'underline';
-                link.style.fontWeight = '600';
-            });
-            // ---------------------------------------------------------
-
-            if (role === 'ai') {
-                const btn = document.createElement('button');
-                btn.className = 'copy-btn';
-                btn.innerHTML = '📎 Копіювати';
-                btn.onclick = () => {
-                    navigator.clipboard.writeText(text).then(() => {
-                        btn.innerHTML = '✅ Скопійовано!';
-                        setTimeout(() => { btn.innerHTML = '📎 Копіювати'; }, 2000);
-                    });
-                };
-                bubble.appendChild(btn);
-            }
-
-            wrapper.appendChild(bubble);
-            if (typing) chatBox.insertBefore(wrapper, typing);
-            chatBox.scrollTop = chatBox.scrollHeight;
-
-            if (!isHistoryLoad) {
-                chatHistory.push({ role, content: text });
-                saveMemory();
-            }
+        // Гарантований запуск
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
         }
-
-        async function askAI(query) {
-            const baseSysPrompt = SYSTEM_PROMPTS[currentMode] || SYSTEM_PROMPTS['default'];
-            let sysPrompt = baseSysPrompt + " ВАЖЛИВО: Відповідай одразу по суті. СУВОРО ЗАБОРОНЕНО використовувати теги <think>, JSON-формат або писати свої внутрішні міркування.";
-            
-            let qLower = query.toLowerCase();
-
-            // --- НОВИЙ БЛОК: ДОДАВАННЯ ІСТОРІЇ ЛІЦЕЮ ТІЛЬКИ ПРИ ПОТРЕБІ ---
-            let isHistoryRequest = qLower.includes('ліце') || qLower.includes('школ') || qLower.includes('історі') || qLower.includes('директор') || qLower.includes('вчит');
-            if (currentMode === 'default' && isHistoryRequest) {
-                sysPrompt += "\n\n[ДОВІДКА ПРО ІСТОРІЮ ЛІЦЕЮ №8]:\n" + LYCEUM_HISTORY;
-            }
-
-            // --- НОВИЙ БЛОК: ЧИТАННЯ САЙТУ НОВИН ---
-            let isNewsRequest = qLower.includes('новин') || qLower.includes('поді') || qLower.includes('захід');
-            let newsAdded = false;
-            let newsSnippet = ""; // Для резервного запиту
-            if (isNewsRequest) {
-                try {
-                    const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://8.lic.zhitomir.ua/novini/')}&disableCache=true`);
-                    if (res.ok) {
-                        const data = await res.json();
-                        const doc = new DOMParser().parseFromString(data.contents, 'text/html');
-                        // Видаляємо зайвий код, залишаємо тільки контент
-                        doc.querySelectorAll('script, style, nav, footer, header, .menu, aside').forEach(el => el.remove());
-                        let rawText = doc.body.innerText.replace(/\s+/g, ' ').trim();
-                        if(rawText.length > 50) {
-                            newsSnippet = rawText.substring(0, 1000);
-                            sysPrompt += `\n\n[АКТУАЛЬНІ НОВИНИ З САЙТУ ЛІЦЕЮ: ${newsSnippet}...]. Використай ТІЛЬКИ цей текст, щоб відповісти на питання про новини/події ліцею. Якщо потрібної інформації немає у цьому тексті - НЕ ВИГАДУЙ ЇЇ. ОБОВ'ЯЗКОВО в кінці своєї відповіді дай посилання на новини у форматі Markdown: [Всі новини ліцею](https://8.lic.zhitomir.ua/novini/)`;
-                            newsAdded = true;
-                        }
-                    }
-                } catch(e) {
-                    console.warn("Не вдалося завантажити сайт новин:", e);
-                }
-            }
-
-            if (isNewsRequest && !newsAdded) {
-                sysPrompt += `\n\n[СИСТЕМНА ІНФОРМАЦІЯ: Наразі немає технічного доступу до новин. Просто запропонуй подивитись їх на сайті, використовуючи такий формат Markdown: [Новини ліцею](https://8.lic.zhitomir.ua/novini/) ]`;
-            }
-            // ---------------------------------------
-
-            // Обходимо агресивні фільтри цензури сервера
-            let safeQuery = query;
-            if (safeQuery.toLowerCase().includes('фалес')) {
-                safeQuery = safeQuery.replace(/фалес/gi, 'Thales (математик)');
-            }
-            safeQuery += " (Надай відповідь одразу, без тегів <think>)";
-
-            const messages = [{ role: 'system', content: sysPrompt }];
-            const validHistory = chatHistory.filter(m => m.role === 'user' || m.role === 'ai').slice(-4);
-            validHistory.forEach(msg => {
-                messages.push({ role: msg.role === 'ai' ? 'assistant' : 'user', content: msg.content });
-            });
-            messages.push({ role: 'user', content: safeQuery });
-
-            const extractText = (raw) => {
-                let res = raw;
-                try {
-                    const p = JSON.parse(raw);
-                    if (p.choices && p.choices.length > 0) {
-                        res = p.choices[0].message.content || p.choices[0].message.reasoning_content || raw;
-                    } else if (p.content) {
-                        res = p.content;
-                    }
-                } catch(e) {}
-                
-                if (typeof res === 'string') {
-                    // Агресивно вирізаємо будь-які теги think, навіть якщо вони не закриті
-                    res = res.replace(/<think>[\s\S]*?<\/think>/g, '');
-                    res = res.replace(/<think>[\s\S]*/g, '');
-                    res = res.trim();
-                }
-                return cleanAIResponse(res);
-            };
-
-            const tryFetch = async (method, url, bodyObj) => {
-                const controller = new AbortController();
-                // 40 секунд - оптимально, щоб не висіло вічно, але дочекалося
-                const id = setTimeout(() => controller.abort(), 40000); 
-                const options = { method, signal: controller.signal };
-                if (method === 'POST') {
-                    options.headers = { 'Content-Type': 'application/json' };
-                    options.body = JSON.stringify(bodyObj);
-                }
-                try {
-                    const res = await fetch(url, options);
-                    clearTimeout(id);
-                    if (!res.ok) return null;
-                    const text = await res.text();
-                    const final = extractText(text);
-                    if (final && final.length > 3 && !final.includes('<html') && !final.includes('{"error"')) {
-                        return final;
-                    }
-                } catch (e) {
-                    clearTimeout(id);
-                }
-                return null;
-            };
-
-            // Спроба 1: POST OpenAI 
-            let ans = await tryFetch('POST', 'https://text.pollinations.ai/', { messages, model: 'openai', seed: Math.floor(Math.random() * 10000) });
-            if (ans) return ans;
-
-            // Спроба 2: POST Llama
-            ans = await tryFetch('POST', 'https://text.pollinations.ai/', { messages, model: 'llama', seed: Math.floor(Math.random() * 10000) });
-            if (ans) return ans;
-
-            // Спроба 3: Бронебійний GET з МІНІМАЛЬНИМ промптом (щоб сервер не зависав від обсягу)
-            let fallbackPrompt = `Ти ШІ ліцею №8, розроблений анонімним учнем (не OpenAI). Учень питає: ${safeQuery}. Відповідай українською. `;
-            if (isHistoryRequest) fallbackPrompt += "Довідка: Ліцей відкритий у 1944. Раніше СШ №45. Директори: Уралова, Таран, Тюрин, Вакуленко, Шандра, Єременко, Волошин. ";
-            if (isNewsRequest && newsAdded) fallbackPrompt += `Ось новини ліцею: ${newsSnippet.substring(0, 600)}... ОБОВ'ЯЗКОВО дай лінк на них: [Читати всі новини](https://8.lic.zhitomir.ua/novini/)`;
-            else if (isNewsRequest) fallbackPrompt += "Скажи, що новини зараз доступні лише за посиланням: [Читати всі новини](https://8.lic.zhitomir.ua/novini/)";
-
-            ans = await tryFetch('GET', `https://text.pollinations.ai/${encodeURIComponent(fallbackPrompt)}?model=openai`, null);
-            if (ans) return ans;
-
-            throw new Error("Сервери ШІ перевантажені або цей запит блокується фільтрами. Будь ласка, спробуйте перефразувати питання або зачекайте хвилинку!");
-        }
-
-        async function handleSend(e) {
-            if (e) e.preventDefault();
-            if(!userInput) return;
-            const text = userInput.value.trim();
-            if (!text || (sendBtn && sendBtn.disabled)) return;
-
-            addMessageToDOM('user', text);
-            userInput.value = '';
-            userInput.style.height = 'auto';
-            
-            if(sendBtn) sendBtn.disabled = true;
-            if(typing) typing.style.display = 'flex';
-            if(chatBox) chatBox.scrollTop = chatBox.scrollHeight;
-
-            try {
-                const answer = await askAI(text);
-                addMessageToDOM('ai', answer);
-            } catch (err) {
-                addMessageToDOM('system', `❌ Збій: ${err.message}`, true); 
-                
-                if(chatHistory.length > 0 && chatHistory[chatHistory.length-1].role === 'user') {
-                    chatHistory.pop();
-                    saveMemory();
-                }
-            } finally {
-                if(sendBtn) sendBtn.disabled = false;
-                if(typing) typing.style.display = 'none';
-            }
-        }
-
-        if(chatForm) chatForm.addEventListener('submit', handleSend);
-        if(userInput) {
-            userInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSend();
-                }
-            });
-        }
-
-        const overlay = document.getElementById('modal-overlay');
-        const openClearModalBtn = document.getElementById('open-clear-modal');
-        const closeModalBtn = document.getElementById('close-modal');
-        const confirmClearBtn = document.getElementById('confirm-clear');
-
-        if(openClearModalBtn) openClearModalBtn.onclick = () => overlay.style.display = 'flex';
-        if(closeModalBtn) closeModalBtn.onclick = () => overlay.style.display = 'none';
-        if(confirmClearBtn) {
-            confirmClearBtn.onclick = () => {
-                chatHistory = [];
-                currentMode = 'default';
-                saveMemory();
-                renderCurrentChat();
-                if(overlay) overlay.style.display = 'none';
-            };
-        }
-
     </script>
 </body>
 </html>
