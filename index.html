@@ -1203,11 +1203,20 @@
 
             allEmails.forEach(email => {
                 const isGuest = email.startsWith('guest');
+                
+                let guestLabel = 'Гість';
+                if (isGuest && email !== 'guest_old') {
+                    // Форматуємо ID для красивого відображення
+                    guestLabel = `Гість (ID: ${email.replace('guest_', '')})`;
+                } else if (email === 'guest_old') {
+                    guestLabel = 'Гість (Старі дані)';
+                }
+
                 const u = window.appUsers[email] || {
                     firstName: isGuest ? 'Анонімний' : 'Невідомий',
-                    lastName: isGuest ? 'Гість' : 'Користувач',
+                    lastName: isGuest ? guestLabel : 'Користувач',
                     userClass: '-',
-                    email: email === 'guest_old' ? 'guest' : email,
+                    email: email === 'guest_old' ? 'Немає прив\'язки' : email,
                     registeredAt: isGuest ? 'Гостьова сесія' : 'Не зареєстрований'
                 };
 
@@ -1591,7 +1600,7 @@
                 return "Президентом України є Володимир Зеленський.";
             }
             if (qLower.includes('хто тебе створив') || qLower.includes('хто твій розробник') || qLower.includes('хто розробник') || qLower.includes('ким ти створений')) {
-                return "Питайте у Стельмаха Олександра з 8Б класу 😎. А взагалі розробник хоче бути анонімним😜";
+                return "Питайте у Стельмаха Олександра з 8Б класу 😎. а взагалі розробник хоче залишитися анонімним😜";
             }
             if (qLower === 'хто ти' || qLower === 'що ти таке' || qLower === 'ти хто') {
                 return "Я — персональний штучний інтелект ліцею №8!";
