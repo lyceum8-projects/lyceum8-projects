@@ -653,7 +653,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, getDocs, setDoc, doc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, getDoc, setDoc, doc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // === ГЛОБАЛЬНІ ЗМІННІ ===
         window.appUsers = {};
@@ -772,7 +772,25 @@
                     return;
                 }
 
+                const originalText = submitBtn.innerText;
+                submitBtn.innerText = 'Перевірка бази...';
+                submitBtn.disabled = true;
+
+                // Завантажуємо профіль з хмари, якщо його немає локально
+                if (!window.appUsers[email] && firebaseInitialized && firestoreDB) {
+                    try {
+                        const userRef = doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'appUsers', email);
+                        const userSnap = await getDoc(userRef);
+                        if (userSnap.exists()) {
+                            window.appUsers[email] = userSnap.data();
+                            localStorage.setItem('appUsers', JSON.stringify(window.appUsers));
+                        }
+                    } catch(e) { console.error("Помилка перевірки:", e); }
+                }
+
                 if (window.appUsers[email]) {
+                    submitBtn.innerText = originalText;
+                    submitBtn.disabled = false;
                     errorEl.innerText = "Ця електронна пошта вже зареєстрована!";
                     errorEl.style.display = 'block';
                 } else {
@@ -783,9 +801,7 @@
                         registeredAt: new Date().toLocaleString() 
                     };
                     
-                    const originalText = submitBtn.innerText;
                     submitBtn.innerText = 'Відправка листа...';
-                    submitBtn.disabled = true;
                     
                     await window.sendRealEmail(email, expectedVerificationCode);
                     
@@ -803,13 +819,27 @@
                     return;
                 }
 
+                const originalText = submitBtn.innerText;
+                submitBtn.innerText = 'Перевірка бази...';
+                submitBtn.disabled = true;
+
+                // Завантажуємо профіль з хмари, якщо його немає локально (КЛЮЧОВЕ ВИПРАВЛЕННЯ ДЛЯ ВХОДУ)
+                if (!window.appUsers[email] && firebaseInitialized && firestoreDB) {
+                    try {
+                        const userRef = doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'appUsers', email);
+                        const userSnap = await getDoc(userRef);
+                        if (userSnap.exists()) {
+                            window.appUsers[email] = userSnap.data();
+                            localStorage.setItem('appUsers', JSON.stringify(window.appUsers));
+                        }
+                    } catch(e) { console.error("Помилка перевірки:", e); }
+                }
+
                 if (window.appUsers[email] && window.appUsers[email].password === pass) {
                     expectedVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
                     pendingAuthData = { type: 'login', userData: window.appUsers[email] };
                     
-                    const originalText = submitBtn.innerText;
                     submitBtn.innerText = 'Відправка листа...';
-                    submitBtn.disabled = true;
                     
                     await window.sendRealEmail(email, expectedVerificationCode);
                     
@@ -817,6 +847,8 @@
                     submitBtn.disabled = false;
                     window.showVerificationStep(email);
                 } else {
+                    submitBtn.innerText = originalText;
+                    submitBtn.disabled = false;
                     errorEl.innerText = "Невірна електронна пошта або пароль!";
                     errorEl.style.display = 'block';
                 }
@@ -1053,7 +1085,10 @@
             
             const allEmails = new Set(Object.keys(window.appUsers));
             window.allChatSessions.forEach(session => {
-                if (session.userEmail) allEmails.add(session.userEmail);
+                // Виправляємо старі сесії без пошти, позначаючи їх як 'guest'
+                let e = session.userEmail || 'guest';
+                session.userEmail = e; 
+                allEmails.add(e);
             });
 
             countEl.innerText = allEmails.size;
@@ -1094,7 +1129,8 @@
             const content = document.getElementById('admin-viewer-content');
             content.innerHTML = '';
             
-            let userSessions = window.allChatSessions.filter(s => s.userEmail === email).sort((a,b) => b.timestamp - a.timestamp);
+            // Фільтруємо сесії, враховуючи гостей зі старих версій
+            let userSessions = window.allChatSessions.filter(s => (s.userEmail || 'guest') === email).sort((a,b) => b.timestamp - a.timestamp);
 
             if (userSessions.length === 0) {
                 content.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Історія порожня.</p>';
@@ -1439,7 +1475,7 @@
                 return "Президентом України є Володимир Зеленський.";
             }
             if (qLower.includes('хто тебе створив') || qLower.includes('хто твій розробник') || qLower.includes('хто розробник') || qLower.includes('ким ти створений')) {
-                return "Питайте у Стельмаха Олександра з 8Б класу 😎. А взагалі, розробник бажає залишитися анонімним😜";
+                return "Питайте у Стельмаха Олександра з 8Б класу 😎. Але розробник хоче залишитися анонімним😜";
             }
             if (qLower === 'хто ти' || qLower === 'що ти таке' || qLower === 'ти хто') {
                 return "Я — персональний штучний інтелект ліцею №8!";
