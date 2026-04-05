@@ -316,10 +316,10 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes wave { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(15deg); } 75% { transform: rotate(-15deg); } }
         @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-        #modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        #modal-overlay, #delete-modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal { background: var(--bg-tab); border-radius: 24px; padding: 24px; width: 100%; max-width: 350px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); text-align: center; border: 1px solid var(--border); }
         .modal h2 { margin-bottom: 12px; font-size: 20px; color: var(--text-main); }
-        .modal p { color: var(--text-muted); margin-bottom: 24px; }
+        .modal p { color: var(--text-muted); margin-bottom: 24px; font-size: 14px; line-height: 1.5; }
         .modal-btns { display: flex; gap: 12px; }
         .modal-btns button { flex: 1; padding: 12px; border-radius: 14px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; }
         .btn-confirm { background: var(--danger); color: white; }
@@ -561,7 +561,7 @@
                         <button onclick="window.applyCustomBg()" style="margin-top: 10px; width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">Застосувати картинку</button>
                     </div>
                 </div>
-                <div class="card" style="text-align: center;"><p style="color: var(--text-muted); font-size: 13px;">Версія додатка: 172.1 (Full Fixes)<br>Розроблено для ліцею №8</p></div>
+                <div class="card" style="text-align: center;"><p style="color: var(--text-muted); font-size: 13px;">Версія додатка: 173.0 (Admin Controls)<br>Розроблено для ліцею №8</p></div>
             </div>
         </div>
 
@@ -578,11 +578,11 @@
                 <div id="admin-user-list-container">
                     <div class="card" style="border-color: var(--accent);">
                         <h3 style="color: var(--text-main); margin-bottom: 12px;">Статистика системи (Синхронізація увімкнена)</h3>
-                        <p style="color: var(--text-muted); font-size: 15px;">Всього користувачів: <strong style="color: var(--accent); font-size: 18px;" id="admin-user-count">0</strong></p>
+                        <p style="color: var(--text-muted); font-size: 15px;">Всього користувачів (вкл. гостей): <strong style="color: var(--accent); font-size: 18px;" id="admin-user-count">0</strong></p>
                         <p style="color: var(--text-muted); font-size: 13px; margin-top: 5px;">Натисніть на користувача, щоб побачити його історію чатів.</p>
                     </div>
                     <div class="card">
-                        <h3 style="color: var(--text-main); margin-bottom: 12px;">Список активних акаунтів (та гостей):</h3>
+                        <h3 style="color: var(--text-main); margin-bottom: 12px;">Список активних акаунтів та гостей:</h3>
                         <ul id="admin-user-list" style="list-style-type: none; padding: 0; display: flex; flex-direction: column; gap: 8px;">
                             <!-- Юзери -->
                         </ul>
@@ -649,11 +649,23 @@
         </div>
     </div>
 
+    <!-- Вікно підтвердження видалення користувача -->
+    <div id="delete-modal-overlay">
+        <div class="modal">
+            <h2>Видалити користувача?</h2>
+            <p>Усі дані, профіль та історія чатів цього користувача будуть видалені назавжди. Цю дію неможливо скасувати.</p>
+            <div class="modal-btns">
+                <button class="btn-cancel" onclick="document.getElementById('delete-modal-overlay').style.display='none'">Скасувати</button>
+                <button class="btn-confirm" id="confirm-delete-btn">Так, видалити</button>
+            </div>
+        </div>
+    </div>
+
     <!-- МОДУЛЬНИЙ СКРИПТ (ПОВНІСТЮ ІЗОЛЬОВАНИЙ І ЗАВАНТАЖУЄТЬСЯ МИТТЄВО) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, getDocs, getDoc, setDoc, doc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, getDoc, setDoc, doc, onSnapshot, query, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // === ГЛОБАЛЬНІ ЗМІННІ ===
         window.appUsers = {};
@@ -663,6 +675,10 @@
         window.allChatSessions = [];
         window.currentSessionId = Date.now();
         window.currentMode = 'default';
+        
+        // Унікальний ID для гостя на поточному пристрої
+        window.currentGuestId = localStorage.getItem('appGuestId') || ('guest_' + Math.floor(Math.random() * 100000000));
+        localStorage.setItem('appGuestId', window.currentGuestId);
         
         let authMode = 'login';
         let expectedVerificationCode = '';
@@ -1031,7 +1047,53 @@
             window.switchTab('tab-chat');
         };
 
-        // === ГЛОБАЛЬНІ ФУНКЦІЇ АДМІНКИ ===
+        // === ГЛОБАЛЬНІ ФУНКЦІЇ АДМІНКИ ТА ВИДАЛЕННЯ ===
+        
+        window.confirmDeleteUser = function(email) {
+            document.getElementById('delete-modal-overlay').style.display = 'flex';
+            document.getElementById('confirm-delete-btn').onclick = function() {
+                window.executeDeleteUser(email);
+            };
+        };
+
+        window.executeDeleteUser = async function(email) {
+            document.getElementById('delete-modal-overlay').style.display = 'none';
+            
+            // Якщо зараз відкрито чат цього юзера - закриваємо
+            const viewerTitle = document.getElementById('admin-viewer-title').innerText;
+            if (document.getElementById('admin-chat-viewer').style.display === 'block' && viewerTitle.includes(email)) {
+                window.closeAdminChatViewer();
+            }
+
+            // 1. Видалення локально
+            if (window.appUsers[email]) {
+                delete window.appUsers[email];
+                localStorage.setItem('appUsers', JSON.stringify(window.appUsers));
+            }
+            
+            localStorage.removeItem(`appChatSessions_${email}`);
+            localStorage.removeItem(`appCurrentSessionId_${email}`);
+
+            // 2. Видалення з хмари Firestore
+            if (firebaseInitialized && firestoreDB) {
+                try {
+                    await deleteDoc(doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'appUsers', email));
+                } catch(e) { console.error("Помилка видалення профілю:", e); }
+
+                const sessionsToDelete = window.allChatSessions.filter(s => s.userEmail === email);
+                for (const session of sessionsToDelete) {
+                    try {
+                        const docId = `${email}_${session.id}`;
+                        await deleteDoc(doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'chatSessions', docId));
+                    } catch(e) { console.error("Помилка видалення чату:", e); }
+                }
+            }
+
+            // Оновлення інтерфейсу
+            window.allChatSessions = window.allChatSessions.filter(s => s.userEmail !== email);
+            window.updateAdminDashboard();
+        };
+
         window.applyAdminRights = function() {
             const disp = document.getElementById('user-info-display');
             const authBtn = document.getElementById('auth-action-btn');
@@ -1064,9 +1126,11 @@
                         if (!unsubscribeUsers) {
                             const usersRef = collection(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'appUsers');
                             unsubscribeUsers = onSnapshot(usersRef, (snapshot) => {
+                                const newUsers = {};
                                 snapshot.forEach(doc => {
-                                    window.appUsers[doc.id] = doc.data(); 
+                                    newUsers[doc.id] = doc.data(); 
                                 });
+                                window.appUsers = newUsers;
                                 localStorage.setItem('appUsers', JSON.stringify(window.appUsers));
                                 window.updateAdminDashboard();
                             }, (err) => console.log('Помилка завантаження юзерів:', err));
@@ -1076,7 +1140,11 @@
                             const sessionsRef = collection(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'chatSessions');
                             unsubscribeChats = onSnapshot(sessionsRef, (snapshot) => {
                                 const sessionMap = new Map();
-                                window.allChatSessions.forEach(s => sessionMap.set(s.id, s));
+                                
+                                // Зберігаємо локальні несинхронізовані сесії
+                                const myLocal = JSON.parse(localStorage.getItem(window.getStorageKey('appChatSessions')) || '[]');
+                                myLocal.forEach(s => sessionMap.set(s.id, s));
+
                                 snapshot.forEach(doc => {
                                     const data = doc.data();
                                     sessionMap.set(data.id, data);
@@ -1122,21 +1190,25 @@
             
             const allEmails = new Set(Object.keys(window.appUsers));
             window.allChatSessions.forEach(session => {
-                // Виправляємо старі сесії без пошти, позначаючи їх як 'guest'
                 let e = session.userEmail || 'guest';
-                session.userEmail = e; 
+                if (e === 'guest') {
+                    // Якщо старий запис без унікального ID гостя
+                    e = 'guest_old';
+                    session.userEmail = e;
+                }
                 allEmails.add(e);
             });
 
             countEl.innerText = allEmails.size;
 
             allEmails.forEach(email => {
+                const isGuest = email.startsWith('guest');
                 const u = window.appUsers[email] || {
-                    firstName: email === 'guest' ? 'Анонімний' : 'Невідомий',
-                    lastName: email === 'guest' ? 'Гість' : 'Користувач',
+                    firstName: isGuest ? 'Анонімний' : 'Невідомий',
+                    lastName: isGuest ? 'Гість' : 'Користувач',
                     userClass: '-',
-                    email: email,
-                    registeredAt: 'Не зареєстрований'
+                    email: email === 'guest_old' ? 'guest' : email,
+                    registeredAt: isGuest ? 'Гостьова сесія' : 'Не зареєстрований'
                 };
 
                 const li = document.createElement('li');
@@ -1146,11 +1218,19 @@
                 li.style.borderRadius = '10px';
                 li.style.color = 'var(--text-main)';
                 li.style.cursor = 'pointer';
-                li.innerHTML = `<strong>${u.firstName || ''} ${u.lastName || ''} (${u.userClass || ''})</strong><br>
-                                <span style="font-size: 12px; color: var(--primary);">${u.email || ''}</span>
-                                <span style="color: var(--text-muted); font-size: 11px; float: right;">${u.registeredAt || 'Невідомо'}</span>`;
                 
-                li.onclick = () => window.viewUserChats(u.email);
+                li.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <div style="flex-grow: 1; overflow: hidden;">
+                            <strong>${u.firstName || ''} ${u.lastName || ''} (${u.userClass || ''})</strong><br>
+                            <span style="font-size: 12px; color: var(--primary); display: block; overflow: hidden; text-overflow: ellipsis;">${u.email || ''}</span>
+                            <span style="color: var(--text-muted); font-size: 11px; display: block; margin-top: 4px;">${u.registeredAt || 'Невідомо'}</span>
+                        </div>
+                        <button onclick="event.stopPropagation(); window.confirmDeleteUser('${email}')" style="background: var(--danger); color: white; border: none; border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s; flex-shrink: 0; margin-left: 10px;">Видалити</button>
+                    </div>
+                `;
+                
+                li.onclick = () => window.viewUserChats(email);
                 li.onmouseover = () => li.style.borderColor = 'var(--primary)';
                 li.onmouseout = () => li.style.borderColor = 'var(--border)';
                 
@@ -1166,8 +1246,7 @@
             const content = document.getElementById('admin-viewer-content');
             content.innerHTML = '';
             
-            // Фільтруємо сесії, враховуючи гостей зі старих версій
-            let userSessions = window.allChatSessions.filter(s => (s.userEmail || 'guest') === email).sort((a,b) => b.timestamp - a.timestamp);
+            let userSessions = window.allChatSessions.filter(s => s.userEmail === email).sort((a,b) => b.timestamp - a.timestamp);
 
             if (userSessions.length === 0) {
                 content.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Історія порожня.</p>';
@@ -1212,7 +1291,7 @@
 
         // === СХОВИЩЕ ТА ІСТОРІЯ ===
         window.getStorageKey = function(baseKey) {
-            return window.currentUser ? `${baseKey}_${window.currentUser.email}` : `${baseKey}_guest`;
+            return window.currentUser ? `${baseKey}_${window.currentUser.email}` : `${baseKey}_${window.currentGuestId}`;
         };
 
         window.saveMemory = function() {
@@ -1222,7 +1301,7 @@
                 messages: window.chatHistory, 
                 mode: window.currentMode, 
                 timestamp: Date.now(),
-                userEmail: window.currentUser ? window.currentUser.email : 'guest'
+                userEmail: window.currentUser ? window.currentUser.email : window.currentGuestId
             };
             if (sessionIndex > -1) {
                 window.sessions[sessionIndex] = sessionData;
@@ -1234,7 +1313,7 @@
             window.renderHistoryList();
 
             if (firebaseInitialized && firestoreDB) {
-                const safeEmail = window.currentUser ? window.currentUser.email : 'guest';
+                const safeEmail = window.currentUser ? window.currentUser.email : window.currentGuestId;
                 const docId = `${safeEmail}_${window.currentSessionId}`;
                 const sessionRef = doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'chatSessions', docId);
                 setDoc(sessionRef, sessionData).catch(e => console.error('Помилка запису чату в хмару:', e));
@@ -1512,7 +1591,7 @@
                 return "Президентом України є Володимир Зеленський.";
             }
             if (qLower.includes('хто тебе створив') || qLower.includes('хто твій розробник') || qLower.includes('хто розробник') || qLower.includes('ким ти створений')) {
-                return "Питайте у Стельмаха Олександра з 8Б класу 😎. А взагалі розробник хоче залишитися анонімним😜";
+                return "Питайте у Стельмаха Олександра з 8Б класу 😎. А взагалі розробник хоче бути анонімним😜";
             }
             if (qLower === 'хто ти' || qLower === 'що ти таке' || qLower === 'ти хто') {
                 return "Я — персональний штучний інтелект ліцею №8!";
@@ -1586,6 +1665,7 @@
                 const options = { method, signal: controller.signal };
                 if (method === 'POST') {
                     options.headers = { 'Content-Type': 'application/json' };
+                    // Вимикаємо нестабільний внутрішній пошук Pollinations, використовуємо тільки наш жорсткий контекст
                     options.body = JSON.stringify(bodyObj);
                 }
                 try {
