@@ -231,7 +231,7 @@
         .new-chat-btn { margin: 15px; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
         .new-chat-btn:hover { background: var(--primary-dark); }
         #history-list { flex-grow: 1; overflow-y: auto; padding: 0 15px 15px 15px; display: flex; flex-direction: column; gap: 8px; }
-        .history-item { padding: 12px; background: var(--bg-main); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; color: var(--text-main); font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: 0.2s; }
+        .history-item { padding: 12px; background: var(--bg-main); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; color: var(--text-main); font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: 0.2s; display: flex; align-items: center; }
         .history-item:hover { border-color: var(--primary); }
         .history-item.active { background: rgba(59, 130, 246, 0.1); border-color: var(--primary); }
 
@@ -526,7 +526,7 @@
                     <div class="setting-group">
                         <label>Акаунт</label>
                         <div id="user-info-display" style="margin-bottom: 12px; font-weight: 600; color: var(--primary); font-size: 16px;"></div>
-                        <button id="auth-action-btn" style="width: 100%; padding: 12px; background: var(--card-bg); color: var(--danger); border: 1px solid var(--danger); border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s;">Вийти з акаунту</button>
+                        <button id="auth-action-btn" style="width: 100%; padding: 12px; background: var(--card-bg); color: var(--text-main); border: 1px solid var(--border); border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s;">Вийти з акаунту</button>
                     </div>
                 </div>
                 <div class="card">
@@ -561,7 +561,7 @@
                         <button onclick="window.applyCustomBg()" style="margin-top: 10px; width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">Застосувати картинку</button>
                     </div>
                 </div>
-                <div class="card" style="text-align: center;"><p style="color: var(--text-muted); font-size: 13px;">Версія додатка: 173.0 (Admin Controls)<br>Розроблено для ліцею №8</p></div>
+                <div class="card" style="text-align: center;"><p style="color: var(--text-muted); font-size: 13px;">Версія додатка: 183.2 (Listener Fix)<br>Розроблено для ліцею №8</p></div>
             </div>
         </div>
 
@@ -649,11 +649,11 @@
         </div>
     </div>
 
-    <!-- Вікно підтвердження видалення користувача -->
+    <!-- Вікно підтвердження видалення користувача/акаунта -->
     <div id="delete-modal-overlay">
         <div class="modal">
-            <h2>Видалити користувача?</h2>
-            <p>Усі дані, профіль та історія чатів цього користувача будуть видалені назавжди. Цю дію неможливо скасувати.</p>
+            <h2 id="delete-modal-title">Видалити користувача?</h2>
+            <p id="delete-modal-desc">Усі дані, профіль та історія чатів цього користувача будуть видалені назавжди. Цю дію неможливо скасувати.</p>
             <div class="modal-btns">
                 <button class="btn-cancel" onclick="document.getElementById('delete-modal-overlay').style.display='none'">Скасувати</button>
                 <button class="btn-confirm" id="confirm-delete-btn">Так, видалити</button>
@@ -704,6 +704,36 @@
             appId: "1:660647944787:web:41e8dae6a3f19586619ca6"
         };
         // =================================================================
+
+        // === УНІВЕРСАЛЬНА ФУНКЦІЯ ПАРСИНГУ ПОВІДОМЛЕНЬ ТА МАТЕМАТИКИ ===
+        window.formatMessageText = function(text) {
+            if (!text || typeof text !== 'string') return "";
+            let cleanText = text.replace(/<think>[\s\S]*?<\/think>/g, '');
+            cleanText = cleanText.replace(/<think>[\s\S]*/g, '');
+            cleanText = cleanText.trim();
+            
+            cleanText = cleanText.replace(/\\\((.*?)\\\)/gs, '$$$1$$');
+            cleanText = cleanText.replace(/\\\[(.*?)\\\]/gs, '$$$$$1$$$$');
+            cleanText = cleanText.replace(/\(\s*\\displaystyle(.*?)\s*\)/gs, '$$$$\\displaystyle$1$$$$');
+
+            let mathBlocks = [];
+            cleanText = cleanText.replace(/\$\$(.*?)\$\$/gs, function(match) {
+                mathBlocks.push(match);
+                return `@@MATHBLOCK${mathBlocks.length - 1}@@`;
+            });
+            cleanText = cleanText.replace(/\$(.*?)\$/gs, function(match) {
+                mathBlocks.push(match);
+                return `@@MATHBLOCK${mathBlocks.length - 1}@@`;
+            });
+
+            let parsedHtml = marked.parse(cleanText);
+
+            mathBlocks.forEach((block, i) => {
+                parsedHtml = parsedHtml.replace(`@@MATHBLOCK${i}@@`, block);
+            });
+            
+            return parsedHtml; 
+        };
 
         // === UI ФУНКЦІЇ ===
         window.switchTab = function(targetId) {
@@ -913,6 +943,7 @@
             window.currentUser = null;
             window.applyAdminRights();
             window.loadMemory();
+            window.setupUserCommandListener();
         };
 
         window.sendRealEmail = async function(email, code) {
@@ -1023,6 +1054,7 @@
             
             window.applyAdminRights();
             window.loadMemory();
+            window.setupUserCommandListener();
             
             if (firebaseInitialized && firestoreDB && firestoreUser && window.currentUser) {
                 const userRef = doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'appUsers', window.currentUser.email);
@@ -1037,6 +1069,8 @@
             
             if (unsubscribeUsers) { unsubscribeUsers(); unsubscribeUsers = null; }
             if (unsubscribeChats) { unsubscribeChats(); unsubscribeChats = null; }
+            if (window.sessionUnsubscribe) { window.sessionUnsubscribe(); window.sessionUnsubscribe = null; }
+            if (window.userCommandUnsubscribe) { window.userCommandUnsubscribe(); window.userCommandUnsubscribe = null; }
             
             window.chatHistory = [];
             window.currentMode = 'default';
@@ -1045,11 +1079,78 @@
             
             window.applyAdminRights();
             window.switchTab('tab-chat');
+            window.setupUserCommandListener();
         };
 
         // === ГЛОБАЛЬНІ ФУНКЦІЇ АДМІНКИ ТА ВИДАЛЕННЯ ===
         
+        window.userCommandUnsubscribe = null;
+        window.setupUserCommandListener = function() {
+            if (!firebaseInitialized || !firestoreDB) return;
+            if (window.userCommandUnsubscribe) { window.userCommandUnsubscribe(); window.userCommandUnsubscribe = null; }
+            
+            const targetEmail = window.currentUser ? window.currentUser.email : window.currentGuestId;
+            if (!targetEmail) return;
+            
+            const cmdRef = doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'userCommands', targetEmail);
+            
+            window.userCommandUnsubscribe = onSnapshot(cmdRef, async (snap) => {
+                if (snap.exists()) {
+                    const data = snap.data();
+                    
+                    // КОМАНДА 1: ВИДАЛЕННЯ АКАУНТУ
+                    if (data.type === 'wipe') {
+                        try { await deleteDoc(cmdRef); } catch(e) {}
+                        
+                        localStorage.clear();
+                        
+                        document.body.innerHTML = `
+                            <div style="display: flex; flex-direction: column; height: 100vh; width: 100vw; align-items: center; justify-content: center; background-color: #0f172a; color: #ef4444; font-family: 'Inter', sans-serif; text-align: center; padding: 20px; box-sizing: border-box;">
+                                <svg viewBox="0 0 24 24" style="width: 80px; height: 80px; fill: none; stroke: currentColor; stroke-width: 2; margin-bottom: 20px;">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                                </svg>
+                                <h1 style="font-size: 24px; margin-bottom: 10px;">СЕАНС АНУЛЬОВАНО</h1>
+                                <p style="color: #94a3b8; font-size: 15px;">Адміністратор видалив ваш профіль та історію чатів.<br>Сайт буде перезавантажено.</p>
+                            </div>
+                        `;
+                        
+                        setTimeout(() => {
+                            window.location.href = window.location.href.split('?')[0];
+                        }, 3000);
+                    } 
+                    // КОМАНДА 2: НОВЕ ПОВІДОМЛЕННЯ ВІД АДМІНІСТРАТОРА
+                    else if (data.type === 'force_sync' && data.sessionId) {
+                        try { await deleteDoc(cmdRef); } catch(e) {}
+                        
+                        // Якщо користувач зараз не в цьому чаті - примусово перемикаємо його
+                        if (window.currentSessionId !== data.sessionId) {
+                            const docId = `${targetEmail}_${data.sessionId}`;
+                            const sessionRef = doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'chatSessions', docId);
+                            const sSnap = await getDoc(sessionRef);
+                            
+                            if (sSnap.exists()) {
+                                const sData = sSnap.data();
+                                const idx = window.sessions.findIndex(s => s.id === sData.id);
+                                if (idx > -1) {
+                                    window.sessions[idx] = sData;
+                                } else {
+                                    window.sessions.unshift(sData);
+                                }
+                                localStorage.setItem(window.getStorageKey('appChatSessions'), JSON.stringify(window.sessions));
+                                window.renderHistoryList();
+                                window.loadChat(sData.id); // Перемикає чат
+                            }
+                        }
+                    }
+                }
+            }, (err) => console.log('Помилка слухача команд:', err));
+        };
+
         window.confirmDeleteUser = function(email) {
+            document.getElementById('delete-modal-title').innerText = 'Видалити користувача?';
+            document.getElementById('delete-modal-desc').innerText = 'Усі дані, профіль та історія чатів цього користувача будуть видалені назавжди. Цю дію неможливо скасувати.';
             document.getElementById('delete-modal-overlay').style.display = 'flex';
             document.getElementById('confirm-delete-btn').onclick = function() {
                 window.executeDeleteUser(email);
@@ -1059,13 +1160,11 @@
         window.executeDeleteUser = async function(email) {
             document.getElementById('delete-modal-overlay').style.display = 'none';
             
-            // Якщо зараз відкрито чат цього юзера - закриваємо
             const viewerTitle = document.getElementById('admin-viewer-title').innerText;
             if (document.getElementById('admin-chat-viewer').style.display === 'block' && viewerTitle.includes(email)) {
                 window.closeAdminChatViewer();
             }
 
-            // 1. Видалення локально
             if (window.appUsers[email]) {
                 delete window.appUsers[email];
                 localStorage.setItem('appUsers', JSON.stringify(window.appUsers));
@@ -1073,25 +1172,113 @@
             
             localStorage.removeItem(`appChatSessions_${email}`);
             localStorage.removeItem(`appCurrentSessionId_${email}`);
+            if(email === 'guest_old') {
+                localStorage.removeItem('appChatSessions_guest');
+                localStorage.removeItem('appCurrentSessionId_guest');
+            }
 
-            // 2. Видалення з хмари Firestore
+            const sessionsToDelete = window.allChatSessions.filter(s => {
+                let e = s.userEmail;
+                if (!e || e === 'guest') e = 'guest_old';
+                return e === email;
+            });
+
             if (firebaseInitialized && firestoreDB) {
-                try {
-                    await deleteDoc(doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'appUsers', email));
-                } catch(e) { console.error("Помилка видалення профілю:", e); }
+                // Відправляємо наказ на знищення даних безпосередньо клієнту (гостю/користувачу)
+                if (email !== 'guest_old') {
+                    try {
+                        await setDoc(doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'userCommands', email), { type: 'wipe', time: Date.now() });
+                    } catch(e) { console.error("Помилка команди wipe:", e); }
+                }
 
-                const sessionsToDelete = window.allChatSessions.filter(s => s.userEmail === email);
+                if (email !== 'guest_old' && !email.startsWith('guest_')) {
+                    try {
+                        await deleteDoc(doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'appUsers', email));
+                    } catch(e) { console.error("Помилка видалення профілю:", e); }
+                }
+
                 for (const session of sessionsToDelete) {
                     try {
-                        const docId = `${email}_${session.id}`;
+                        const originalEmail = session.userEmail || 'guest';
+                        const docId = `${originalEmail}_${session.id}`;
                         await deleteDoc(doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'chatSessions', docId));
                     } catch(e) { console.error("Помилка видалення чату:", e); }
                 }
             }
 
-            // Оновлення інтерфейсу
-            window.allChatSessions = window.allChatSessions.filter(s => s.userEmail !== email);
+            window.allChatSessions = window.allChatSessions.filter(s => !sessionsToDelete.includes(s));
             window.updateAdminDashboard();
+        };
+        
+        // Функція для відправки повідомлення з адмін-панелі користувачу
+        window.sendAdminMessage = async function(userEmail) {
+            const inputEl = document.getElementById(`admin-reply-input-${userEmail}`);
+            if (!inputEl) return;
+            const text = inputEl.value.trim();
+            if (!text) return;
+
+            let userSessions = window.allChatSessions.filter(s => {
+                let e = s.userEmail || 'guest';
+                if (e === 'guest') e = 'guest_old';
+                return e === userEmail;
+            });
+
+            // Шукаємо спеціальний чат з адміном, якщо немає - створюємо
+            let adminSession = userSessions.find(s => s.mode === 'admin_chat');
+            let isNewSession = false;
+            
+            if (!adminSession) {
+                adminSession = {
+                    id: Date.now(),
+                    messages: [],
+                    mode: 'admin_chat',
+                    timestamp: Date.now(),
+                    userEmail: userEmail === 'guest_old' ? 'guest' : userEmail
+                };
+                isNewSession = true;
+            } else {
+                adminSession = JSON.parse(JSON.stringify(adminSession)); // копіюємо
+            }
+
+            // Додаємо повідомлення адміна як повідомлення від 'ai' (з коронкою)
+            adminSession.messages.push({ role: 'ai', content: `👑 **Адміністратор:**\n\n${text}` });
+            adminSession.timestamp = Date.now();
+
+            if (firebaseInitialized && firestoreDB) {
+                const originalEmail = adminSession.userEmail || 'guest';
+                const docId = `${originalEmail}_${adminSession.id}`;
+                try {
+                    const btn = inputEl.nextElementSibling;
+                    const oldText = btn.innerText;
+                    btn.innerText = '...';
+                    btn.disabled = true;
+                    
+                    // Зберігаємо чат
+                    await setDoc(doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'chatSessions', docId), adminSession);
+                    
+                    // Відправляємо користувачу команду синхронізувати/відкрити цей чат
+                    if (userEmail !== 'guest_old') {
+                        await setDoc(doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'userCommands', userEmail), {
+                            type: 'force_sync',
+                            sessionId: adminSession.id,
+                            time: Date.now()
+                        });
+                    }
+                    
+                    inputEl.value = '';
+                    btn.innerText = 'Надіслано!';
+                    
+                    if (isNewSession) {
+                        window.allChatSessions.push(adminSession);
+                        window.viewUserChats(userEmail); // Оновлюємо UI адміна, щоб показати новий чат
+                    }
+                    
+                    setTimeout(() => {
+                        btn.innerText = oldText;
+                        btn.disabled = false;
+                    }, 2000);
+                } catch(e) { console.error("Помилка відправки:", e); }
+            }
         };
 
         window.applyAdminRights = function() {
@@ -1141,7 +1328,6 @@
                             unsubscribeChats = onSnapshot(sessionsRef, (snapshot) => {
                                 const sessionMap = new Map();
                                 
-                                // Зберігаємо локальні несинхронізовані сесії
                                 const myLocal = JSON.parse(localStorage.getItem(window.getStorageKey('appChatSessions')) || '[]');
                                 myLocal.forEach(s => sessionMap.set(s.id, s));
 
@@ -1170,12 +1356,13 @@
                 }
             } else {
                 if (disp) {
-                    disp.innerText = `Користувач: Гість (Анонімно)`;
+                    disp.innerText = `Користувач: Гість (ID: ${window.currentGuestId.replace('guest_', '')})`;
                 }
                 if (authBtn) {
                     authBtn.innerText = 'Увійти або Зареєструватися';
                     authBtn.onclick = () => { document.getElementById('auth-overlay').style.display = 'flex'; };
                 }
+                
                 document.getElementById('nav-admin').style.display = 'none';
                 if (unsubscribeUsers) { unsubscribeUsers(); unsubscribeUsers = null; }
                 if (unsubscribeChats) { unsubscribeChats(); unsubscribeChats = null; }
@@ -1190,11 +1377,9 @@
             
             const allEmails = new Set(Object.keys(window.appUsers));
             window.allChatSessions.forEach(session => {
-                let e = session.userEmail || 'guest';
-                if (e === 'guest') {
-                    // Якщо старий запис без унікального ID гостя
+                let e = session.userEmail;
+                if (!e || e === 'guest') {
                     e = 'guest_old';
-                    session.userEmail = e;
                 }
                 allEmails.add(e);
             });
@@ -1206,7 +1391,6 @@
                 
                 let guestLabel = 'Гість';
                 if (isGuest && email !== 'guest_old') {
-                    // Форматуємо ID для красивого відображення
                     guestLabel = `Гість (ID: ${email.replace('guest_', '')})`;
                 } else if (email === 'guest_old') {
                     guestLabel = 'Гість (Старі дані)';
@@ -1255,7 +1439,12 @@
             const content = document.getElementById('admin-viewer-content');
             content.innerHTML = '';
             
-            let userSessions = window.allChatSessions.filter(s => s.userEmail === email).sort((a,b) => b.timestamp - a.timestamp);
+            // Фільтруємо сесії, враховуючи гостей зі старих версій
+            let userSessions = window.allChatSessions.filter(s => {
+                let e = s.userEmail;
+                if (!e || e === 'guest') e = 'guest_old';
+                return e === email;
+            }).sort((a,b) => b.timestamp - a.timestamp);
 
             if (userSessions.length === 0) {
                 content.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Історія порожня.</p>';
@@ -1274,6 +1463,9 @@
                 dateLabel.style.marginBottom = '10px';
                 dateLabel.style.fontWeight = 'bold';
                 dateLabel.innerText = 'Сесія від: ' + new Date(session.timestamp).toLocaleString();
+                if (session.mode === 'admin_chat') {
+                    dateLabel.innerText += ' 👑 (Чат з Адміністратором)';
+                }
                 sessionDiv.appendChild(dateLabel);
 
                 if (session.messages) {
@@ -1285,17 +1477,82 @@
                         msg.style.background = m.role === 'user' ? 'rgba(59,130,246,0.1)' : 'var(--bg-tab)';
                         msg.style.padding = '8px 12px';
                         msg.style.borderRadius = '10px';
-                        msg.innerHTML = `<strong style="color: ${m.role === 'user' ? 'var(--primary-dark)' : 'var(--text-muted)'};">${m.role === 'user' ? 'Учень' : 'ШІ'}:</strong> ${m.content}`;
+                        
+                        let senderLabel = m.role === 'user' ? 'Учень' : 'ШІ';
+                        if (m.content.includes('👑')) senderLabel = 'Адміністратор';
+                        
+                        const formattedText = window.formatMessageText(m.content);
+                        msg.innerHTML = `<strong style="color: ${m.role === 'user' ? 'var(--primary-dark)' : (m.content.includes('👑') ? 'var(--danger)' : 'var(--text-muted)')};">${senderLabel}:</strong> ${formattedText}`;
                         sessionDiv.appendChild(msg);
                     });
                 }
                 content.appendChild(sessionDiv);
             });
+            
+            // Додаємо інтерфейс для відправки повідомлення користувачу
+            const replyDiv = document.createElement('div');
+            replyDiv.style.marginTop = '20px';
+            replyDiv.style.borderTop = '1px solid var(--border)';
+            replyDiv.style.paddingTop = '15px';
+            replyDiv.innerHTML = `
+                <h4 style="margin-bottom: 10px; color: var(--text-main); font-size: 14px;">Написати користувачу в активний чат:</h4>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="admin-reply-input-${email}" class="setting-control" placeholder="Ваше повідомлення..." style="flex-grow: 1; margin-bottom: 0;" onkeydown="if(event.key === 'Enter') { window.sendAdminMessage('${email}'); }">
+                    <button onclick="window.sendAdminMessage('${email}')" class="auth-btn" style="width: auto; margin-top: 0; padding: 10px 20px;">Надіслати</button>
+                </div>
+            `;
+            content.appendChild(replyDiv);
+
+            // Рендеримо математичні формули та прокручуємо вниз
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([content]).then(() => {
+                    content.scrollTop = content.scrollHeight;
+                }).catch((err) => console.log('MathJax error:', err.message));
+            } else {
+                content.scrollTop = content.scrollHeight;
+            }
         };
 
         window.closeAdminChatViewer = function() {
             document.getElementById('admin-user-list-container').style.display = 'block';
             document.getElementById('admin-chat-viewer').style.display = 'none';
+        };
+
+        // Слухач для оновлення поточного чату в реальному часі (якщо адмін надіслав повідомлення)
+        window.sessionUnsubscribe = null;
+        window.listenToCurrentSession = function() {
+            if (!firebaseInitialized || !firestoreDB) return;
+            if (window.sessionUnsubscribe) { window.sessionUnsubscribe(); window.sessionUnsubscribe = null; }
+            
+            const targetEmail = window.currentUser ? window.currentUser.email : window.currentGuestId;
+            const docId = `${targetEmail}_${window.currentSessionId}`;
+            
+            const sessionRef = doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'chatSessions', docId);
+            window.sessionUnsubscribe = onSnapshot(sessionRef, (snap) => {
+                if (snap.exists()) {
+                    const data = snap.data();
+                    
+                    // Звіряємо масиви через JSON, щоб точно зловити зміни від адміністратора
+                    if (data.messages && JSON.stringify(data.messages) !== JSON.stringify(window.chatHistory)) {
+                        window.chatHistory = data.messages;
+                        window.currentMode = data.mode || window.currentMode;
+                        window.renderCurrentChat();
+                        
+                        const sessionIndex = window.sessions.findIndex(s => s.id === window.currentSessionId);
+                        if (sessionIndex > -1) {
+                            window.sessions[sessionIndex].messages = window.chatHistory;
+                            window.sessions[sessionIndex].mode = window.currentMode;
+                            localStorage.setItem(window.getStorageKey('appChatSessions'), JSON.stringify(window.sessions));
+                        }
+                        
+                        // АВТОМАТИЧНЕ ПРОКРУЧУВАННЯ ЧАТУ ДЛЯ КОРИСТУВАЧА
+                        setTimeout(() => {
+                            const chatBox = document.getElementById('chat-box');
+                            if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+                        }, 100);
+                    }
+                }
+            }, (err) => console.log("Помилка синхронізації чату:", err));
         };
 
         // === СХОВИЩЕ ТА ІСТОРІЯ ===
@@ -1352,6 +1609,7 @@
             }
             window.renderCurrentChat();
             window.renderHistoryList();
+            window.listenToCurrentSession();
         };
 
         window.createNewChat = function(skipRender = false) {
@@ -1363,6 +1621,7 @@
                 window.saveMemory();
                 window.toggleHistorySidebar(true);
             }
+            window.listenToCurrentSession();
         };
 
         window.loadChat = function(id) {
@@ -1374,6 +1633,7 @@
                 window.renderCurrentChat();
             }
             window.toggleHistorySidebar(true);
+            window.listenToCurrentSession();
         };
 
         window.renderHistoryList = function() {
@@ -1382,9 +1642,13 @@
             list.innerHTML = '';
             window.sessions.forEach(s => {
                 const item = document.createElement('div');
-                item.className = `history-item ${s.id === window.currentSessionId ? 'active' : ''}`;
+                const isActive = s.id === window.currentSessionId ? 'active' : '';
+                item.className = `history-item ${isActive}`;
+                
                 const previewMsg = s.messages.find(m => m.role === 'user')?.content || "Новий чат";
-                item.innerHTML = `${previewMsg}`;
+                const isAdminChat = s.mode === 'admin_chat';
+                
+                item.innerHTML = `${isAdminChat ? '👑 ' : ''}${previewMsg}`;
                 item.onclick = () => window.loadChat(s.id);
                 list.appendChild(item);
             });
@@ -1412,12 +1676,12 @@
         Сьогодні ліцей №8 — це сучасний заклад освіти з багатими традиціями та потужним педагогічним колективом.`;
 
         const SYSTEM_PROMPTS = {
-            'default': "Ти — розумний ШІ ліцею №8 (м. Житомир). Ти не маєш відношення до інших компаній. На питання 'Хто ти?' відповідай, що ти ШІ ліцею №8. На питання 'Хто тебе створив?' або 'Хто розробник?' ОБОВ'ЯЗКОВО відповідай: 'Питайте у Стельмаха Олександра з 8Б класу'. Офіційний сайт ліцею: [Сайт ліцею №8](https://8.lic.zhitomir.ua/) (ЗАВЖДИ використовуй цей Markdown-формат для посилання).",
+            'default': "Ти — привітний віртуальний помічник ліцею №8 (м. Житомир). Ти не маєш відношення до інших компаній. На питання 'Хто ти?' відповідай, що ти ШІ-помічник ліцею №8. На питання 'Хто тебе створив?' або 'Хто розробник?' ОБОВ'ЯЗКОВО відповідай: 'Питайте у Стельмаха Олександра з 8Б класу'. Офіційний сайт ліцею: [Сайт ліцею №8](https://8.lic.zhitomir.ua/) (ЗАВЖДИ використовуй цей Markdown-формат для посилання).",
             'math': "Ти — досвідчений вчитель математики ліцею №8. На питання 'Хто тебе створив?' ОБОВ'ЯЗКОВО відповідай: 'Питайте у Стельмаха Олександра з 8Б класу'. Допомагай з алгеброю та геометрією. Пояснюй рішення крок за кроком, зрозуміло для учня. ЗАВЖДИ використовуй символ долара для математики: $...$ для малих формул та $$...$$ для великих. НІКОЛИ не використовуй круглі чи квадратні дужки з бекслешами для математики. Офіційний сайт ліцею: [Сайт ліцею №8](https://8.lic.zhitomir.ua/).",
             'ukr': "Ти — найкращий вчитель української мови та літератури ліцею №8. На питання 'Хто тебе створив?' ОБОВ'ЯЗКОВО відповідай: 'Питайте у Стельмаха Олександра з 8Б класу'. Допомагай писати твори, пояснюй правила граматики, роби синтаксичний розбір. Офіційний сайт ліцею: [Сайт ліцею №8](https://8.lic.zhitomir.ua/).",
             'translate': "Ти — професійний перекладач ліцею №8. На питання 'Хто тебе створив?' ОБОВ'ЯЗКОВО відповідай: 'Питайте у Стельмаха Олександра з 8Б класу'. Офіційний сайт ліцею: [Сайт ліцею №8](https://8.lic.zhitomir.ua/). Твоє завдання — перекладати тексти."
         };
-        const MODE_NAMES = { 'math': 'Математика', 'ukr': 'Укр. мова', 'translate': 'Перекладач', 'default': 'Стандартний' };
+        const MODE_NAMES = { 'math': 'Математика', 'ukr': 'Укр. мова', 'translate': 'Перекладач', 'default': 'Стандартний', 'admin_chat': 'Чат з Адміністратором' };
 
         window.setMode = function(mode) {
             window.currentMode = mode;
@@ -1468,7 +1732,11 @@
             cleaned = cleaned.replace(/у ліжії/gi, 'у ліцеї');
             cleaned = cleaned.replace(/ліцея/gi, 'ліцею');
             cleaned = cleaned.replace(/антиміністрування/gi, 'адміністрування');
-            cleaned = cleaned.replace(/Запоробійської держави/gi, 'США'); // Ловимо ту саму галюцинацію
+            cleaned = cleaned.replace(/Запоробійської держави/gi, 'США'); 
+            cleaned = cleaned.replace(/розумляч/gi, 'ШІ');
+            cleaned = cleaned.replace(/трусильник школи/gi, 'помічник ліцею');
+            cleaned = cleaned.replace(/трусильник/gi, 'помічник');
+            cleaned = cleaned.replace(/Чем вітатись/gi, 'Чим можу допомогти');
             
             return cleaned.trim();
         };
@@ -1487,35 +1755,12 @@
             bubble.className = 'bubble';
             
             if (role === 'system') {
-                bubble.innerHTML = text; 
+                // Дозволяємо системним повідомленням від адміна теж рендерити Markdown
+                bubble.innerHTML = text.includes('👑') ? window.formatMessageText(text) : text; 
             } else if (role === 'user') {
                 bubble.innerText = text;
             } else {
-                let cleanText = text.replace(/<think>[\s\S]*?<\/think>/g, '');
-                cleanText = cleanText.replace(/<think>[\s\S]*/g, '');
-                cleanText = cleanText.trim();
-                
-                cleanText = cleanText.replace(/\\\((.*?)\\\)/gs, '$$$1$$');
-                cleanText = cleanText.replace(/\\\[(.*?)\\\]/gs, '$$$$$1$$$$');
-                cleanText = cleanText.replace(/\(\s*\\displaystyle(.*?)\s*\)/gs, '$$$$\\displaystyle$1$$$$');
-
-                let mathBlocks = [];
-                cleanText = cleanText.replace(/\$\$(.*?)\$\$/gs, function(match) {
-                    mathBlocks.push(match);
-                    return `@@MATHBLOCK${mathBlocks.length - 1}@@`;
-                });
-                cleanText = cleanText.replace(/\$(.*?)\$/gs, function(match) {
-                    mathBlocks.push(match);
-                    return `@@MATHBLOCK${mathBlocks.length - 1}@@`;
-                });
-
-                let parsedHtml = marked.parse(cleanText);
-
-                mathBlocks.forEach((block, i) => {
-                    parsedHtml = parsedHtml.replace(`@@MATHBLOCK${i}@@`, block);
-                });
-                
-                bubble.innerHTML = parsedHtml; 
+                bubble.innerHTML = window.formatMessageText(text); 
             }
 
             const links = bubble.querySelectorAll('a');
@@ -1528,7 +1773,7 @@
                 link.style.wordBreak = 'break-word';
             });
 
-            if (role === 'ai') {
+            if (role === 'ai' || (role === 'system' && text.includes('👑'))) {
                 const copyContainer = document.createElement('div');
                 copyContainer.style.display = 'flex';
                 copyContainer.style.justifyContent = 'flex-end';
@@ -1569,7 +1814,7 @@
                 chatBox.appendChild(wrapper);
             }
             
-            if (role === 'ai') {
+            if (role === 'ai' || role === 'system') {
                 setTimeout(() => {
                     try {
                         if (typeof window.MathJax !== 'undefined' && window.MathJax.typesetPromise) {
@@ -1592,7 +1837,6 @@
         window.askAI = async function(query) {
             let qLower = query.toLowerCase().replace(/[?.,!]/g, '').trim();
 
-            // ПРЯМЕ ПЕРЕХОПЛЕННЯ КОНКРЕТНИХ ПИТАНЬ (без звернення до ШІ, щоб уникнути галюцинацій)
             if (qLower.includes('президент сша') || qLower === 'хто президент сша' || qLower.includes('президент америки')) {
                 return "Станом на зараз, 47-м Президентом США є Дональд Трамп (він обійняв цю посаду у 2025 році).";
             }
@@ -1600,14 +1844,16 @@
                 return "Президентом України є Володимир Зеленський.";
             }
             if (qLower.includes('хто тебе створив') || qLower.includes('хто твій розробник') || qLower.includes('хто розробник') || qLower.includes('ким ти створений')) {
-                return "Питайте у Стельмаха Олександра з 8Б класу 😎. а взагалі розробник хоче залишитися анонімним😜";
+                return "Питайте у Стельмаха Олександра з 8Б класу 😎. А взагалі, розробник хоче залишитися анонімним😜";
             }
             if (qLower === 'хто ти' || qLower === 'що ти таке' || qLower === 'ти хто') {
                 return "Я — персональний штучний інтелект ліцею №8!";
             }
 
-            // ВПРОВАДЖЕНО НОВІ ЖОРСТКІ ПРАВИЛА БЕЗПЕКИ ТА ФАКТЧЕКИНГУ + ЛЮДЯНІСТЬ + ГРАМАТИКА
-            const STRICT_RULES = `\n\nДОТРИМУЙСЯ ЦЬОГО СТИЛЮ НАПИСАННЯ:\n1. Спілкуйся природно, привітно і по-людськи.\n2. ВАЖЛИВО: Відповідай коротко і прямо на поставлене запитання.\n3. СУВОРА ГРАМАТИКА: Пиши виключно літературною українською мовою. Категорично заборонено використовувати вигадані слова чи суржик. Зверни особливу увагу на правильне відмінювання: місцевий відмінок (де?) - "у ліцеї" (ніколи не пиши "у ліжії" або "в ліцея").\n4. ПОВИНЕН завжди говорити правду і спиратися на факти.\n5. УНИКАЙ відповідей при невпевненості.`;
+            const currentDate = new Date().toLocaleDateString('uk-UA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            const currentYear = new Date().getFullYear();
+
+            const STRICT_RULES = `\n\nДОТРИМУЙСЯ ЦЬОГО СТИЛЮ НАПИСАННЯ:\n1. Спілкуйся природно, привітно і по-людськи.\n2. ВАЖЛИВО: Відповідай коротко і прямо на поставлене запитання.\n3. СУВОРА ГРАМАТИКА: Пиши виключно простою літературною українською мовою. КАТЕГОРИЧНО ЗАБОРОНЕНО використовувати вигадані неіснуючі слова (наприклад: "розумляч", "трусильник" тощо). Пиши "у ліцеї", а не "у ліжії".\n4. ПОВИНЕН завжди говорити правду і спиратися на факти.\n5. УНИКАЙ відповідей при невпевненості.`;
 
             let sysPrompt = (SYSTEM_PROMPTS[window.currentMode] || SYSTEM_PROMPTS['default']) + STRICT_RULES + "\n\nВАЖЛИВО: Відповідай виключно ідеальною українською мовою. СУВОРО ЗАБОРОНЕНО використовувати теги <think> або писати свої внутрішні міркування.";
             
@@ -1616,7 +1862,6 @@
                 sysPrompt += "\n\n[ДОВІДКА ПРО ІСТОРІЮ ЛІЦЕЮ №8]:\n" + LYCEUM_HISTORY + "\n\nСИСТЕМНА ВКАЗІВКА: Якщо учень питає про історію ліцею, розкажи її ПОВНІСТЮ та максимально детально.";
             }
 
-            // МІНІ-МОДУЛЬ: Вбудований веб-пошук по Вікіпедії (більш надійний)
             let webSearchData = "";
             if (query.length > 3 && window.currentMode === 'default') {
                 try {
@@ -1674,7 +1919,6 @@
                 const options = { method, signal: controller.signal };
                 if (method === 'POST') {
                     options.headers = { 'Content-Type': 'application/json' };
-                    // Вимикаємо нестабільний внутрішній пошук Pollinations, використовуємо тільки наш жорсткий контекст
                     options.body = JSON.stringify(bodyObj);
                 }
                 try {
@@ -1716,6 +1960,16 @@
             if(!userInput) return;
             const text = userInput.value.trim();
             if (!text || (sendBtn && sendBtn.disabled)) return;
+
+            // Якщо ми зараз у чаті з адміном - ШІ не відповідає!
+            if (window.currentMode === 'admin_chat') {
+                window.addMessageToDOM('user', text);
+                userInput.value = '';
+                userInput.style.height = 'auto';
+                if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+                window.saveMemory();
+                return;
+            }
 
             window.addMessageToDOM('user', text);
             userInput.value = '';
@@ -2041,6 +2295,8 @@
                         firestoreUser = user;
                         firebaseInitialized = !!user;
                         
+                        window.setupUserCommandListener();
+                        
                         if (user && window.currentUser) {
                             window.applyAdminRights();
                             
@@ -2058,6 +2314,8 @@
                             // Якщо це гість (без профілю), теж оновлюємо права (для перегляду чатів адміном)
                             window.applyAdminRights();
                         }
+                        
+                        window.listenToCurrentSession();
                     });
                 } else {
                     console.warn("Локальний режим: конфігурація Firebase не знайдена. Додайте свої ключі в myFirebaseConfig.");
