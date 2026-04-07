@@ -561,7 +561,7 @@
                         <button onclick="window.applyCustomBg()" style="margin-top: 10px; width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">Застосувати картинку</button>
                     </div>
                 </div>
-                <div class="card" style="text-align: center;"><p style="color: var(--text-muted); font-size: 13px;">Версія додатка: 183.2 (Listener Fix)<br>Розроблено для ліцею №8</p></div>
+                <div class="card" style="text-align: center;"><p style="color: var(--text-muted); font-size: 13px;">Версія додатка: 184.0 (З підтримкою Діалогів)<br>Розроблено для ліцею №8</p></div>
             </div>
         </div>
 
@@ -579,7 +579,7 @@
                     <div class="card" style="border-color: var(--accent);">
                         <h3 style="color: var(--text-main); margin-bottom: 12px;">Статистика системи (Синхронізація увімкнена)</h3>
                         <p style="color: var(--text-muted); font-size: 15px;">Всього користувачів (вкл. гостей): <strong style="color: var(--accent); font-size: 18px;" id="admin-user-count">0</strong></p>
-                        <p style="color: var(--text-muted); font-size: 13px; margin-top: 5px;">Натисніть на користувача, щоб побачити його історію чатів.</p>
+                        <p style="color: var(--text-muted); font-size: 13px; margin-top: 5px;">Натисніть на користувача, щоб побачити його історію чатів зі штучним інтелектом.</p>
                     </div>
                     <div class="card">
                         <h3 style="color: var(--text-main); margin-bottom: 12px;">Список активних акаунтів та гостей:</h3>
@@ -594,6 +594,47 @@
                         <h3 id="admin-viewer-title" style="margin-bottom: 15px; color: var(--text-main);"></h3>
                         <div id="admin-viewer-content" style="background: var(--bg-main); border: 1px solid var(--border); border-radius: 16px; padding: 15px; max-height: 50vh; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;">
                             <!-- Повідомлення юзера -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ВКЛАДКА 5: ДІАЛОГИ АДМІНА -->
+        <div id="tab-admin-messages" class="tab-content">
+            <header>
+                <div class="header-left" style="background: none; border: none; box-shadow: none;">
+                    <div class="header-info">
+                        <h1 style="background: var(--glass); padding: 8px 16px; border-radius: 12px; backdrop-filter: blur(12px); border: 1px solid var(--border);">💬 Діалоги з користувачами</h1>
+                    </div>
+                </div>
+            </header>
+            <div class="page-content" style="padding-top: 85px; display: flex; flex-direction: column;">
+                <div id="admin-dialogs-list-container">
+                    <div class="sch-toggle-group">
+                        <button class="sch-toggle-btn active" id="btn-dialogs-all" onclick="window.filterDialogs('all')">Всі</button>
+                        <button class="sch-toggle-btn" id="btn-dialogs-reg" onclick="window.filterDialogs('reg')">Зареєстровані</button>
+                        <button class="sch-toggle-btn" id="btn-dialogs-guest" onclick="window.filterDialogs('guest')">Гості</button>
+                    </div>
+                    <div class="card">
+                        <div id="admin-dialogs-list" style="display: flex; flex-direction: column; gap: 8px;">
+                            <!-- JS renders dialog list here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div id="admin-dialog-room" style="display: none; flex-direction: column; flex-grow: 1; height: 0; min-height: 350px;">
+                    <button onclick="window.closeAdminDialog()" style="margin-bottom: 10px; padding: 10px; background: var(--bg-tab); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; font-weight: 600; color: var(--text-main); text-align: left;">← Назад до списку діалогів</button>
+                    <div class="card" style="flex-grow: 1; display: flex; flex-direction: column; padding: 10px; margin-bottom: 0;">
+                        <h3 id="admin-dialog-title" style="margin-bottom: 10px; color: var(--text-main); font-size: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border);"></h3>
+                        <div id="admin-dialog-messages" style="flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; margin-bottom: 10px;">
+                            <!-- JS renders messages -->
+                        </div>
+                        <div style="display: flex; gap: 8px; border-top: 1px solid var(--border); padding-top: 10px;">
+                            <input type="text" id="admin-dialog-input" class="setting-control" placeholder="Ваше повідомлення..." style="margin-bottom: 0;" onkeydown="if(event.key === 'Enter') window.sendDirectAdminMessage()">
+                            <button class="send-btn" onclick="window.sendDirectAdminMessage()" style="margin-left: 0; transform: none; width: 45px; height: 45px;">
+                                <svg viewBox="0 0 24 24" style="width: 20px; height: 20px;"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -633,6 +674,10 @@
             <button class="nav-item" id="nav-admin" data-target="tab-admin" style="display: none; color: var(--accent);" onclick="window.switchTab('tab-admin')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h20v2H2z"/><path d="M10 20v-4h4v4"/><path d="M22 6L19 16H5L2 6h20z"/></svg>
                 <span class="nav-label">Адмін</span>
+            </button>
+            <button class="nav-item" id="nav-admin-messages" data-target="tab-admin-messages" style="display: none; color: var(--success);" onclick="window.switchTab('tab-admin-messages')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <span class="nav-label">Діалоги</span>
             </button>
         </nav>
     </div>
@@ -675,6 +720,8 @@
         window.allChatSessions = [];
         window.currentSessionId = Date.now();
         window.currentMode = 'default';
+        window.currentAdminDialogEmail = null;
+        window.adminDialogsFilter = 'all';
         
         // Унікальний ID для гостя на поточному пристрої
         window.currentGuestId = localStorage.getItem('appGuestId') || ('guest_' + Math.floor(Math.random() * 100000000));
@@ -950,7 +997,7 @@
             try {
                 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwcWbqYhvQ94w7qxy3qgM3x6hm3fC-u4dp48dznpneg_GAkCavPo4o0lykOIhb9fzpy/exec'; 
 
-                if (SCRIPT_URL === 'YOUR_GOOGLE_SCRIPT_URL_HERE') {
+                if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbwcWbqYhvQ94w7qxy3qgM3x6hm3fC-u4dp48dznpneg_GAkCavPo4o0lykOIhb9fzpy/exec') {
                     window.triggerEmailSimulation(email, code);
                     return false;
                 }
@@ -1208,6 +1255,7 @@
 
             window.allChatSessions = window.allChatSessions.filter(s => !sessionsToDelete.includes(s));
             window.updateAdminDashboard();
+            if(window.renderAdminDialogsList) window.renderAdminDialogsList();
         };
         
         // Функція для відправки повідомлення з адмін-панелі користувачу
@@ -1281,6 +1329,236 @@
             }
         };
 
+        // === ДІАЛОГИ АДМІНА ===
+
+        window.filterDialogs = function(type) {
+            window.adminDialogsFilter = type;
+            document.getElementById('btn-dialogs-all').classList.remove('active');
+            document.getElementById('btn-dialogs-reg').classList.remove('active');
+            document.getElementById('btn-dialogs-guest').classList.remove('active');
+            document.getElementById(`btn-dialogs-${type}`).classList.add('active');
+            window.renderAdminDialogsList();
+        };
+
+        window.renderAdminDialogsList = function() {
+            const listEl = document.getElementById('admin-dialogs-list');
+            if (!listEl) return;
+            listEl.innerHTML = '';
+
+            const allEmails = new Set(Object.keys(window.appUsers));
+            window.allChatSessions.forEach(session => {
+                let e = session.userEmail;
+                if (!e || e === 'guest') e = 'guest_old';
+                allEmails.add(e);
+            });
+
+            let emailsArray = Array.from(allEmails);
+
+            emailsArray.sort((a, b) => {
+                let timeA = 0, timeB = 0;
+                let sA = window.allChatSessions.find(s => s.mode === 'admin_chat' && (s.userEmail === a || (a==='guest_old' && s.userEmail==='guest')));
+                if(sA) timeA = sA.timestamp;
+                let sB = window.allChatSessions.find(s => s.mode === 'admin_chat' && (s.userEmail === b || (b==='guest_old' && s.userEmail==='guest')));
+                if(sB) timeB = sB.timestamp;
+                return timeB - timeA;
+            });
+
+            emailsArray.forEach(email => {
+                const isGuest = email.startsWith('guest');
+
+                if (window.adminDialogsFilter === 'reg' && isGuest) return;
+                if (window.adminDialogsFilter === 'guest' && !isGuest) return;
+
+                let userSessions = window.allChatSessions.filter(s => {
+                    let e = s.userEmail;
+                    if (!e || e === 'guest') e = 'guest_old';
+                    return e === email;
+                });
+
+                let adminSession = userSessions.find(s => s.mode === 'admin_chat');
+                let lastMessageText = "Немає повідомлень";
+                let lastTime = 0;
+
+                if (adminSession && adminSession.messages && adminSession.messages.length > 0) {
+                    let lastMsg = adminSession.messages[adminSession.messages.length - 1];
+                    lastMessageText = lastMsg.role === 'user' ? `Користувач: ${lastMsg.content}` : `Ви: ${lastMsg.content.replace('👑 **Адміністратор:**\n\n', '').replace('👑 Адміністратор:\n\n', '')}`;
+                    lastTime = adminSession.timestamp;
+                }
+
+                let guestLabel = 'Гість';
+                if (isGuest && email !== 'guest_old') guestLabel = `Гість (ID: ${email.replace('guest_', '')})`;
+                else if (email === 'guest_old') guestLabel = 'Гість (Старі дані)';
+
+                const u = window.appUsers[email] || {
+                    firstName: isGuest ? 'Анонімний' : 'Невідомий',
+                    lastName: isGuest ? guestLabel : 'Користувач',
+                    userClass: '-'
+                };
+
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.style.display = 'flex';
+                item.style.flexDirection = 'column';
+                item.style.alignItems = 'flex-start';
+                item.style.gap = '4px';
+                
+                let timeStr = lastTime > 0 ? new Date(lastTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+
+                item.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; width: 100%;">
+                        <strong>${u.firstName} ${u.lastName} ${u.userClass && u.userClass !== '-' ? `(${u.userClass})` : ''}</strong>
+                        <span style="font-size: 11px; color: var(--text-muted);">${timeStr}</span>
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;">
+                        ${lastMessageText}
+                    </div>
+                `;
+                item.onclick = () => window.openAdminDialog(email);
+                listEl.appendChild(item);
+            });
+            
+            if(listEl.innerHTML === '') {
+                listEl.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 15px;">Користувачів не знайдено</div>';
+            }
+        };
+
+        window.openAdminDialog = function(email) {
+            window.currentAdminDialogEmail = email;
+            document.getElementById('admin-dialogs-list-container').style.display = 'none';
+            document.getElementById('admin-dialog-room').style.display = 'flex';
+            
+            const isGuest = email.startsWith('guest');
+            let guestLabel = isGuest ? (email === 'guest_old' ? 'Гість (Старі дані)' : `Гість (ID: ${email.replace('guest_', '')})`) : 'Користувач';
+            const u = window.appUsers[email] || { firstName: isGuest ? 'Анонімний' : 'Невідомий', lastName: isGuest ? guestLabel : 'Користувач' };
+            
+            document.getElementById('admin-dialog-title').innerText = `Діалог: ${u.firstName} ${u.lastName}`;
+            window.renderAdminDialogMessages();
+        };
+
+        window.closeAdminDialog = function() {
+            window.currentAdminDialogEmail = null;
+            document.getElementById('admin-dialogs-list-container').style.display = 'block';
+            document.getElementById('admin-dialog-room').style.display = 'none';
+        };
+
+        window.renderAdminDialogMessages = function() {
+            if (!window.currentAdminDialogEmail) return;
+            const container = document.getElementById('admin-dialog-messages');
+            container.innerHTML = '';
+
+            let userSessions = window.allChatSessions.filter(s => {
+                let e = s.userEmail;
+                if (!e || e === 'guest') e = 'guest_old';
+                return e === window.currentAdminDialogEmail;
+            });
+
+            let adminSession = userSessions.find(s => s.mode === 'admin_chat');
+            
+            if (!adminSession || !adminSession.messages || adminSession.messages.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 13px;">Немає повідомлень. Напишіть першим!</div>';
+                return;
+            }
+
+            adminSession.messages.forEach(m => {
+                const msgWrap = document.createElement('div');
+                const isAdmin = m.role === 'ai' || m.content.includes('👑');
+                msgWrap.style.display = 'flex';
+                msgWrap.style.justifyContent = isAdmin ? 'flex-end' : 'flex-start';
+                
+                const bubble = document.createElement('div');
+                bubble.style.maxWidth = '85%';
+                bubble.style.padding = '10px 14px';
+                bubble.style.borderRadius = '16px';
+                bubble.style.fontSize = '14px';
+                bubble.style.lineHeight = '1.4';
+                bubble.style.wordWrap = 'break-word';
+
+                if (isAdmin) {
+                    bubble.style.background = 'var(--primary)';
+                    bubble.style.color = 'white';
+                    bubble.style.borderBottomRightRadius = '4px';
+                    let text = m.content.replace('👑 **Адміністратор:**\n\n', '').replace('👑 Адміністратор:\n\n', '');
+                    bubble.innerHTML = window.formatMessageText(text);
+                } else {
+                    bubble.style.background = 'var(--bg-tab)';
+                    bubble.style.color = 'var(--text-main)';
+                    bubble.style.border = '1px solid var(--border)';
+                    bubble.style.borderBottomLeftRadius = '4px';
+                    bubble.innerHTML = window.formatMessageText(m.content);
+                }
+                
+                if (isAdmin) {
+                    bubble.querySelectorAll('a').forEach(a => a.style.color = 'white');
+                }
+
+                msgWrap.appendChild(bubble);
+                container.appendChild(msgWrap);
+            });
+
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([container]).catch(e => console.log(e));
+            }
+            container.scrollTop = container.scrollHeight;
+        };
+
+        window.sendDirectAdminMessage = async function() {
+            if (!window.currentAdminDialogEmail) return;
+            const inputEl = document.getElementById('admin-dialog-input');
+            const text = inputEl.value.trim();
+            if (!text) return;
+
+            let userEmail = window.currentAdminDialogEmail;
+            let userSessions = window.allChatSessions.filter(s => {
+                let e = s.userEmail;
+                if (!e || e === 'guest') e = 'guest_old';
+                return e === userEmail;
+            });
+
+            let adminSession = userSessions.find(s => s.mode === 'admin_chat');
+            let isNewSession = false;
+            
+            if (!adminSession) {
+                adminSession = {
+                    id: Date.now(),
+                    messages: [],
+                    mode: 'admin_chat',
+                    timestamp: Date.now(),
+                    userEmail: userEmail === 'guest_old' ? 'guest' : userEmail
+                };
+                isNewSession = true;
+            } else {
+                adminSession = JSON.parse(JSON.stringify(adminSession)); 
+            }
+
+            adminSession.messages.push({ role: 'ai', content: `👑 **Адміністратор:**\n\n${text}` });
+            adminSession.timestamp = Date.now();
+
+            inputEl.value = '';
+            if (isNewSession) {
+                window.allChatSessions.push(adminSession);
+            } else {
+                const idx = window.allChatSessions.findIndex(s => s.id === adminSession.id);
+                if (idx > -1) window.allChatSessions[idx] = adminSession;
+            }
+            window.renderAdminDialogMessages();
+
+            if (firebaseInitialized && firestoreDB) {
+                const originalEmail = adminSession.userEmail || 'guest';
+                const docId = `${originalEmail}_${adminSession.id}`;
+                try {
+                    await setDoc(doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'chatSessions', docId), adminSession);
+                    
+                    if (userEmail !== 'guest_old') {
+                        await setDoc(doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'userCommands', userEmail), {
+                            type: 'force_sync',
+                            sessionId: adminSession.id,
+                            time: Date.now()
+                        });
+                    }
+                } catch(e) { console.error("Помилка відправки:", e); }
+            }
+        };
+
         window.applyAdminRights = function() {
             const disp = document.getElementById('user-info-display');
             const authBtn = document.getElementById('auth-action-btn');
@@ -1296,6 +1574,7 @@
                 
                 if (window.currentUser.email === 'ibondar0802@gmail.com') {
                     document.getElementById('nav-admin').style.display = 'flex';
+                    document.getElementById('nav-admin-messages').style.display = 'flex';
                     
                     let localSessions = [];
                     for (let i = 0; i < localStorage.length; i++) {
@@ -1320,6 +1599,7 @@
                                 window.appUsers = newUsers;
                                 localStorage.setItem('appUsers', JSON.stringify(window.appUsers));
                                 window.updateAdminDashboard();
+                                window.renderAdminDialogsList();
                             }, (err) => console.log('Помилка завантаження юзерів:', err));
                         }
                         
@@ -1338,19 +1618,27 @@
                                 window.allChatSessions = Array.from(sessionMap.values());
                                 
                                 window.updateAdminDashboard();
+                                window.renderAdminDialogsList();
 
                                 if (document.getElementById('admin-chat-viewer').style.display === 'block') {
                                     const viewerTitle = document.getElementById('admin-viewer-title').innerText;
                                     const email = viewerTitle.replace('Історія: ', '').trim();
                                     if (email) window.viewUserChats(email);
                                 }
+                                
+                                if (document.getElementById('admin-dialog-room').style.display === 'flex') {
+                                    window.renderAdminDialogMessages();
+                                }
+                                
                             }, (err) => console.log('Помилка завантаження чатів:', err));
                         }
                     } else {
                         window.updateAdminDashboard();
+                        window.renderAdminDialogsList();
                     }
                 } else {
                     document.getElementById('nav-admin').style.display = 'none';
+                    document.getElementById('nav-admin-messages').style.display = 'none';
                     if (unsubscribeUsers) { unsubscribeUsers(); unsubscribeUsers = null; }
                     if (unsubscribeChats) { unsubscribeChats(); unsubscribeChats = null; }
                 }
@@ -1364,6 +1652,7 @@
                 }
                 
                 document.getElementById('nav-admin').style.display = 'none';
+                document.getElementById('nav-admin-messages').style.display = 'none';
                 if (unsubscribeUsers) { unsubscribeUsers(); unsubscribeUsers = null; }
                 if (unsubscribeChats) { unsubscribeChats(); unsubscribeChats = null; }
             }
@@ -1676,10 +1965,10 @@
         Сьогодні ліцей №8 — це сучасний заклад освіти з багатими традиціями та потужним педагогічним колективом.`;
 
         const SYSTEM_PROMPTS = {
-            'default': "Ти — привітний віртуальний помічник ліцею №8 (м. Житомир). Ти не маєш відношення до інших компаній. На питання 'Хто ти?' відповідай, що ти ШІ-помічник ліцею №8. На питання 'Хто тебе створив?' або 'Хто розробник?' ОБОВ'ЯЗКОВО відповідай: 'Питайте у Стельмаха Олександра з 8Б класу'. Офіційний сайт ліцею: [Сайт ліцею №8](https://8.lic.zhitomir.ua/) (ЗАВЖДИ використовуй цей Markdown-формат для посилання).",
+            'default': "Ти — привітний віртуальний помічник ліцею №8 (м. Житомир). Ти не маєш відношення до інших компаній. На питання 'Хто ти?' відповідай, що ти ШІ-помічник ліцею №8. На питання 'Хто тебе створив?' або 'Хто розробник?' ОБОВ'ЯЗКОВО відповідай: 'Питайте у Стельмаха Олександра з 8Б класу'. Офіційний сайт ліцею: [Сайт ліцею №8](https://8.lic.zhitomir.ua/) (ЗАВЖДИ використовуй цей Markdown-формат для посилання). Новини ліцею можна знайти на сайті: [Новини ліцею №8](https://8.lic.zhitomir.ua/novini/).",
             'math': "Ти — досвідчений вчитель математики ліцею №8. На питання 'Хто тебе створив?' ОБОВ'ЯЗКОВО відповідай: 'Питайте у Стельмаха Олександра з 8Б класу'. Допомагай з алгеброю та геометрією. Пояснюй рішення крок за кроком, зрозуміло для учня. ЗАВЖДИ використовуй символ долара для математики: $...$ для малих формул та $$...$$ для великих. НІКОЛИ не використовуй круглі чи квадратні дужки з бекслешами для математики. Офіційний сайт ліцею: [Сайт ліцею №8](https://8.lic.zhitomir.ua/).",
             'ukr': "Ти — найкращий вчитель української мови та літератури ліцею №8. На питання 'Хто тебе створив?' ОБОВ'ЯЗКОВО відповідай: 'Питайте у Стельмаха Олександра з 8Б класу'. Допомагай писати твори, пояснюй правила граматики, роби синтаксичний розбір. Офіційний сайт ліцею: [Сайт ліцею №8](https://8.lic.zhitomir.ua/).",
-            'translate': "Ти — професійний перекладач ліцею №8. На питання 'Хто тебе створив?' ОБОВ'ЯЗКОВО відповідай: 'Питайте у Стельмаха Олександра з 8Б класу'. Офіційний сайт ліцею: [Сайт ліцею №8](https://8.lic.zhitomir.ua/). Твоє завдання — перекладати тексти."
+            'translate': "Ти — професійний перекладач ліцею №8. На питання 'Хто тебе створив?' ОБОВ'ЯЗКОВО відповідай: 'Питайте у Стельмаха Олександра з 8Б класу'. Офіційний сайт ліцею: [Сайт ліцею №8](https://8.lic.zhitomir.ua/). Твоє завдання — перекладати texts."
         };
         const MODE_NAMES = { 'math': 'Математика', 'ukr': 'Укр. мова', 'translate': 'Перекладач', 'default': 'Стандартний', 'admin_chat': 'Чат з Адміністратором' };
 
@@ -1847,7 +2136,7 @@
                 return "Питайте у Стельмаха Олександра з 8Б класу 😎. А взагалі, розробник хоче залишитися анонімним😜";
             }
             if (qLower === 'хто ти' || qLower === 'що ти таке' || qLower === 'ти хто') {
-                return "Я — персональний штучний інтелект ліцею №8!";
+                return "Я — персональний штучний інтелект ліцею №8!😉";
             }
 
             const currentDate = new Date().toLocaleDateString('uk-UA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -2261,7 +2550,7 @@
             }
         };
 
-        // Визначення відсутньої функції initFirebase
+        // Визначення функції initFirebase з перевірками безпеки
         async function initFirebase() {
             try {
                 let configToUse = null;
