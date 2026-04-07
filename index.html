@@ -328,13 +328,6 @@
 </head>
 <body>
 
-    <!-- СИМУЛЯЦІЯ ВІДПРАВКИ EMAIL -->
-    <div id="mock-email-popup" style="position: fixed; top: 20px; right: 20px; background: var(--bg-tab); padding: 15px 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border-left: 4px solid var(--primary); transform: translateX(150%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 10001; display: flex; flex-direction: column; gap: 5px; width: 300px; max-width: 80vw;">
-        <div style="font-size: 12px; color: var(--text-muted); font-weight: 600; display: flex; justify-content: space-between;"><span>Новий лист (Симуляція)</span><span style="cursor: pointer;" onclick="document.getElementById('mock-email-popup').style.transform='translateX(150%)'">✕</span></div>
-        <div style="font-size: 14px; font-weight: bold; color: var(--text-main);" id="mock-email-subject">Код підтвердження</div>
-        <div style="font-size: 13px; color: var(--text-main);" id="mock-email-body">Ваш код: 123456</div>
-    </div>
-
     <!-- ВІКНО АВТОРИЗАЦІЇ -->
     <div id="auth-overlay">
         <div class="auth-card">
@@ -561,7 +554,7 @@
                         <button onclick="window.applyCustomBg()" style="margin-top: 10px; width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">Застосувати картинку</button>
                     </div>
                 </div>
-                <div class="card" style="text-align: center;"><p style="color: var(--text-muted); font-size: 13px;">Версія додатка: 184.0 (З підтримкою Діалогів)<br>Розроблено для ліцею №8</p></div>
+                <div class="card" style="text-align: center;"><p style="color: var(--text-muted); font-size: 13px;">Версія додатка: 186.0 (Clean & Stable UI)<br>Розроблено для ліцею №8</p></div>
             </div>
         </div>
 
@@ -631,7 +624,7 @@
                             <!-- JS renders messages -->
                         </div>
                         <div style="display: flex; gap: 8px; border-top: 1px solid var(--border); padding-top: 10px;">
-                            <input type="text" id="admin-dialog-input" class="setting-control" placeholder="Ваше повідомлення..." style="margin-bottom: 0;" onkeydown="if(event.key === 'Enter') window.sendDirectAdminMessage()">
+                            <input type="text" id="admin-dialog-input" class="setting-control" placeholder="Ваше повідомлення..." style="margin-bottom: 0;" onkeydown="if(event.key === 'Enter') { event.preventDefault(); window.sendDirectAdminMessage(); }">
                             <button class="send-btn" onclick="window.sendDirectAdminMessage()" style="margin-left: 0; transform: none; width: 45px; height: 45px;">
                                 <svg viewBox="0 0 24 24" style="width: 20px; height: 20px;"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
                             </button>
@@ -706,7 +699,7 @@
         </div>
     </div>
 
-    <!-- МОДУЛЬНИЙ СКРИПТ (ПОВНІСТЮ ІЗОЛЬОВАНИЙ І ЗАВАНТАЖУЄТЬСЯ МИТТЄВО) -->
+    <!-- МОДУЛЬНИЙ СКРИПТ -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -798,6 +791,7 @@
         };
 
         window.autoResize = function(el) {
+            if (!el) return;
             el.style.height = 'auto';
             el.style.height = (el.scrollHeight) + 'px';
         };
@@ -812,7 +806,8 @@
             window.currentMode = 'default';
             window.saveMemory();
             window.renderCurrentChat();
-            document.getElementById('modal-overlay').style.display = 'none';
+            const overlay = document.getElementById('modal-overlay');
+            if (overlay) overlay.style.display = 'none';
         };
 
         document.addEventListener('click', (e) => {
@@ -828,48 +823,56 @@
             const toggleText = document.getElementById('auth-toggle-text');
             const submitBtn = document.getElementById('auth-submit-btn');
             const errorEl = document.getElementById('auth-error');
+            const loginFields = document.getElementById('login-fields');
+            const regFields = document.getElementById('register-fields');
+            
             if (errorEl) errorEl.style.display = 'none';
 
             if (authMode === 'login') {
                 authMode = 'register';
-                title.innerText = 'Реєстрація';
-                submitBtn.innerText = 'Зареєструватися';
-                toggleText.innerText = 'Вже є акаунт? Увійти';
-                document.getElementById('login-fields').style.display = 'none';
-                document.getElementById('register-fields').style.display = 'block';
+                if(title) title.innerText = 'Реєстрація';
+                if(submitBtn) submitBtn.innerText = 'Зареєструватися';
+                if(toggleText) toggleText.innerText = 'Вже є акаунт? Увійти';
+                if(loginFields) loginFields.style.display = 'none';
+                if(regFields) regFields.style.display = 'block';
             } else {
                 authMode = 'login';
-                title.innerText = 'Вхід в систему';
-                submitBtn.innerText = 'Увійти';
-                toggleText.innerText = 'Немає акаунту? Зареєструватися';
-                document.getElementById('login-fields').style.display = 'block';
-                document.getElementById('register-fields').style.display = 'none';
+                if(title) title.innerText = 'Вхід в систему';
+                if(submitBtn) submitBtn.innerText = 'Увійти';
+                if(toggleText) toggleText.innerText = 'Немає акаунту? Зареєструватися';
+                if(loginFields) loginFields.style.display = 'block';
+                if(regFields) regFields.style.display = 'none';
             }
         };
 
         window.handleAuth = async function() {
             const errorEl = document.getElementById('auth-error');
             const submitBtn = document.getElementById('auth-submit-btn');
-            errorEl.style.display = 'none';
+            if(errorEl) errorEl.style.display = 'none';
 
             if (authMode === 'register') {
-                const firstName = document.getElementById('auth-firstname').value.trim();
-                const lastName = document.getElementById('auth-lastname').value.trim();
-                const userClass = document.getElementById('auth-class').value.trim();
-                let email = document.getElementById('auth-email-reg').value.trim().toLowerCase();
-                const pass = document.getElementById('auth-password-reg').value.trim();
+                const firstNameEl = document.getElementById('auth-firstname');
+                const lastNameEl = document.getElementById('auth-lastname');
+                const userClassEl = document.getElementById('auth-class');
+                const emailEl = document.getElementById('auth-email-reg');
+                const passEl = document.getElementById('auth-password-reg');
+                
+                if(!firstNameEl || !lastNameEl || !userClassEl || !emailEl || !passEl) return;
+
+                const firstName = firstNameEl.value.trim();
+                const lastName = lastNameEl.value.trim();
+                const userClass = userClassEl.value.trim();
+                let email = emailEl.value.trim().toLowerCase();
+                const pass = passEl.value.trim();
 
                 if (!firstName || !lastName || !userClass || !email || !pass) {
-                    errorEl.innerText = "Будь ласка, заповніть всі поля!";
-                    errorEl.style.display = 'block';
+                    if(errorEl) { errorEl.innerText = "Будь ласка, заповніть всі поля!"; errorEl.style.display = 'block'; }
                     return;
                 }
 
-                const originalText = submitBtn.innerText;
-                submitBtn.innerText = 'Перевірка бази...';
-                submitBtn.disabled = true;
+                const originalText = submitBtn ? submitBtn.innerText : 'Очікуйте...';
+                if(submitBtn) { submitBtn.innerText = 'Перевірка бази...'; submitBtn.disabled = true; }
 
-                // Очікування Firebase
                 if (!firebaseInitialized && firestoreDB) {
                     for(let i=0; i<30; i++) {
                         if (firebaseInitialized) break;
@@ -877,7 +880,6 @@
                     }
                 }
 
-                // Завантажуємо профіль з хмари, якщо його немає локально
                 if (!window.appUsers[email] && firestoreDB) {
                     try {
                         const userRef = doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'appUsers', email);
@@ -890,10 +892,8 @@
                 }
 
                 if (window.appUsers[email]) {
-                    submitBtn.innerText = originalText;
-                    submitBtn.disabled = false;
-                    errorEl.innerText = "Ця електронна пошта вже зареєстрована!";
-                    errorEl.style.display = 'block';
+                    if(submitBtn) { submitBtn.innerText = originalText; submitBtn.disabled = false; }
+                    if(errorEl) { errorEl.innerText = "Ця електронна пошта вже зареєстрована!"; errorEl.style.display = 'block'; }
                 } else {
                     expectedVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
                     pendingAuthData = { 
@@ -902,29 +902,29 @@
                         registeredAt: new Date().toLocaleString() 
                     };
                     
-                    submitBtn.innerText = 'Відправка листа...';
+                    if(submitBtn) submitBtn.innerText = 'Відправка листа...';
                     
                     await window.sendRealEmail(email, expectedVerificationCode);
                     
-                    submitBtn.innerText = originalText;
-                    submitBtn.disabled = false;
+                    if(submitBtn) { submitBtn.innerText = originalText; submitBtn.disabled = false; }
                     window.showVerificationStep(email);
                 }
             } else {
-                let email = document.getElementById('auth-email-login').value.trim().toLowerCase();
-                const pass = document.getElementById('auth-password-login').value.trim();
+                const emailEl = document.getElementById('auth-email-login');
+                const passEl = document.getElementById('auth-password-login');
+                if(!emailEl || !passEl) return;
+
+                let email = emailEl.value.trim().toLowerCase();
+                const pass = passEl.value.trim();
 
                 if (!email || !pass) {
-                    errorEl.innerText = "Введіть електронну пошту та пароль!";
-                    errorEl.style.display = 'block';
+                    if(errorEl) { errorEl.innerText = "Введіть електронну пошту та пароль!"; errorEl.style.display = 'block'; }
                     return;
                 }
 
-                const originalText = submitBtn.innerText;
-                submitBtn.innerText = 'Вхід в систему...';
-                submitBtn.disabled = true;
+                const originalText = submitBtn ? submitBtn.innerText : 'Очікуйте...';
+                if(submitBtn) { submitBtn.innerText = 'Вхід в систему...'; submitBtn.disabled = true; }
 
-                // Очікування ініціалізації Firebase для перевірки
                 if (!firebaseInitialized && firestoreDB) {
                     for(let i=0; i<30; i++) {
                         if (firebaseInitialized) break;
@@ -934,10 +934,8 @@
 
                 let userFound = null;
 
-                // 1. Шукаємо локально
                 if (window.appUsers[email]) userFound = window.appUsers[email];
 
-                // 2. Шукаємо в базі
                 if (!userFound && firestoreDB) {
                     try {
                         const userRef = doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'appUsers', email);
@@ -947,7 +945,6 @@
                             window.appUsers[email] = userFound;
                             localStorage.setItem('appUsers', JSON.stringify(window.appUsers));
                         } else {
-                            // Фоллбек: дістати всі профілі (якщо раптом ID документа відрізняється)
                             const usersRef = collection(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'appUsers');
                             const snap = await getDocs(usersRef);
                             snap.forEach(d => {
@@ -965,28 +962,26 @@
                     expectedVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
                     pendingAuthData = { type: 'login', userData: userFound };
                     
-                    submitBtn.innerText = 'Відправка листа...';
+                    if(submitBtn) submitBtn.innerText = 'Відправка листа...';
                     
                     await window.sendRealEmail(email, expectedVerificationCode);
                     
-                    submitBtn.innerText = originalText;
-                    submitBtn.disabled = false;
+                    if(submitBtn) { submitBtn.innerText = originalText; submitBtn.disabled = false; }
                     window.showVerificationStep(email);
                 } else {
-                    submitBtn.innerText = originalText;
-                    submitBtn.disabled = false;
+                    if(submitBtn) { submitBtn.innerText = originalText; submitBtn.disabled = false; }
                     if (userFound) {
-                        errorEl.innerText = "Невірний пароль!";
+                        if(errorEl) { errorEl.innerText = "Невірний пароль!"; errorEl.style.display = 'block'; }
                     } else {
-                        errorEl.innerText = "Акаунт з такою поштою не знайдено!";
+                        if(errorEl) { errorEl.innerText = "Акаунт з такою поштою не знайдено!"; errorEl.style.display = 'block'; }
                     }
-                    errorEl.style.display = 'block';
                 }
             }
         };
 
         window.continueAsGuest = function() {
-            document.getElementById('auth-overlay').style.display = 'none';
+            const overlay = document.getElementById('auth-overlay');
+            if(overlay) overlay.style.display = 'none';
             window.currentUser = null;
             window.applyAdminRights();
             window.loadMemory();
@@ -997,58 +992,63 @@
             try {
                 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwcWbqYhvQ94w7qxy3qgM3x6hm3fC-u4dp48dznpneg_GAkCavPo4o0lykOIhb9fzpy/exec'; 
 
-                if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbwcWbqYhvQ94w7qxy3qgM3x6hm3fC-u4dp48dznpneg_GAkCavPo4o0lykOIhb9fzpy/exec') {
-                    window.triggerEmailSimulation(email, code);
-                    return false;
+                if (SCRIPT_URL !== 'YOUR_GOOGLE_SCRIPT_URL_HERE') {
+                    // Відправляємо справжній лист
+                    await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ email: email, code: code })
+                    });
                 }
-
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ email: email, code: code })
-                });
 
                 return true;
             } catch (error) {
-                window.triggerEmailSimulation(email, code);
+                console.error("Помилка відправки email:", error);
                 return false;
             }
         };
 
-        window.triggerEmailSimulation = function(email, code) {
-            const popup = document.getElementById('mock-email-popup');
-            document.getElementById('verify-email-display').innerText = email;
-            document.getElementById('mock-email-body').innerText = `Код підтвердження: ${code}`;
-            popup.style.transform = 'translateX(0)';
-            setTimeout(() => { popup.style.transform = 'translateX(150%)'; }, 8000);
-        };
-
         window.showVerificationStep = function(email) {
-            document.getElementById('login-fields').style.display = 'none';
-            document.getElementById('register-fields').style.display = 'none';
-            document.getElementById('auth-main-buttons').style.display = 'none';
-            document.getElementById('auth-verification-step').style.display = 'block';
-            document.getElementById('auth-code').value = '';
-            document.getElementById('verify-email-display').innerText = email;
+            const loginFields = document.getElementById('login-fields');
+            const regFields = document.getElementById('register-fields');
+            const buttons = document.getElementById('auth-main-buttons');
+            const step = document.getElementById('auth-verification-step');
+            const codeEl = document.getElementById('auth-code');
+            const display = document.getElementById('verify-email-display');
+            
+            if(loginFields) loginFields.style.display = 'none';
+            if(regFields) regFields.style.display = 'none';
+            if(buttons) buttons.style.display = 'none';
+            if(step) step.style.display = 'block';
+            if(codeEl) codeEl.value = '';
+            if(display) display.innerText = email;
         };
 
         window.cancelVerification = function() {
-            document.getElementById('auth-verification-step').style.display = 'none';
-            document.getElementById('auth-main-buttons').style.display = 'block';
+            const step = document.getElementById('auth-verification-step');
+            const buttons = document.getElementById('auth-main-buttons');
+            const loginFields = document.getElementById('login-fields');
+            const regFields = document.getElementById('register-fields');
+            
+            if(step) step.style.display = 'none';
+            if(buttons) buttons.style.display = 'block';
             if (authMode === 'register') {
-                document.getElementById('register-fields').style.display = 'block';
+                if(regFields) regFields.style.display = 'block';
             } else {
-                document.getElementById('login-fields').style.display = 'block';
+                if(loginFields) loginFields.style.display = 'block';
             }
             pendingAuthData = null;
             expectedVerificationCode = '';
         };
 
         window.verifyAuthCode = function() {
-            const enteredCode = document.getElementById('auth-code').value.trim();
+            const authCodeEl = document.getElementById('auth-code');
             const errorEl = document.getElementById('auth-error');
-            errorEl.style.display = 'none';
+            if(!authCodeEl) return;
+            
+            const enteredCode = authCodeEl.value.trim();
+            if(errorEl) errorEl.style.display = 'none';
 
             if (enteredCode === expectedVerificationCode) {
                 if (pendingAuthData.type === 'register') {
@@ -1072,14 +1072,18 @@
                     window.loginUser(pendingAuthData.userData);
                 }
                 
-                document.getElementById('auth-verification-step').style.display = 'none';
-                document.getElementById('auth-main-buttons').style.display = 'block';
-                if(authMode === 'login') document.getElementById('login-fields').style.display = 'block';
-                else document.getElementById('register-fields').style.display = 'block';
+                const step = document.getElementById('auth-verification-step');
+                const btns = document.getElementById('auth-main-buttons');
+                const loginF = document.getElementById('login-fields');
+                const regF = document.getElementById('register-fields');
+                
+                if(step) step.style.display = 'none';
+                if(btns) btns.style.display = 'block';
+                if(authMode === 'login' && loginF) loginF.style.display = 'block';
+                else if(regF) regF.style.display = 'block';
                 
             } else {
-                errorEl.innerText = "Невірний код! Спробуйте ще раз.";
-                errorEl.style.display = 'block';
+                if(errorEl) { errorEl.innerText = "Невірний код! Спробуйте ще раз."; errorEl.style.display = 'block'; }
             }
         };
 
@@ -1090,14 +1094,13 @@
             localStorage.setItem('appSavedEmail', userData.email);
             localStorage.setItem('appSavedPass', userData.password);
 
-            document.getElementById('auth-overlay').style.display = 'none';
-            document.getElementById('auth-email-login').value = '';
-            document.getElementById('auth-password-login').value = '';
-            document.getElementById('auth-firstname').value = '';
-            document.getElementById('auth-lastname').value = '';
-            document.getElementById('auth-class').value = '';
-            document.getElementById('auth-email-reg').value = '';
-            document.getElementById('auth-password-reg').value = '';
+            const overlay = document.getElementById('auth-overlay');
+            if(overlay) overlay.style.display = 'none';
+            
+            ['auth-email-login', 'auth-password-login', 'auth-firstname', 'auth-lastname', 'auth-class', 'auth-email-reg', 'auth-password-reg'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.value = '';
+            });
             
             window.applyAdminRights();
             window.loadMemory();
@@ -1112,7 +1115,8 @@
         window.logoutApp = function() {
             window.currentUser = null;
             localStorage.removeItem('appCurrentUser');
-            document.getElementById('auth-overlay').style.display = 'flex';
+            const overlay = document.getElementById('auth-overlay');
+            if(overlay) overlay.style.display = 'flex';
             
             if (unsubscribeUsers) { unsubscribeUsers(); unsubscribeUsers = null; }
             if (unsubscribeChats) { unsubscribeChats(); unsubscribeChats = null; }
@@ -1122,15 +1126,15 @@
             window.chatHistory = [];
             window.currentMode = 'default';
             window.renderCurrentChat();
-            document.getElementById('history-list').innerHTML = '';
+            
+            const list = document.getElementById('history-list');
+            if(list) list.innerHTML = '';
             
             window.applyAdminRights();
             window.switchTab('tab-chat');
             window.setupUserCommandListener();
         };
 
-        // === ГЛОБАЛЬНІ ФУНКЦІЇ АДМІНКИ ТА ВИДАЛЕННЯ ===
-        
         window.userCommandUnsubscribe = null;
         window.setupUserCommandListener = function() {
             if (!firebaseInitialized || !firestoreDB) return;
@@ -1145,7 +1149,6 @@
                 if (snap.exists()) {
                     const data = snap.data();
                     
-                    // КОМАНДА 1: ВИДАЛЕННЯ АКАУНТУ
                     if (data.type === 'wipe') {
                         try { await deleteDoc(cmdRef); } catch(e) {}
                         
@@ -1167,11 +1170,9 @@
                             window.location.href = window.location.href.split('?')[0];
                         }, 3000);
                     } 
-                    // КОМАНДА 2: НОВЕ ПОВІДОМЛЕННЯ ВІД АДМІНІСТРАТОРА
                     else if (data.type === 'force_sync' && data.sessionId) {
                         try { await deleteDoc(cmdRef); } catch(e) {}
                         
-                        // Якщо користувач зараз не в цьому чаті - примусово перемикаємо його
                         if (window.currentSessionId !== data.sessionId) {
                             const docId = `${targetEmail}_${data.sessionId}`;
                             const sessionRef = doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'chatSessions', docId);
@@ -1187,7 +1188,7 @@
                                 }
                                 localStorage.setItem(window.getStorageKey('appChatSessions'), JSON.stringify(window.sessions));
                                 window.renderHistoryList();
-                                window.loadChat(sData.id); // Перемикає чат
+                                window.loadChat(sData.id);
                             }
                         }
                     }
@@ -1196,20 +1197,34 @@
         };
 
         window.confirmDeleteUser = function(email) {
-            document.getElementById('delete-modal-title').innerText = 'Видалити користувача?';
-            document.getElementById('delete-modal-desc').innerText = 'Усі дані, профіль та історія чатів цього користувача будуть видалені назавжди. Цю дію неможливо скасувати.';
-            document.getElementById('delete-modal-overlay').style.display = 'flex';
-            document.getElementById('confirm-delete-btn').onclick = function() {
-                window.executeDeleteUser(email);
-            };
+            const title = document.getElementById('delete-modal-title');
+            const desc = document.getElementById('delete-modal-desc');
+            const overlay = document.getElementById('delete-modal-overlay');
+            const confirmBtn = document.getElementById('confirm-delete-btn');
+            
+            if(title) title.innerText = 'Видалити користувача?';
+            if(desc) desc.innerText = 'Усі дані, профіль та історія чатів цього користувача будуть видалені назавжди. Цю дію неможливо скасувати.';
+            if(overlay) overlay.style.display = 'flex';
+            if(confirmBtn) {
+                confirmBtn.onclick = function() {
+                    window.executeDeleteUser(email);
+                };
+            }
         };
 
         window.executeDeleteUser = async function(email) {
-            document.getElementById('delete-modal-overlay').style.display = 'none';
+            const overlay = document.getElementById('delete-modal-overlay');
+            if(overlay) overlay.style.display = 'none';
             
-            const viewerTitle = document.getElementById('admin-viewer-title').innerText;
-            if (document.getElementById('admin-chat-viewer').style.display === 'block' && viewerTitle.includes(email)) {
+            const viewerTitle = document.getElementById('admin-viewer-title');
+            const viewer = document.getElementById('admin-chat-viewer');
+            
+            if (viewer && viewer.style.display === 'block' && viewerTitle && viewerTitle.innerText.includes(email)) {
                 window.closeAdminChatViewer();
+            }
+            
+            if (window.currentAdminDialogEmail === email) {
+                window.closeAdminDialog();
             }
 
             if (window.appUsers[email]) {
@@ -1231,7 +1246,6 @@
             });
 
             if (firebaseInitialized && firestoreDB) {
-                // Відправляємо наказ на знищення даних безпосередньо клієнту (гостю/користувачу)
                 if (email !== 'guest_old') {
                     try {
                         await setDoc(doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'userCommands', email), { type: 'wipe', time: Date.now() });
@@ -1258,7 +1272,6 @@
             if(window.renderAdminDialogsList) window.renderAdminDialogsList();
         };
         
-        // Функція для відправки повідомлення з адмін-панелі користувачу
         window.sendAdminMessage = async function(userEmail) {
             const inputEl = document.getElementById(`admin-reply-input-${userEmail}`);
             if (!inputEl) return;
@@ -1271,7 +1284,6 @@
                 return e === userEmail;
             });
 
-            // Шукаємо спеціальний чат з адміном, якщо немає - створюємо
             let adminSession = userSessions.find(s => s.mode === 'admin_chat');
             let isNewSession = false;
             
@@ -1285,10 +1297,9 @@
                 };
                 isNewSession = true;
             } else {
-                adminSession = JSON.parse(JSON.stringify(adminSession)); // копіюємо
+                adminSession = JSON.parse(JSON.stringify(adminSession)); 
             }
 
-            // Додаємо повідомлення адміна як повідомлення від 'ai' (з коронкою)
             adminSession.messages.push({ role: 'ai', content: `👑 **Адміністратор:**\n\n${text}` });
             adminSession.timestamp = Date.now();
 
@@ -1297,14 +1308,14 @@
                 const docId = `${originalEmail}_${adminSession.id}`;
                 try {
                     const btn = inputEl.nextElementSibling;
-                    const oldText = btn.innerText;
-                    btn.innerText = '...';
-                    btn.disabled = true;
+                    const oldText = btn ? btn.innerText : 'Надіслати';
+                    if (btn) {
+                        btn.innerText = '...';
+                        btn.disabled = true;
+                    }
                     
-                    // Зберігаємо чат
                     await setDoc(doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'chatSessions', docId), adminSession);
                     
-                    // Відправляємо користувачу команду синхронізувати/відкрити цей чат
                     if (userEmail !== 'guest_old') {
                         await setDoc(doc(firestoreDB, 'artifacts', firebaseAppId, 'public', 'data', 'userCommands', userEmail), {
                             type: 'force_sync',
@@ -1314,29 +1325,35 @@
                     }
                     
                     inputEl.value = '';
-                    btn.innerText = 'Надіслано!';
+                    if(btn) btn.innerText = 'Надіслано!';
                     
                     if (isNewSession) {
                         window.allChatSessions.push(adminSession);
-                        window.viewUserChats(userEmail); // Оновлюємо UI адміна, щоб показати новий чат
+                        window.viewUserChats(userEmail);
                     }
                     
                     setTimeout(() => {
-                        btn.innerText = oldText;
-                        btn.disabled = false;
+                        if(btn) {
+                            btn.innerText = oldText;
+                            btn.disabled = false;
+                        }
                     }, 2000);
                 } catch(e) { console.error("Помилка відправки:", e); }
             }
         };
 
-        // === ДІАЛОГИ АДМІНА ===
-
         window.filterDialogs = function(type) {
             window.adminDialogsFilter = type;
-            document.getElementById('btn-dialogs-all').classList.remove('active');
-            document.getElementById('btn-dialogs-reg').classList.remove('active');
-            document.getElementById('btn-dialogs-guest').classList.remove('active');
-            document.getElementById(`btn-dialogs-${type}`).classList.add('active');
+            const btnAll = document.getElementById('btn-dialogs-all');
+            const btnReg = document.getElementById('btn-dialogs-reg');
+            const btnGuest = document.getElementById('btn-dialogs-guest');
+            const btnActive = document.getElementById(`btn-dialogs-${type}`);
+            
+            if(btnAll) btnAll.classList.remove('active');
+            if(btnReg) btnReg.classList.remove('active');
+            if(btnGuest) btnGuest.classList.remove('active');
+            if(btnActive) btnActive.classList.add('active');
+            
             window.renderAdminDialogsList();
         };
 
@@ -1424,26 +1441,34 @@
 
         window.openAdminDialog = function(email) {
             window.currentAdminDialogEmail = email;
-            document.getElementById('admin-dialogs-list-container').style.display = 'none';
-            document.getElementById('admin-dialog-room').style.display = 'flex';
+            const container = document.getElementById('admin-dialogs-list-container');
+            const room = document.getElementById('admin-dialog-room');
+            const title = document.getElementById('admin-dialog-title');
+            
+            if(container) container.style.display = 'none';
+            if(room) room.style.display = 'flex';
             
             const isGuest = email.startsWith('guest');
             let guestLabel = isGuest ? (email === 'guest_old' ? 'Гість (Старі дані)' : `Гість (ID: ${email.replace('guest_', '')})`) : 'Користувач';
             const u = window.appUsers[email] || { firstName: isGuest ? 'Анонімний' : 'Невідомий', lastName: isGuest ? guestLabel : 'Користувач' };
             
-            document.getElementById('admin-dialog-title').innerText = `Діалог: ${u.firstName} ${u.lastName}`;
+            if(title) title.innerText = `Діалог: ${u.firstName} ${u.lastName}`;
             window.renderAdminDialogMessages();
         };
 
         window.closeAdminDialog = function() {
             window.currentAdminDialogEmail = null;
-            document.getElementById('admin-dialogs-list-container').style.display = 'block';
-            document.getElementById('admin-dialog-room').style.display = 'none';
+            const container = document.getElementById('admin-dialogs-list-container');
+            const room = document.getElementById('admin-dialog-room');
+            if(container) container.style.display = 'block';
+            if(room) room.style.display = 'none';
         };
 
         window.renderAdminDialogMessages = function() {
             if (!window.currentAdminDialogEmail) return;
             const container = document.getElementById('admin-dialog-messages');
+            if(!container) return;
+            
             container.innerHTML = '';
 
             let userSessions = window.allChatSessions.filter(s => {
@@ -1504,6 +1529,8 @@
         window.sendDirectAdminMessage = async function() {
             if (!window.currentAdminDialogEmail) return;
             const inputEl = document.getElementById('admin-dialog-input');
+            if(!inputEl) return;
+            
             const text = inputEl.value.trim();
             if (!text) return;
 
@@ -1573,8 +1600,10 @@
                 }
                 
                 if (window.currentUser.email === 'ibondar0802@gmail.com') {
-                    document.getElementById('nav-admin').style.display = 'flex';
-                    document.getElementById('nav-admin-messages').style.display = 'flex';
+                    const navAdmin = document.getElementById('nav-admin');
+                    const navAdminMsg = document.getElementById('nav-admin-messages');
+                    if(navAdmin) navAdmin.style.display = 'flex';
+                    if(navAdminMsg) navAdminMsg.style.display = 'flex';
                     
                     let localSessions = [];
                     for (let i = 0; i < localStorage.length; i++) {
@@ -1620,13 +1649,17 @@
                                 window.updateAdminDashboard();
                                 window.renderAdminDialogsList();
 
-                                if (document.getElementById('admin-chat-viewer').style.display === 'block') {
-                                    const viewerTitle = document.getElementById('admin-viewer-title').innerText;
-                                    const email = viewerTitle.replace('Історія: ', '').trim();
-                                    if (email) window.viewUserChats(email);
+                                const viewer = document.getElementById('admin-chat-viewer');
+                                if (viewer && viewer.style.display === 'block') {
+                                    const viewerTitle = document.getElementById('admin-viewer-title');
+                                    if(viewerTitle) {
+                                        const email = viewerTitle.innerText.replace('Історія: ', '').trim();
+                                        if (email) window.viewUserChats(email);
+                                    }
                                 }
                                 
-                                if (document.getElementById('admin-dialog-room').style.display === 'flex') {
+                                const room = document.getElementById('admin-dialog-room');
+                                if (room && room.style.display === 'flex') {
                                     window.renderAdminDialogMessages();
                                 }
                                 
@@ -1637,8 +1670,11 @@
                         window.renderAdminDialogsList();
                     }
                 } else {
-                    document.getElementById('nav-admin').style.display = 'none';
-                    document.getElementById('nav-admin-messages').style.display = 'none';
+                    const navAdmin = document.getElementById('nav-admin');
+                    const navAdminMsg = document.getElementById('nav-admin-messages');
+                    if(navAdmin) navAdmin.style.display = 'none';
+                    if(navAdminMsg) navAdminMsg.style.display = 'none';
+                    
                     if (unsubscribeUsers) { unsubscribeUsers(); unsubscribeUsers = null; }
                     if (unsubscribeChats) { unsubscribeChats(); unsubscribeChats = null; }
                 }
@@ -1648,11 +1684,17 @@
                 }
                 if (authBtn) {
                     authBtn.innerText = 'Увійти або Зареєструватися';
-                    authBtn.onclick = () => { document.getElementById('auth-overlay').style.display = 'flex'; };
+                    authBtn.onclick = () => { 
+                        const overlay = document.getElementById('auth-overlay');
+                        if(overlay) overlay.style.display = 'flex'; 
+                    };
                 }
                 
-                document.getElementById('nav-admin').style.display = 'none';
-                document.getElementById('nav-admin-messages').style.display = 'none';
+                const navAdmin = document.getElementById('nav-admin');
+                const navAdminMsg = document.getElementById('nav-admin-messages');
+                if(navAdmin) navAdmin.style.display = 'none';
+                if(navAdminMsg) navAdminMsg.style.display = 'none';
+                
                 if (unsubscribeUsers) { unsubscribeUsers(); unsubscribeUsers = null; }
                 if (unsubscribeChats) { unsubscribeChats(); unsubscribeChats = null; }
             }
@@ -1721,11 +1763,16 @@
         };
 
         window.viewUserChats = function(email) {
-            document.getElementById('admin-user-list-container').style.display = 'none';
-            document.getElementById('admin-chat-viewer').style.display = 'block';
-            document.getElementById('admin-viewer-title').innerText = 'Історія: ' + email;
-            
+            const containerList = document.getElementById('admin-user-list-container');
+            const viewer = document.getElementById('admin-chat-viewer');
+            const viewerTitle = document.getElementById('admin-viewer-title');
             const content = document.getElementById('admin-viewer-content');
+            
+            if(containerList) containerList.style.display = 'none';
+            if(viewer) viewer.style.display = 'block';
+            if(viewerTitle) viewerTitle.innerText = 'Історія: ' + email;
+            if(!content) return;
+            
             content.innerHTML = '';
             
             // Фільтруємо сесії, враховуючи гостей зі старих версій
@@ -1803,8 +1850,10 @@
         };
 
         window.closeAdminChatViewer = function() {
-            document.getElementById('admin-user-list-container').style.display = 'block';
-            document.getElementById('admin-chat-viewer').style.display = 'none';
+            const container = document.getElementById('admin-user-list-container');
+            const viewer = document.getElementById('admin-chat-viewer');
+            if(container) container.style.display = 'block';
+            if(viewer) viewer.style.display = 'none';
         };
 
         // Слухач для оновлення поточного чату в реальному часі (якщо адмін надіслав повідомлення)
@@ -1966,9 +2015,9 @@
 
         const SYSTEM_PROMPTS = {
             'default': "Ти — привітний віртуальний помічник ліцею №8 (м. Житомир). Ти не маєш відношення до інших компаній. На питання 'Хто ти?' відповідай, що ти ШІ-помічник ліцею №8. На питання 'Хто тебе створив?' або 'Хто розробник?' ОБОВ'ЯЗКОВО відповідай: 'Питайте у Стельмаха Олександра з 8Б класу'. Офіційний сайт ліцею: [Сайт ліцею №8](https://8.lic.zhitomir.ua/) (ЗАВЖДИ використовуй цей Markdown-формат для посилання). Новини ліцею можна знайти на сайті: [Новини ліцею №8](https://8.lic.zhitomir.ua/novini/).",
-            'math': "Ти — досвідчений вчитель математики ліцею №8. На питання 'Хто тебе створив?' ОБОВ'ЯЗКОВО відповідай: 'Питайте у Стельмаха Олександра з 8Б класу'. Допомагай з алгеброю та геометрією. Пояснюй рішення крок за кроком, зрозуміло для учня. ЗАВЖДИ використовуй символ долара для математики: $...$ для малих формул та $$...$$ для великих. НІКОЛИ не використовуй круглі чи квадратні дужки з бекслешами для математики. Офіційний сайт ліцею: [Сайт ліцею №8](https://8.lic.zhitomir.ua/).",
-            'ukr': "Ти — найкращий вчитель української мови та літератури ліцею №8. На питання 'Хто тебе створив?' ОБОВ'ЯЗКОВО відповідай: 'Питайте у Стельмаха Олександра з 8Б класу'. Допомагай писати твори, пояснюй правила граматики, роби синтаксичний розбір. Офіційний сайт ліцею: [Сайт ліцею №8](https://8.lic.zhitomir.ua/).",
-            'translate': "Ти — професійний перекладач ліцею №8. На питання 'Хто тебе створив?' ОБОВ'ЯЗКОВО відповідай: 'Питайте у Стельмаха Олександра з 8Б класу'. Офіційний сайт ліцею: [Сайт ліцею №8](https://8.lic.zhitomir.ua/). Твоє завдання — перекладати texts."
+            'math': "Ти — досвідчений вчитель математики ліцею №8. На питання 'Хто тебе створив?' ОБОВ'ЯЗКОВО відповідай: 'Питайте у Стельмаха Олександра з 8Б класу'. Допомагай з алгеброю та геометрією. ПАМ'ЯТАЙ: ти не вирішуєш задачі за учнів, ти лише даєш підказки, формули та алгоритм розв'язання. ЗАВЖДИ використовуй символ долара для математики: $...$ для малих формул та $$...$$ для великих. НІКОЛИ не використовуй круглі чи квадратні дужки з бекслешами для математики. Офіційний сайт ліцею: [Сайт ліцею №8](https://8.lic.zhitomir.ua/).",
+            'ukr': "Ти — найкращий вчитель української мови та літератури ліцею №8. На питання 'Хто тебе створив?' ОБОВ'ЯЗКОВО відповідай: 'Питайте у Стельмаха Олександра з 8Б класу'. Допомагай писати твори, пояснюй правила граматики, роби синтаксичний розбір. Ти не пишеш твори чи вправи замість учня, а пояснюєш правила та даєш підказки. Офіційний сайт ліцею: [Сайт ліцею №8](https://8.lic.zhitomir.ua/).",
+            'translate': "Ти — професійний перекладач ліцею №8. На питання 'Хто тебе створив?' ОБОВ'ЯЗКОВО відповідай: 'Питайте у Стельмаха Олександра з 8Б класу'. Офіційний сайт ліцею: [Сайт ліцею №8](https://8.lic.zhitomir.ua/). Твоє завдання — перекладати тексти."
         };
         const MODE_NAMES = { 'math': 'Математика', 'ukr': 'Укр. мова', 'translate': 'Перекладач', 'default': 'Стандартний', 'admin_chat': 'Чат з Адміністратором' };
 
@@ -2097,9 +2146,9 @@
 
             wrapper.appendChild(bubble);
 
-            if (typing) {
+            if (typing && chatBox) {
                 chatBox.insertBefore(wrapper, typing);
-            } else {
+            } else if (chatBox) {
                 chatBox.appendChild(wrapper);
             }
             
@@ -2108,13 +2157,13 @@
                     try {
                         if (typeof window.MathJax !== 'undefined' && window.MathJax.typesetPromise) {
                             window.MathJax.typesetPromise([bubble]).then(() => {
-                                chatBox.scrollTop = chatBox.scrollHeight;
+                                if(chatBox) chatBox.scrollTop = chatBox.scrollHeight;
                             }).catch((err) => console.log('Помилка MathJax:', err.message));
                         }
                     } catch(e) { console.error('MathJax error:', e); }
                 }, 100);
             } else {
-                chatBox.scrollTop = chatBox.scrollHeight;
+                if(chatBox) chatBox.scrollTop = chatBox.scrollHeight;
             }
 
             if (!isHistoryLoad && role !== 'system' && !text.includes("Збій:")) {
@@ -2136,13 +2185,13 @@
                 return "Питайте у Стельмаха Олександра з 8Б класу 😎. А взагалі, розробник хоче залишитися анонімним😜";
             }
             if (qLower === 'хто ти' || qLower === 'що ти таке' || qLower === 'ти хто') {
-                return "Я — персональний штучний інтелект ліцею №8!😉";
+                return "Я — персональний штучний інтелект ліцею №8!";
             }
 
             const currentDate = new Date().toLocaleDateString('uk-UA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             const currentYear = new Date().getFullYear();
 
-            const STRICT_RULES = `\n\nДОТРИМУЙСЯ ЦЬОГО СТИЛЮ НАПИСАННЯ:\n1. Спілкуйся природно, привітно і по-людськи.\n2. ВАЖЛИВО: Відповідай коротко і прямо на поставлене запитання.\n3. СУВОРА ГРАМАТИКА: Пиши виключно простою літературною українською мовою. КАТЕГОРИЧНО ЗАБОРОНЕНО використовувати вигадані неіснуючі слова (наприклад: "розумляч", "трусильник" тощо). Пиши "у ліцеї", а не "у ліжії".\n4. ПОВИНЕН завжди говорити правду і спиратися на факти.\n5. УНИКАЙ відповідей при невпевненості.`;
+            const STRICT_RULES = `\n\nДОТРИМУЙСЯ ЦЬОГО СТИЛЮ НАПИСАННЯ:\n1. Спілкуйся природно, привітно і по-людськи.\n2. ВАЖЛИВО: Коли тебе просять допомогти з домашнім завданням або вирішити задачу/приклад, НІКОЛИ не давай готову відповідь чи повністю розв'язане завдання. Натомість поясни правила, нагадай формули, розпиши порядок дій та підкажи перший крок, щоб учень міг вирішити все самостійно.\n3. Відповідай коротко і по суті.\n4. СУВОРА ГРАМАТИКА: Пиши виключно простою літературною українською мовою. КАТЕГОРИЧНО ЗАБОРОНЕНО використовувати вигадані неіснуючі слова (наприклад: "розумляч", "трусильник" тощо). Пиши "у ліцеї", а не "у ліжії".\n5. ПОВИНЕН завжди говорити правду і спиратися на факти.\n6. УНИКАЙ відповідей при невпевненості.`;
 
             let sysPrompt = (SYSTEM_PROMPTS[window.currentMode] || SYSTEM_PROMPTS['default']) + STRICT_RULES + "\n\nВАЖЛИВО: Відповідай виключно ідеальною українською мовою. СУВОРО ЗАБОРОНЕНО використовувати теги <think> або писати свої внутрішні міркування.";
             
@@ -2216,7 +2265,7 @@
                     if (!res.ok) return null;
                     const text = await res.text();
                     const final = extractText(text);
-                    if (final && final.length > 3 && !final.includes('<html') && !final.includes('{"error"')) {
+                    if (final && final.length > 0 && !final.includes('<html') && !final.includes('{"error"')) {
                         return final;
                     }
                 } catch (e) {
