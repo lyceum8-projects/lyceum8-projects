@@ -1,0 +1,57 @@
+<svg width="55" height="61" viewBox="0 0 55 61" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="8%" y1="15%" x2="92%" y2="92%">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="55%" stop-color="#4F6FFF"/>
+      <stop offset="100%" stop-color="#7C4DFF"/>
+    </linearGradient>
+  </defs>
+
+  <rect
+    x="3"
+    y="3"
+    width="49"
+    height="55"
+    rx="15"
+    fill="url(#bg)"
+  />
+
+  <!-- Велика зірка -->
+  <path
+    fill="white"
+    d="
+      M22.5 17
+      C23.5 23 26 25.5 32 26.5
+      C26 27.5 23.5 30 22.5 36
+      C21.5 30 19 27.5 13 26.5
+      C19 25.5 21.5 23 22.5 17
+      Z
+    "
+  />
+
+  <!-- Верхня права -->
+  <path
+    fill="white"
+    d="
+      M34 11
+      C34.4 13.4 35.6 14.6 38 15
+      C35.6 15.4 34.4 16.6 34 19
+      C33.6 16.6 32.4 15.4 30 15
+      C32.4 14.6 33.6 13.4 34 11
+      Z
+    "
+  />
+
+  <!-- Нижня права -->
+  <path
+    fill="white"
+    d="
+      M34 31
+      C34.8 35 36.5 36.7 40.5 37.5
+      C36.5 38.3 34.8 40 34 44
+      C33.2 40 31.5 38.3 27.5 37.5
+      C31.5 36.7 33.2 35 34 31
+      Z
+    "
+  />
+</svg>
